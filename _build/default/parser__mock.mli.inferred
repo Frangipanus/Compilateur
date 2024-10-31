@@ -1,0 +1,17 @@
+type token =
+    VAR
+  | VAL
+  | THEN
+  | RETURN
+  | IF
+  | IDENT of string
+  | FUN
+  | FN
+  | EOF
+  | ELSE
+  | ELIF
+val menhir_begin_marker : int
+val xv_stmt : int
+val xv_prog : int list
+val xv_list_stmt_ : int list
+val menhir_end_marker : int
