@@ -1,0 +1,76 @@
+State 0:
+## Known stack suffix:
+##
+## LR(1) items:
+prog' -> . prog [ # ]
+## Transitions:
+-- On IF shift to state 1
+-- On stmt shift to state 2
+-- On prog shift to state 4
+-- On list(stmt) shift to state 5
+## Reductions:
+-- On EOF
+--   reduce production list(stmt) ->
+
+State 1:
+## Known stack suffix:
+## IF
+## LR(1) items:
+stmt -> IF . [ IF EOF ]
+## Transitions:
+## Reductions:
+-- On IF EOF
+--   reduce production stmt -> IF
+
+State 2:
+## Known stack suffix:
+## stmt
+## LR(1) items:
+list(stmt) -> stmt . list(stmt) [ EOF ]
+## Transitions:
+-- On IF shift to state 1
+-- On stmt shift to state 2
+-- On list(stmt) shift to state 3
+## Reductions:
+-- On EOF
+--   reduce production list(stmt) ->
+
+State 3:
+## Known stack suffix:
+## stmt list(stmt)
+## LR(1) items:
+list(stmt) -> stmt list(stmt) . [ EOF ]
+## Transitions:
+## Reductions:
+-- On EOF
+--   reduce production list(stmt) -> stmt list(stmt)
+
+State 4:
+## Known stack suffix:
+## prog
+## LR(1) items:
+prog' -> prog . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   accept prog
+
+State 5:
+## Known stack suffix:
+## list(stmt)
+## LR(1) items:
+prog -> list(stmt) . EOF [ # ]
+## Transitions:
+-- On EOF shift to state 6
+## Reductions:
+
+State 6:
+## Known stack suffix:
+## list(stmt) EOF
+## LR(1) items:
+prog -> list(stmt) EOF . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   reduce production prog -> list(stmt) EOF
+
