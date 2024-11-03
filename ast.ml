@@ -1,5 +1,7 @@
 type binop = Add | Sub | Mul | Div
 
+(* ceci est un commentaire *)
+
 type expr =
   | Econst of int
   | Evar   of string
