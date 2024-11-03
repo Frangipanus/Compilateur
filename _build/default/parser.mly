@@ -1,5 +1,5 @@
 %{
-
+  open Ast
 
 %}
 
@@ -15,16 +15,17 @@
 %token THEN
 %token VAL
 %token VAR
+%token PLUS MOINS MUL DIV MOD CONC INFS INF SUPS SUP EGAL DIF ET OU LPAR LBRAC VIR RPAR RBRAC FLECHE EGA POINT POINTEGAL POINTVIRG
 %token <string> IDENT
-%start prog
-%type <int list> prog
+%start file
+%type <int list> file
 %%
 stmt: 
   |IF {8}
   |IDENT {9}
   
 
-prog:
+file:
   /* À COMPLÉTER */
     |  sl = stmt* EOF {sl}
 

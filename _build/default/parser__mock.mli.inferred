@@ -1,17 +1,41 @@
 type token =
-    VAR
+    VIR
+  | VAR
   | VAL
   | THEN
+  | SUPS
+  | SUP
+  | RPAR
   | RETURN
+  | RBRAC
+  | POINTVIRG
+  | POINTEGAL
+  | POINT
+  | PLUS
+  | OU
+  | MUL
+  | MOINS
+  | MOD
+  | LPAR
+  | LBRAC
+  | INFS
+  | INF
   | IF
   | IDENT of string
   | FUN
   | FN
+  | FLECHE
+  | ET
   | EOF
   | ELSE
   | ELIF
+  | EGAL
+  | EGA
+  | DIV
+  | DIF
+  | CONC
 val menhir_begin_marker : int
 val xv_stmt : int
-val xv_prog : int list
 val xv_list_stmt_ : int list
+val xv_file : int list
 val menhir_end_marker : int
