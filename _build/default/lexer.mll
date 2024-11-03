@@ -4,7 +4,7 @@
 {
   open Lexing
   open Parser
-
+  
   exception Lexing_error of string
     let kwd_tbl =
     ["if", IF;
@@ -17,14 +17,19 @@
      "val", VAL;
      "var", VAR;
         ]
+  
+  let fin_cont = [PLUS; MOINS; MUL; DIV; MOD; CONC ;INFS; INF; SUPS ;SUP ;EGAL; DIF ;ET; OU ;LPAR; LBRAC; VIR; ]
+  let debut_cont = [PLUS; MOINS ;MUL; DIV; MOD; CONC; INFS; INF; SUPS; SUP; EGAL; DIF; ET; OU; LPAR; LBRAC; VIR; RPAR; RBRAC ;FLECHE; EGA; POINT ;POINTEGAL; POINTVIRG ;THEN; ELSE; ELIF;]
 
   let id_or_kwd =
     let h = Hashtbl.create 9 in
     List.iter (fun (s,t) -> Hashtbl.add h s t) kwd_tbl;
     fun s ->
       try Hashtbl.find h s with _ -> IDENT s
+  let level = ref (-1)
+  let last = ref IF
+  let indented = ref false
 
-    
 
 }
 let digit = ['0'-'9']
@@ -32,21 +37,45 @@ let lower = ['a'-'z' '_']
 let upper = ['A'-'Z']
 let other = ['a'-'z' '_' 'A'-'Z' '0'-'9']
 let ident =  lower (other)* '''* 
-
-
-
-rule token = parse
+let tabu = [' ']+
+let retour = '\n' [' ']*
+rule token  = parse
   | "//" { comment lexbuf }
   |"/*" {comment2 lexbuf}
-  |" " {token lexbuf}
-  |"\n"{ token lexbuf}
-  | ident as id { id_or_kwd id }
+  | "++" {CONC}
+  |'+' {PLUS}
+  |'-' {MOINS }
+  |'*' {MUL}
+  |'/' {DIV}
+  |"<=" {INF}
+  |"<" {INFS}
+  |">=" {SUP}
+  |">" {SUPS}
+  |"==" {EGAL}
+  |"=" {EGA}
+  |"!=" {DIF}
+  |"&&" {ET}
+  |"||" {OU}
+  |'(' {LPAR}
+  |'{' {LBRAC}
+  |')' {RPAR}
+  |'}' {RBRAC}
+  |',' {VIR}
+  |';' {POINTVIRG}
+  |"->" {FLECHE}
+  |":=" {POINTEGAL}
+  |'.' {POINT}
+  |retour as s {level := String.length s -1; token lexbuf}
+  |' ' {token lexbuf}
+  | ident as id {let next = id_or_kwd id in next }
+
   |eof {EOF}
   |_ as c {raise (Lexing_error ("error read: "^(String.make 1 c))) }
 
   
+
 and comment = parse 
-  | "\n" {token lexbuf}
+  |retour as s {let level1 = String.length s -1  in Printf.printf "My tab level is %d\n" level1; token lexbuf}
   | _  {comment lexbuf}
 
 and comment2 = parse
