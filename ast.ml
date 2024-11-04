@@ -1,33 +1,58 @@
-type binop = Add | Sub | Mul | Div
+type ident = string
 
-(* ceci est un commentaire *)
+(* type *)
+type kokaType =
+  | TAType of atype
+  | TFun of atype * result
+  | TMulFun of kokaType list * result
 
-type expr =
-  | Econst of int
-  | Evar   of string
-  | Ebinop of binop * expr * expr
+and atype =
+  | AVar of ident * (kokaType option)
+  | AType of kokaType
+  | AEmpty
 
-(* instructions *)
+and result = ident list * kokaType
 
-type stmt =
-  | Spenup
-  | Spendown
-  | Sforward of expr
-  | Sturn    of expr (* tourne à gauche *)
-  | Sif      of expr * stmt * stmt
-  | Srepeat  of expr * stmt
-  | Sblock   of stmt list
-  | Scall    of string * expr list
+and param = ident * kokaType
 
-(* définition de procédure *)
+(* operations *)
+and binop = Eq | Neq | Lt | Lte | Gt | Gte | Add | Sub | Mul | Div | Mod | Concat | And | Or
 
-type def = {
-  name    : string;
-  formals : string list; (* arguments *)
-  body    : stmt; }
+(* statement *)
+and stmt =
+  | SBexpr of bexpr
+  | SDecl of ident * expr
+  | SVar of ident * expr
 
-(* programme *)
+(* expression *)
+and expr =
+  | EBlock of block
+  | EBexpr of bexpr
 
-type program = {
-  defs : def list;
-  main : stmt; }
+and block = stmt list
+
+and bexpr =
+  | ETild of bexpr
+  | ENot of bexpr
+  | EBinop of binop * bexpr * bexpr
+  | EAsign of ident * bexpr
+  | EIfElse of bexpr * expr * ( (bexpr * expr) list ) * expr
+  | EIfReturn of bexpr * expr
+  | EFn of funbody
+  | EReturn of expr
+
+(* corps d'une fonction *)
+and funbody = {
+  formal : param list; (* arguments *)
+  annot  : result; (* annotation *)
+  body   : expr;
+}
+
+(* declaration de fonctions *)
+and decl = {
+  name : string;
+  body : funbody;
+}
+
+(* fichier *)
+and file = decl list
