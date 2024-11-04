@@ -18,8 +18,8 @@
      "var", VAR;
         ]
   
-  let fin_cont = [PLUS; MOINS; MUL; DIV; MOD; CONC ;INFS; INF; SUPS ;SUP ;EGAL; DIF ;ET; OU ;LPAR; LBRAC; VIR; ]
-  let debut_cont = [PLUS; MOINS ;MUL; DIV; MOD; CONC; INFS; INF; SUPS; SUP; EGAL; DIF; ET; OU; LPAR; LBRAC; VIR; RPAR; RBRAC ;FLECHE; EGA; POINT ;POINTEGAL; POINTVIRG ;THEN; ELSE; ELIF;]
+  let fin_cont = [PLUS; MINUS; MUL; DIV; MOD; CONCAT ;LT ; LTE; GT ;GTE ;EQ; NEQ ;AND; OR ;LPAR; LBRAC; COMMA; ]
+  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN ; SEMICOLON ;THEN; ELSE; ELIF;]
 
   let id_or_kwd =
     let h = Hashtbl.create 9 in
