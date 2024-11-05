@@ -22,6 +22,7 @@
 /* Priorités et associativités des tokens */
 
 
+
 /* Point d'entrée de la grammaire */
 %start file
 
@@ -32,13 +33,13 @@
 
 /* Règles de grammaire */
 
-stmt: 
+decl: 
   |IF {8}
   |IDENT {9}
   
 
 file:
   /* À COMPLÉTER */
-    |  sl = stmt* EOF {sl}
+    | SEMICOLON* seperated_list(decl, SEMICOLON) EOF {decl1 }
 
 ;
