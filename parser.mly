@@ -34,6 +34,7 @@
 %nonassoc TILD EXCLAM
 %nonassoc DOT LBRAC RBRAC FN
 
+
 /* Point d'entrée de la grammaire */
 %start file
 
@@ -105,6 +106,8 @@ expr:
   |s = bexpr {EBexpr(s)}
   
 ;
+
+
 bexpr:
   | a = atom {Eatom(a)}
   | TILD b = bexpr {ETild (b)}
