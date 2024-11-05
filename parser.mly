@@ -25,14 +25,14 @@
 
 /* Priorités et associativités des tokens */
 
-%right IF THEN ELIF ELSE
+%nonassoc IF THEN ELSE
 %left OR
 %left AND
-%left ASSIGN EQ NEQ GT GTE LT LTE
+%nonassoc ASSIGN EQ NEQ GT GTE LT LTE
 %left PLUS MINUS CONCAT
 %left MUL DIV MOD
-%left TILD EXCLAM
-%left DOT LBRAC RBRAC FN
+%nonassoc TILD EXCLAM
+%nonassoc DOT LBRAC RBRAC FN
 
 /* Point d'entrée de la grammaire */
 %start file
@@ -55,8 +55,7 @@ decl:
 ;
 
 funbody:
-  | LPAR ; LHOOK ; il = separated_list(COMMA, IDENT) ; RHOOK ; RPAR ; annot? ; expr
- 
+  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; annot? ; expr
    { { formal = [] ; annot = ([], Atype(Empty)) ; body = Block([]) } }
 ;
 
