@@ -1,7 +1,18 @@
 type ident = string
 
+(* Atomes *)
+type atom = 
+  | True | False | Int of int | String of string | Empty
+  | Ident of ident
+  | Expr of expr
+  | Eval of atom * (expr list)
+  | Dot of atom * expr
+  | Fn of atom * funbody
+  | AtomBlock of atom * block
+  | Brac of expr list
+
 (* type *)
-type kokaType =
+and kokaType =
   | TAType of atype
   | TFun of atype * result
   | TMulFun of kokaType list * result
