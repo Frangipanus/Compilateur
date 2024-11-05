@@ -1,0 +1,241 @@
+
+** Conflict (shift/reduce) in state 126.
+** Tokens involved: PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
+** The following explanations concentrate on token PLUS.
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) TILD bexpr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                                            bexpr 
+                                                                                                            (?)
+
+** In state 126, looking ahead at PLUS, reducing production
+** bexpr -> TILD bexpr
+** is permitted because of the following sub-derivation:
+
+bexpr binop bexpr // lookahead token appears because binop can begin with PLUS
+TILD bexpr . 
+
+** In state 126, looking ahead at PLUS, shifting is permitted
+** because of the following sub-derivation:
+
+TILD bexpr 
+     bexpr binop bexpr 
+           . PLUS 
+
+** Conflict (shift/reduce) in state 89.
+** Tokens involved: PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
+** The following explanations concentrate on token PLUS.
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) RETURN bexpr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                                            bexpr 
+                                                                                                            (?)
+
+** In state 89, looking ahead at PLUS, shifting is permitted
+** because of the following sub-derivation:
+
+RETURN expr 
+       bexpr 
+       bexpr binop bexpr 
+             . PLUS 
+
+** In state 89, looking ahead at PLUS, reducing production
+** expr -> bexpr
+** is permitted because of the following sub-derivation:
+
+bexpr binop bexpr // lookahead token appears because binop can begin with PLUS
+RETURN expr // lookahead token is inherited
+       bexpr . 
+
+** Conflict (shift/reduce) in state 80.
+** Tokens involved: LPAR LBRAC FN DOT
+** The following explanations concentrate on token LPAR.
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) atom FN LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) atom
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                                            bexpr 
+                                                                                                            atom 
+                                                                                                            (?)
+
+** In state 80, looking ahead at LPAR, shifting is permitted
+** because of the following sub-derivation:
+
+atom FN funbody 
+        LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                          bexpr 
+                                                                                          atom 
+                                                                                          atom . LPAR loption(separated_nonempty_list(COMMA,expr)) RPAR 
+
+** In state 80, looking ahead at LPAR, reducing production
+** bexpr -> atom
+** is permitted because of the following sub-derivation:
+
+atom LPAR loption(separated_nonempty_list(COMMA,expr)) RPAR // lookahead token appears
+atom FN funbody // lookahead token is inherited
+        LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr // lookahead token is inherited
+                                                                                          bexpr // lookahead token is inherited
+                                                                                          atom . 
+
+** Conflict (shift/reduce) in state 79.
+** Tokens involved: PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
+** The following explanations concentrate on token PLUS.
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) bexpr binop bexpr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                                            bexpr 
+                                                                                                            (?)
+
+** In state 79, looking ahead at PLUS, reducing production
+** bexpr -> bexpr binop bexpr
+** is permitted because of the following sub-derivation:
+
+bexpr binop bexpr // lookahead token appears because binop can begin with PLUS
+bexpr binop bexpr . 
+
+** In state 79, looking ahead at PLUS, shifting is permitted
+** because of the following sub-derivation:
+
+bexpr binop bexpr 
+            bexpr binop bexpr 
+                  . PLUS 
+
+** Conflict (shift/reduce) in state 63.
+** Tokens involved: PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
+** The following explanations concentrate on token PLUS.
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) EXCLAM bexpr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                                            bexpr 
+                                                                                                            (?)
+
+** In state 63, looking ahead at PLUS, reducing production
+** bexpr -> EXCLAM bexpr
+** is permitted because of the following sub-derivation:
+
+bexpr binop bexpr // lookahead token appears because binop can begin with PLUS
+EXCLAM bexpr . 
+
+** In state 63, looking ahead at PLUS, shifting is permitted
+** because of the following sub-derivation:
+
+EXCLAM bexpr 
+       bexpr binop bexpr 
+             . PLUS 
+
+** Conflict (shift/reduce) in state 29.
+** Token involved: ARROW
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR COLON option(__anonymous_1) LPAR atype
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                                              annot 
+                                                                                              COLON result 
+                                                                                                    option(__anonymous_1) kokatype 
+                                                                                                                          (?)
+
+** In state 29, looking ahead at ARROW, reducing production
+** kokatype -> atype
+** is permitted because of the following sub-derivation:
+
+LPAR loption(separated_nonempty_list(COMMA,kokatype)) ARROW result // lookahead token appears
+     separated_nonempty_list(COMMA,kokatype) // lookahead token is inherited
+     kokatype // lookahead token is inherited
+     atype . 
+
+** In state 29, looking ahead at ARROW, shifting is permitted
+** because of the following sub-derivation:
+
+atype 
+LPAR kokatype RPAR 
+     atype . ARROW result 
+
+** Conflict (shift/reduce) in state 23.
+** Token involved: LPAR
+** This state is reached from file after reading:
+
+list(SEMICOLON) FUN IDENT LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR COLON option(__anonymous_1) IDENT
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+file 
+list(SEMICOLON) list(__anonymous_0) EOF 
+                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
+                FUN IDENT funbody 
+                          (?)
+
+** In state 23, looking ahead at LPAR, reducing production
+** option(__anonymous_2) ->
+** is permitted because of the following sub-derivation:
+
+LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr // lookahead token appears because expr can begin with LPAR
+                                                                    annot // lookahead token is inherited
+                                                                    COLON result // lookahead token is inherited
+                                                                          option(__anonymous_1) kokatype // lookahead token is inherited
+                                                                                                atype // lookahead token is inherited
+                                                                                                IDENT option(__anonymous_2) // lookahead token is inherited
+                                                                                                      . 
+
+** In state 23, looking ahead at LPAR, shifting is permitted
+** because of the following sub-derivation:
+
+LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr 
+                                                                    annot 
+                                                                    COLON result 
+                                                                          option(__anonymous_1) kokatype 
+                                                                                                atype 
+                                                                                                IDENT option(__anonymous_2) 
+                                                                                                      . LPAR LHOOK kokatype RHOOK RPAR 
