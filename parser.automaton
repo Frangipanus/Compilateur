@@ -6,7 +6,11 @@ file' -> . file [ # ]
 ## Transitions:
 -- On SEMICOLON shift to state 1
 -- On list(SEMICOLON) shift to state 3
+<<<<<<< HEAD
 -- On file shift to state 135
+=======
+-- On file shift to state 140
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On FUN EOF
 --   reduce production list(SEMICOLON) ->
@@ -40,8 +44,13 @@ State 3:
 file -> list(SEMICOLON) . list(__anonymous_0) EOF [ # ]
 ## Transitions:
 -- On FUN shift to state 4
+<<<<<<< HEAD
 -- On list(__anonymous_0) shift to state 130
 -- On decl shift to state 132
+=======
+-- On list(__anonymous_0) shift to state 135
+-- On decl shift to state 137
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On EOF
 --   reduce production list(__anonymous_0) ->
@@ -62,13 +71,18 @@ State 5:
 decl -> FUN IDENT . funbody [ SEMICOLON ]
 ## Transitions:
 -- On LPAR shift to state 6
+<<<<<<< HEAD
 -- On funbody shift to state 129
+=======
+-- On funbody shift to state 134
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 
 State 6:
 ## Known stack suffix:
 ## LPAR
 ## LR(1) items:
+<<<<<<< HEAD
 funbody -> LPAR . LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
 -- On LHOOK shift to state 7
@@ -229,12 +243,48 @@ result -> option(__anonymous_1) . kokatype [ TRUE TILD STRING RPAR RHOOK RETURN 
 
 State 21:
 ## Known stack suffix:
+=======
+funbody -> LPAR . loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+-- On IDENT shift to state 7
+-- On separated_nonempty_list(COMMA,param) shift to state 40
+-- On param shift to state 41
+-- On loption(separated_nonempty_list(COMMA,param)) shift to state 44
+## Reductions:
+-- On RPAR
+--   reduce production loption(separated_nonempty_list(COMMA,param)) ->
+
+State 7:
+## Known stack suffix:
+## IDENT
+## LR(1) items:
+param -> IDENT . COLON kokatype [ RPAR COMMA ]
+## Transitions:
+-- On COLON shift to state 8
+## Reductions:
+
+State 8:
+## Known stack suffix:
+## IDENT COLON
+## LR(1) items:
+param -> IDENT COLON . kokatype [ RPAR COMMA ]
+## Transitions:
+-- On LPAR shift to state 9
+-- On IDENT shift to state 11
+-- On kokatype shift to state 39
+-- On atype shift to state 17
+## Reductions:
+
+State 9:
+## Known stack suffix:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## LPAR
 ## LR(1) items:
 atype -> LPAR . kokatype RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 atype -> LPAR . RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 kokatype -> LPAR . loption(separated_nonempty_list(COMMA,kokatype)) ARROW result [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RPAR shift to state 22
 -- On LPAR shift to state 21
 -- On IDENT shift to state 23
@@ -242,11 +292,24 @@ kokatype -> LPAR . loption(separated_nonempty_list(COMMA,kokatype)) ARROW result
 -- On loption(separated_nonempty_list(COMMA,kokatype)) shift to state 34
 -- On kokatype shift to state 37
 -- On atype shift to state 29
+=======
+-- On RPAR shift to state 10
+-- On LPAR shift to state 9
+-- On IDENT shift to state 11
+-- On separated_nonempty_list(COMMA,kokatype) shift to state 30
+-- On loption(separated_nonempty_list(COMMA,kokatype)) shift to state 31
+-- On kokatype shift to state 34
+-- On atype shift to state 17
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On ARROW
 --   reduce production loption(separated_nonempty_list(COMMA,kokatype)) ->
 
+<<<<<<< HEAD
 State 22:
+=======
+State 10:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR RPAR
 ## LR(1) items:
@@ -256,34 +319,55 @@ atype -> LPAR RPAR . [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT I
 -- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
 --   reduce production atype -> LPAR RPAR
 
+<<<<<<< HEAD
 State 23:
+=======
+State 11:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IDENT
 ## LR(1) items:
 atype -> IDENT . option(__anonymous_2) [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On LPAR shift to state 24
 -- On option(__anonymous_2) shift to state 32
+=======
+-- On LPAR shift to state 12
+-- On option(__anonymous_2) shift to state 29
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
 --   reduce production option(__anonymous_2) ->
 ** Conflict on LPAR
 
+<<<<<<< HEAD
 State 24:
+=======
+State 12:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR
 ## LR(1) items:
 option(__anonymous_2) -> LPAR . LHOOK kokatype RHOOK RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On LHOOK shift to state 25
 ## Reductions:
 
 State 25:
+=======
+-- On LHOOK shift to state 13
+## Reductions:
+
+State 13:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR LHOOK
 ## LR(1) items:
 option(__anonymous_2) -> LPAR LHOOK . kokatype RHOOK RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On LPAR shift to state 21
 -- On IDENT shift to state 23
 -- On kokatype shift to state 26
@@ -291,24 +375,47 @@ option(__anonymous_2) -> LPAR LHOOK . kokatype RHOOK RPAR [ TRUE TILD STRING RPA
 ## Reductions:
 
 State 26:
+=======
+-- On LPAR shift to state 9
+-- On IDENT shift to state 11
+-- On kokatype shift to state 14
+-- On atype shift to state 17
+## Reductions:
+
+State 14:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR LHOOK kokatype
 ## LR(1) items:
 option(__anonymous_2) -> LPAR LHOOK kokatype . RHOOK RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RHOOK shift to state 27
 ## Reductions:
 
 State 27:
+=======
+-- On RHOOK shift to state 15
+## Reductions:
+
+State 15:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR LHOOK kokatype RHOOK
 ## LR(1) items:
 option(__anonymous_2) -> LPAR LHOOK kokatype RHOOK . RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RPAR shift to state 28
 ## Reductions:
 
 State 28:
+=======
+-- On RPAR shift to state 16
+## Reductions:
+
+State 16:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR LHOOK kokatype RHOOK RPAR
 ## LR(1) items:
@@ -318,33 +425,129 @@ option(__anonymous_2) -> LPAR LHOOK kokatype RHOOK RPAR . [ TRUE TILD STRING RPA
 -- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
 --   reduce production option(__anonymous_2) -> LPAR LHOOK kokatype RHOOK RPAR
 
+<<<<<<< HEAD
 State 29:
+=======
+State 17:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atype
 ## LR(1) items:
 kokatype -> atype . [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 kokatype -> atype . ARROW result [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On ARROW shift to state 30
+=======
+-- On ARROW shift to state 18
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
 --   reduce production kokatype -> atype
 ** Conflict on ARROW
 
+<<<<<<< HEAD
 State 30:
+=======
+State 18:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atype ARROW
 ## LR(1) items:
 kokatype -> atype ARROW . result [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
 ## Transitions:
+<<<<<<< HEAD
 -- On LHOOK shift to state 16
 -- On result shift to state 31
 -- On option(__anonymous_1) shift to state 20
+=======
+-- On LHOOK shift to state 19
+-- On result shift to state 26
+-- On option(__anonymous_1) shift to state 27
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On LPAR IDENT
 --   reduce production option(__anonymous_1) ->
 
+<<<<<<< HEAD
 State 31:
+=======
+State 19:
+## Known stack suffix:
+## LHOOK
+## LR(1) items:
+option(__anonymous_1) -> LHOOK . loption(separated_nonempty_list(COMMA,IDENT)) RHOOK [ LPAR IDENT ]
+## Transitions:
+-- On IDENT shift to state 20
+-- On separated_nonempty_list(COMMA,IDENT) shift to state 23
+-- On loption(separated_nonempty_list(COMMA,IDENT)) shift to state 24
+## Reductions:
+-- On RHOOK
+--   reduce production loption(separated_nonempty_list(COMMA,IDENT)) ->
+
+State 20:
+## Known stack suffix:
+## IDENT
+## LR(1) items:
+separated_nonempty_list(COMMA,IDENT) -> IDENT . [ RHOOK ]
+separated_nonempty_list(COMMA,IDENT) -> IDENT . COMMA separated_nonempty_list(COMMA,IDENT) [ RHOOK ]
+## Transitions:
+-- On COMMA shift to state 21
+## Reductions:
+-- On RHOOK
+--   reduce production separated_nonempty_list(COMMA,IDENT) -> IDENT
+
+State 21:
+## Known stack suffix:
+## IDENT COMMA
+## LR(1) items:
+separated_nonempty_list(COMMA,IDENT) -> IDENT COMMA . separated_nonempty_list(COMMA,IDENT) [ RHOOK ]
+## Transitions:
+-- On IDENT shift to state 20
+-- On separated_nonempty_list(COMMA,IDENT) shift to state 22
+## Reductions:
+
+State 22:
+## Known stack suffix:
+## IDENT COMMA separated_nonempty_list(COMMA,IDENT)
+## LR(1) items:
+separated_nonempty_list(COMMA,IDENT) -> IDENT COMMA separated_nonempty_list(COMMA,IDENT) . [ RHOOK ]
+## Transitions:
+## Reductions:
+-- On RHOOK
+--   reduce production separated_nonempty_list(COMMA,IDENT) -> IDENT COMMA separated_nonempty_list(COMMA,IDENT)
+
+State 23:
+## Known stack suffix:
+## separated_nonempty_list(COMMA,IDENT)
+## LR(1) items:
+loption(separated_nonempty_list(COMMA,IDENT)) -> separated_nonempty_list(COMMA,IDENT) . [ RHOOK ]
+## Transitions:
+## Reductions:
+-- On RHOOK
+--   reduce production loption(separated_nonempty_list(COMMA,IDENT)) -> separated_nonempty_list(COMMA,IDENT)
+
+State 24:
+## Known stack suffix:
+## LHOOK loption(separated_nonempty_list(COMMA,IDENT))
+## LR(1) items:
+option(__anonymous_1) -> LHOOK loption(separated_nonempty_list(COMMA,IDENT)) . RHOOK [ LPAR IDENT ]
+## Transitions:
+-- On RHOOK shift to state 25
+## Reductions:
+
+State 25:
+## Known stack suffix:
+## LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK
+## LR(1) items:
+option(__anonymous_1) -> LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK . [ LPAR IDENT ]
+## Transitions:
+## Reductions:
+-- On LPAR IDENT
+--   reduce production option(__anonymous_1) -> LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK
+
+State 26:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atype ARROW result
 ## LR(1) items:
@@ -354,6 +557,7 @@ kokatype -> atype ARROW result . [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR
 -- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
 --   reduce production kokatype -> atype ARROW result
 
+<<<<<<< HEAD
 State 32:
 ## Known stack suffix:
 ## IDENT option(__anonymous_2)
@@ -466,6 +670,21 @@ separated_nonempty_list(COMMA,kokatype) -> kokatype . COMMA separated_nonempty_l
 --   reduce production separated_nonempty_list(COMMA,kokatype) -> kokatype
 
 State 42:
+=======
+State 27:
+## Known stack suffix:
+## option(__anonymous_1)
+## LR(1) items:
+result -> option(__anonymous_1) . kokatype [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+## Transitions:
+-- On LPAR shift to state 9
+-- On IDENT shift to state 11
+-- On kokatype shift to state 28
+-- On atype shift to state 17
+## Reductions:
+
+State 28:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## option(__anonymous_1) kokatype
 ## LR(1) items:
@@ -475,6 +694,7 @@ result -> option(__anonymous_1) kokatype . [ TRUE TILD STRING RPAR RHOOK RETURN 
 -- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
 --   reduce production result -> option(__anonymous_1) kokatype
 
+<<<<<<< HEAD
 State 43:
 ## Known stack suffix:
 ## LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot)
@@ -502,6 +722,244 @@ funbody -> LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR o
 
 State 44:
 ## Known stack suffix:
+=======
+State 29:
+## Known stack suffix:
+## IDENT option(__anonymous_2)
+## LR(1) items:
+atype -> IDENT option(__anonymous_2) . [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+## Transitions:
+## Reductions:
+-- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
+--   reduce production atype -> IDENT option(__anonymous_2)
+
+State 30:
+## Known stack suffix:
+## separated_nonempty_list(COMMA,kokatype)
+## LR(1) items:
+loption(separated_nonempty_list(COMMA,kokatype)) -> separated_nonempty_list(COMMA,kokatype) . [ ARROW ]
+## Transitions:
+## Reductions:
+-- On ARROW
+--   reduce production loption(separated_nonempty_list(COMMA,kokatype)) -> separated_nonempty_list(COMMA,kokatype)
+
+State 31:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,kokatype))
+## LR(1) items:
+kokatype -> LPAR loption(separated_nonempty_list(COMMA,kokatype)) . ARROW result [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+## Transitions:
+-- On ARROW shift to state 32
+## Reductions:
+
+State 32:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,kokatype)) ARROW
+## LR(1) items:
+kokatype -> LPAR loption(separated_nonempty_list(COMMA,kokatype)) ARROW . result [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+## Transitions:
+-- On LHOOK shift to state 19
+-- On result shift to state 33
+-- On option(__anonymous_1) shift to state 27
+## Reductions:
+-- On LPAR IDENT
+--   reduce production option(__anonymous_1) ->
+
+State 33:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,kokatype)) ARROW result
+## LR(1) items:
+kokatype -> LPAR loption(separated_nonempty_list(COMMA,kokatype)) ARROW result . [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+## Transitions:
+## Reductions:
+-- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
+--   reduce production kokatype -> LPAR loption(separated_nonempty_list(COMMA,kokatype)) ARROW result
+
+State 34:
+## Known stack suffix:
+## LPAR kokatype
+## LR(1) items:
+atype -> LPAR kokatype . RPAR [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+separated_nonempty_list(COMMA,kokatype) -> kokatype . [ ARROW ]
+separated_nonempty_list(COMMA,kokatype) -> kokatype . COMMA separated_nonempty_list(COMMA,kokatype) [ ARROW ]
+## Transitions:
+-- On RPAR shift to state 35
+-- On COMMA shift to state 36
+## Reductions:
+-- On ARROW
+--   reduce production separated_nonempty_list(COMMA,kokatype) -> kokatype
+
+State 35:
+## Known stack suffix:
+## LPAR kokatype RPAR
+## LR(1) items:
+atype -> LPAR kokatype RPAR . [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW ]
+## Transitions:
+## Reductions:
+-- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
+--   reduce production atype -> LPAR kokatype RPAR
+
+State 36:
+## Known stack suffix:
+## kokatype COMMA
+## LR(1) items:
+separated_nonempty_list(COMMA,kokatype) -> kokatype COMMA . separated_nonempty_list(COMMA,kokatype) [ ARROW ]
+## Transitions:
+-- On LPAR shift to state 9
+-- On IDENT shift to state 11
+-- On separated_nonempty_list(COMMA,kokatype) shift to state 37
+-- On kokatype shift to state 38
+-- On atype shift to state 17
+## Reductions:
+
+State 37:
+## Known stack suffix:
+## kokatype COMMA separated_nonempty_list(COMMA,kokatype)
+## LR(1) items:
+separated_nonempty_list(COMMA,kokatype) -> kokatype COMMA separated_nonempty_list(COMMA,kokatype) . [ ARROW ]
+## Transitions:
+## Reductions:
+-- On ARROW
+--   reduce production separated_nonempty_list(COMMA,kokatype) -> kokatype COMMA separated_nonempty_list(COMMA,kokatype)
+
+State 38:
+## Known stack suffix:
+## kokatype
+## LR(1) items:
+separated_nonempty_list(COMMA,kokatype) -> kokatype . [ ARROW ]
+separated_nonempty_list(COMMA,kokatype) -> kokatype . COMMA separated_nonempty_list(COMMA,kokatype) [ ARROW ]
+## Transitions:
+-- On COMMA shift to state 36
+## Reductions:
+-- On ARROW
+--   reduce production separated_nonempty_list(COMMA,kokatype) -> kokatype
+
+State 39:
+## Known stack suffix:
+## IDENT COLON kokatype
+## LR(1) items:
+param -> IDENT COLON kokatype . [ RPAR COMMA ]
+## Transitions:
+## Reductions:
+-- On RPAR COMMA
+--   reduce production param -> IDENT COLON kokatype
+
+State 40:
+## Known stack suffix:
+## separated_nonempty_list(COMMA,param)
+## LR(1) items:
+loption(separated_nonempty_list(COMMA,param)) -> separated_nonempty_list(COMMA,param) . [ RPAR ]
+## Transitions:
+## Reductions:
+-- On RPAR
+--   reduce production loption(separated_nonempty_list(COMMA,param)) -> separated_nonempty_list(COMMA,param)
+
+State 41:
+## Known stack suffix:
+## param
+## LR(1) items:
+separated_nonempty_list(COMMA,param) -> param . [ RPAR ]
+separated_nonempty_list(COMMA,param) -> param . COMMA separated_nonempty_list(COMMA,param) [ RPAR ]
+## Transitions:
+-- On COMMA shift to state 42
+## Reductions:
+-- On RPAR
+--   reduce production separated_nonempty_list(COMMA,param) -> param
+
+State 42:
+## Known stack suffix:
+## param COMMA
+## LR(1) items:
+separated_nonempty_list(COMMA,param) -> param COMMA . separated_nonempty_list(COMMA,param) [ RPAR ]
+## Transitions:
+-- On IDENT shift to state 7
+-- On separated_nonempty_list(COMMA,param) shift to state 43
+-- On param shift to state 41
+## Reductions:
+
+State 43:
+## Known stack suffix:
+## param COMMA separated_nonempty_list(COMMA,param)
+## LR(1) items:
+separated_nonempty_list(COMMA,param) -> param COMMA separated_nonempty_list(COMMA,param) . [ RPAR ]
+## Transitions:
+## Reductions:
+-- On RPAR
+--   reduce production separated_nonempty_list(COMMA,param) -> param COMMA separated_nonempty_list(COMMA,param)
+
+State 44:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,param))
+## LR(1) items:
+funbody -> LPAR loption(separated_nonempty_list(COMMA,param)) . RPAR option(annot) expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+-- On RPAR shift to state 45
+## Reductions:
+
+State 45:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,param)) RPAR
+## LR(1) items:
+funbody -> LPAR loption(separated_nonempty_list(COMMA,param)) RPAR . option(annot) expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+-- On COLON shift to state 46
+-- On option(annot) shift to state 48
+-- On annot shift to state 133
+## Reductions:
+-- On TRUE TILD STRING RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM
+--   reduce production option(annot) ->
+
+State 46:
+## Known stack suffix:
+## COLON
+## LR(1) items:
+annot -> COLON . result [ TRUE TILD STRING RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM ]
+## Transitions:
+-- On LHOOK shift to state 19
+-- On result shift to state 47
+-- On option(__anonymous_1) shift to state 27
+## Reductions:
+-- On LPAR IDENT
+--   reduce production option(__anonymous_1) ->
+
+State 47:
+## Known stack suffix:
+## COLON result
+## LR(1) items:
+annot -> COLON result . [ TRUE TILD STRING RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM ]
+## Transitions:
+## Reductions:
+-- On TRUE TILD STRING RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM
+--   reduce production annot -> COLON result
+
+State 48:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot)
+## LR(1) items:
+funbody -> LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) . expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 132
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 49:
+## Known stack suffix:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## TRUE
 ## LR(1) items:
 atom -> TRUE . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
@@ -510,12 +968,17 @@ atom -> TRUE . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE 
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> TRUE
 
+<<<<<<< HEAD
 State 45:
+=======
+State 50:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## TILD
 ## LR(1) items:
 bexpr -> TILD . bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -533,6 +996,25 @@ bexpr -> TILD . bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MIN
 ## Reductions:
 
 State 46:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On bexpr shift to state 131
+-- On atom shift to state 85
+## Reductions:
+
+State 51:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## STRING
 ## LR(1) items:
@@ -542,12 +1024,17 @@ atom -> STRING . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LT
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> STRING
 
+<<<<<<< HEAD
 State 47:
+=======
+State 52:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## RETURN
 ## LR(1) items:
 bexpr -> RETURN . expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -568,11 +1055,34 @@ bexpr -> RETURN . expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MI
 ## Reductions:
 
 State 48:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 130
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 53:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LSPAR
 ## LR(1) items:
 atom -> LSPAR . loption(separated_nonempty_list(COMMA,expr)) RSPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -592,17 +1102,43 @@ atom -> LSPAR . loption(separated_nonempty_list(COMMA,expr)) RSPAR [ THEN SEMICO
 -- On block shift to state 88
 -- On bexpr shift to state 89
 -- On atom shift to state 80
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On separated_nonempty_list(COMMA,expr) shift to state 87
+-- On loption(separated_nonempty_list(COMMA,expr)) shift to state 128
+-- On expr shift to state 90
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On RSPAR
 --   reduce production loption(separated_nonempty_list(COMMA,expr)) ->
 
+<<<<<<< HEAD
 State 49:
+=======
+State 54:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR
 ## LR(1) items:
 atom -> LPAR . RPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 atom -> LPAR . expr RPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -624,6 +1160,29 @@ atom -> LPAR . expr RPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD 
 ## Reductions:
 
 State 50:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RPAR shift to state 55
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 126
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 55:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR RPAR
 ## LR(1) items:
@@ -633,24 +1192,37 @@ atom -> LPAR RPAR . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> LPAR RPAR
 
+<<<<<<< HEAD
 State 51:
+=======
+State 56:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LBRAC
 ## LR(1) items:
 block -> LBRAC . list(SEMICOLON) list(__anonymous_4) RBRAC [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
 -- On SEMICOLON shift to state 1
+<<<<<<< HEAD
 -- On list(SEMICOLON) shift to state 52
+=======
+-- On list(SEMICOLON) shift to state 57
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On VAR VAL TRUE TILD STRING RETURN RBRAC LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production list(SEMICOLON) ->
 
+<<<<<<< HEAD
 State 52:
+=======
+State 57:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LBRAC list(SEMICOLON)
 ## LR(1) items:
 block -> LBRAC list(SEMICOLON) . list(__anonymous_4) RBRAC [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On VAR shift to state 53
 -- On VAL shift to state 109
 -- On TRUE shift to state 44
@@ -669,34 +1241,73 @@ block -> LBRAC list(SEMICOLON) . list(__anonymous_4) RBRAC [ THEN SEMICOLON RSPA
 -- On list(__anonymous_4) shift to state 119
 -- On bexpr shift to state 118
 -- On atom shift to state 80
+=======
+-- On VAR shift to state 58
+-- On VAL shift to state 114
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On stmt shift to state 118
+-- On list(__anonymous_4) shift to state 124
+-- On bexpr shift to state 123
+-- On atom shift to state 85
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On RBRAC
 --   reduce production list(__anonymous_4) ->
 
+<<<<<<< HEAD
 State 53:
+=======
+State 58:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAR
 ## LR(1) items:
 stmt -> VAR . IDENT ASSIGN expr [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On IDENT shift to state 54
 ## Reductions:
 
 State 54:
+=======
+-- On IDENT shift to state 59
+## Reductions:
+
+State 59:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAR IDENT
 ## LR(1) items:
 stmt -> VAR IDENT . ASSIGN expr [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On ASSIGN shift to state 55
 ## Reductions:
 
 State 55:
+=======
+-- On ASSIGN shift to state 60
+## Reductions:
+
+State 60:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAR IDENT ASSIGN
 ## LR(1) items:
 stmt -> VAR IDENT ASSIGN . expr [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -717,6 +1328,28 @@ stmt -> VAR IDENT ASSIGN . expr [ SEMICOLON ]
 ## Reductions:
 
 State 56:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 113
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 61:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## INT
 ## LR(1) items:
@@ -726,13 +1359,18 @@ atom -> INT . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE L
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> INT
 
+<<<<<<< HEAD
 State 57:
+=======
+State 62:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF
 ## LR(1) items:
 bexpr -> IF . bexpr THEN expr list(__anonymous_3) ELSE expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 bexpr -> IF . bexpr RETURN expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -750,6 +1388,25 @@ bexpr -> IF . bexpr RETURN expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ M
 ## Reductions:
 
 State 58:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On bexpr shift to state 100
+-- On atom shift to state 85
+## Reductions:
+
+State 63:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IDENT
 ## LR(1) items:
@@ -759,17 +1416,28 @@ atom -> IDENT . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> IDENT
 
+<<<<<<< HEAD
 State 59:
+=======
+State 64:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## FN
 ## LR(1) items:
 bexpr -> FN . funbody [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
 -- On LPAR shift to state 6
+<<<<<<< HEAD
 -- On funbody shift to state 60
 ## Reductions:
 
 State 60:
+=======
+-- On funbody shift to state 65
+## Reductions:
+
+State 65:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## FN funbody
 ## LR(1) items:
@@ -779,7 +1447,11 @@ bexpr -> FN funbody . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MIN
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production bexpr -> FN funbody
 
+<<<<<<< HEAD
 State 61:
+=======
+State 66:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## FALSE
 ## LR(1) items:
@@ -789,12 +1461,17 @@ atom -> FALSE . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> FALSE
 
+<<<<<<< HEAD
 State 62:
+=======
+State 67:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## EXCLAM
 ## LR(1) items:
 bexpr -> EXCLAM . bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -812,12 +1489,32 @@ bexpr -> EXCLAM . bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD M
 ## Reductions:
 
 State 63:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On bexpr shift to state 68
+-- On atom shift to state 85
+## Reductions:
+
+State 68:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## EXCLAM bexpr
 ## LR(1) items:
 bexpr -> EXCLAM bexpr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 bexpr -> bexpr . binop bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On PLUS shift to state 64
 -- On OR shift to state 65
 -- On NEQ shift to state 66
@@ -839,6 +1536,63 @@ bexpr -> bexpr . binop bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL 
 ** Conflict on PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
 
 State 64:
+=======
+-- On binop shift to state 69
+## Reductions:
+-- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
+--   reduce production bexpr -> EXCLAM bexpr
+
+State 69:
+## Known stack suffix:
+## bexpr binop
+## LR(1) items:
+bexpr -> bexpr binop . bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On bexpr shift to state 70
+-- On atom shift to state 85
+## Reductions:
+
+State 70:
+## Known stack suffix:
+## bexpr binop bexpr
+## LR(1) items:
+bexpr -> bexpr . binop bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+bexpr -> bexpr binop bexpr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+-- On PLUS shift to state 71
+-- On OR shift to state 72
+-- On NEQ shift to state 73
+-- On MUL shift to state 74
+-- On MOD shift to state 75
+-- On MINUS shift to state 76
+-- On LTE shift to state 77
+-- On LT shift to state 78
+-- On GTE shift to state 79
+-- On GT shift to state 80
+-- On EQ shift to state 81
+-- On DIV shift to state 82
+-- On CONCAT shift to state 83
+-- On AND shift to state 84
+-- On binop shift to state 69
+## Reductions:
+-- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
+--   reduce production bexpr -> bexpr binop bexpr
+** Conflict on PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
+
+State 71:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## PLUS
 ## LR(1) items:
@@ -848,7 +1602,11 @@ binop -> PLUS . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLA
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> PLUS
 
+<<<<<<< HEAD
 State 65:
+=======
+State 72:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## OR
 ## LR(1) items:
@@ -858,7 +1616,11 @@ binop -> OR . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM 
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> OR
 
+<<<<<<< HEAD
 State 66:
+=======
+State 73:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## NEQ
 ## LR(1) items:
@@ -868,7 +1630,11 @@ binop -> NEQ . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> NEQ
 
+<<<<<<< HEAD
 State 67:
+=======
+State 74:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## MUL
 ## LR(1) items:
@@ -878,7 +1644,11 @@ binop -> MUL . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> MUL
 
+<<<<<<< HEAD
 State 68:
+=======
+State 75:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## MOD
 ## LR(1) items:
@@ -888,7 +1658,11 @@ binop -> MOD . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> MOD
 
+<<<<<<< HEAD
 State 69:
+=======
+State 76:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## MINUS
 ## LR(1) items:
@@ -898,7 +1672,11 @@ binop -> MINUS . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCL
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> MINUS
 
+<<<<<<< HEAD
 State 70:
+=======
+State 77:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LTE
 ## LR(1) items:
@@ -908,7 +1686,11 @@ binop -> LTE . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> LTE
 
+<<<<<<< HEAD
 State 71:
+=======
+State 78:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LT
 ## LR(1) items:
@@ -918,7 +1700,11 @@ binop -> LT . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM 
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> LT
 
+<<<<<<< HEAD
 State 72:
+=======
+State 79:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## GTE
 ## LR(1) items:
@@ -928,7 +1714,11 @@ binop -> GTE . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> GTE
 
+<<<<<<< HEAD
 State 73:
+=======
+State 80:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## GT
 ## LR(1) items:
@@ -938,7 +1728,11 @@ binop -> GT . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM 
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> GT
 
+<<<<<<< HEAD
 State 74:
+=======
+State 81:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## EQ
 ## LR(1) items:
@@ -948,7 +1742,11 @@ binop -> EQ . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM 
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> EQ
 
+<<<<<<< HEAD
 State 75:
+=======
+State 82:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## DIV
 ## LR(1) items:
@@ -958,7 +1756,11 @@ binop -> DIV . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> DIV
 
+<<<<<<< HEAD
 State 76:
+=======
+State 83:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## CONCAT
 ## LR(1) items:
@@ -968,7 +1770,11 @@ binop -> CONCAT . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXC
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> CONCAT
 
+<<<<<<< HEAD
 State 77:
+=======
+State 84:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## AND
 ## LR(1) items:
@@ -978,6 +1784,7 @@ binop -> AND . [ TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 -- On TRUE TILD STRING RETURN LSPAR LPAR INT IF IDENT FN FALSE EXCLAM
 --   reduce production binop -> AND
 
+<<<<<<< HEAD
 State 78:
 ## Known stack suffix:
 ## bexpr binop
@@ -1028,6 +1835,9 @@ bexpr -> bexpr binop bexpr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL 
 ** Conflict on PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
 
 State 80:
+=======
+State 85:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom
 ## LR(1) items:
@@ -1037,22 +1847,35 @@ atom -> atom . FN funbody [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD
 atom -> atom . block [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 bexpr -> atom . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On LPAR shift to state 81
 -- On LBRAC shift to state 51
 -- On FN shift to state 90
 -- On DOT shift to state 92
 -- On block shift to state 94
+=======
+-- On LPAR shift to state 86
+-- On LBRAC shift to state 56
+-- On FN shift to state 95
+-- On DOT shift to state 97
+-- On block shift to state 99
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production bexpr -> atom
 ** Conflict on LPAR LBRAC FN DOT
 
+<<<<<<< HEAD
 State 81:
+=======
+State 86:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom LPAR
 ## LR(1) items:
 atom -> atom LPAR . loption(separated_nonempty_list(COMMA,expr)) RPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1072,11 +1895,36 @@ atom -> atom LPAR . loption(separated_nonempty_list(COMMA,expr)) RPAR [ THEN SEM
 -- On block shift to state 88
 -- On bexpr shift to state 89
 -- On atom shift to state 80
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On separated_nonempty_list(COMMA,expr) shift to state 87
+-- On loption(separated_nonempty_list(COMMA,expr)) shift to state 88
+-- On expr shift to state 90
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On RPAR
 --   reduce production loption(separated_nonempty_list(COMMA,expr)) ->
 
+<<<<<<< HEAD
 State 82:
+=======
+State 87:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## separated_nonempty_list(COMMA,expr)
 ## LR(1) items:
@@ -1086,16 +1934,27 @@ loption(separated_nonempty_list(COMMA,expr)) -> separated_nonempty_list(COMMA,ex
 -- On RSPAR RPAR
 --   reduce production loption(separated_nonempty_list(COMMA,expr)) -> separated_nonempty_list(COMMA,expr)
 
+<<<<<<< HEAD
 State 83:
+=======
+State 88:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom LPAR loption(separated_nonempty_list(COMMA,expr))
 ## LR(1) items:
 atom -> atom LPAR loption(separated_nonempty_list(COMMA,expr)) . RPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RPAR shift to state 84
 ## Reductions:
 
 State 84:
+=======
+-- On RPAR shift to state 89
+## Reductions:
+
+State 89:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom LPAR loption(separated_nonempty_list(COMMA,expr)) RPAR
 ## LR(1) items:
@@ -1105,24 +1964,37 @@ atom -> atom LPAR loption(separated_nonempty_list(COMMA,expr)) RPAR . [ THEN SEM
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> atom LPAR loption(separated_nonempty_list(COMMA,expr)) RPAR
 
+<<<<<<< HEAD
 State 85:
+=======
+State 90:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## expr
 ## LR(1) items:
 separated_nonempty_list(COMMA,expr) -> expr . [ RSPAR RPAR ]
 separated_nonempty_list(COMMA,expr) -> expr . COMMA separated_nonempty_list(COMMA,expr) [ RSPAR RPAR ]
 ## Transitions:
+<<<<<<< HEAD
 -- On COMMA shift to state 86
+=======
+-- On COMMA shift to state 91
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On RSPAR RPAR
 --   reduce production separated_nonempty_list(COMMA,expr) -> expr
 
+<<<<<<< HEAD
 State 86:
+=======
+State 91:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## expr COMMA
 ## LR(1) items:
 separated_nonempty_list(COMMA,expr) -> expr COMMA . separated_nonempty_list(COMMA,expr) [ RSPAR RPAR ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1144,6 +2016,29 @@ separated_nonempty_list(COMMA,expr) -> expr COMMA . separated_nonempty_list(COMM
 ## Reductions:
 
 State 87:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On separated_nonempty_list(COMMA,expr) shift to state 92
+-- On expr shift to state 90
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 92:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## expr COMMA separated_nonempty_list(COMMA,expr)
 ## LR(1) items:
@@ -1153,7 +2048,11 @@ separated_nonempty_list(COMMA,expr) -> expr COMMA separated_nonempty_list(COMMA,
 -- On RSPAR RPAR
 --   reduce production separated_nonempty_list(COMMA,expr) -> expr COMMA separated_nonempty_list(COMMA,expr)
 
+<<<<<<< HEAD
 State 88:
+=======
+State 93:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## block
 ## LR(1) items:
@@ -1163,13 +2062,18 @@ expr -> block . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production expr -> block
 
+<<<<<<< HEAD
 State 89:
+=======
+State 94:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## bexpr
 ## LR(1) items:
 bexpr -> bexpr . binop bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 expr -> bexpr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On PLUS shift to state 64
 -- On OR shift to state 65
 -- On NEQ shift to state 66
@@ -1185,22 +2089,50 @@ expr -> bexpr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE
 -- On CONCAT shift to state 76
 -- On AND shift to state 77
 -- On binop shift to state 78
+=======
+-- On PLUS shift to state 71
+-- On OR shift to state 72
+-- On NEQ shift to state 73
+-- On MUL shift to state 74
+-- On MOD shift to state 75
+-- On MINUS shift to state 76
+-- On LTE shift to state 77
+-- On LT shift to state 78
+-- On GTE shift to state 79
+-- On GT shift to state 80
+-- On EQ shift to state 81
+-- On DIV shift to state 82
+-- On CONCAT shift to state 83
+-- On AND shift to state 84
+-- On binop shift to state 69
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production expr -> bexpr
 ** Conflict on PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
 
+<<<<<<< HEAD
 State 90:
+=======
+State 95:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom FN
 ## LR(1) items:
 atom -> atom FN . funbody [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
 -- On LPAR shift to state 6
+<<<<<<< HEAD
 -- On funbody shift to state 91
 ## Reductions:
 
 State 91:
+=======
+-- On funbody shift to state 96
+## Reductions:
+
+State 96:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom FN funbody
 ## LR(1) items:
@@ -1210,16 +2142,27 @@ atom -> atom FN funbody . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> atom FN funbody
 
+<<<<<<< HEAD
 State 92:
+=======
+State 97:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom DOT
 ## LR(1) items:
 atom -> atom DOT . IDENT [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On IDENT shift to state 93
 ## Reductions:
 
 State 93:
+=======
+-- On IDENT shift to state 98
+## Reductions:
+
+State 98:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom DOT IDENT
 ## LR(1) items:
@@ -1229,7 +2172,11 @@ atom -> atom DOT IDENT . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD 
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> atom DOT IDENT
 
+<<<<<<< HEAD
 State 94:
+=======
+State 99:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## atom block
 ## LR(1) items:
@@ -1239,7 +2186,11 @@ atom -> atom block . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINU
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> atom block
 
+<<<<<<< HEAD
 State 95:
+=======
+State 100:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr
 ## LR(1) items:
@@ -1247,6 +2198,7 @@ bexpr -> bexpr . binop bexpr [ THEN RETURN PLUS OR NEQ MUL MOD MINUS LTE LT GTE 
 bexpr -> IF bexpr . THEN expr list(__anonymous_3) ELSE expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 bexpr -> IF bexpr . RETURN expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On THEN shift to state 96
 -- On RETURN shift to state 106
 -- On PLUS shift to state 64
@@ -1267,11 +2219,34 @@ bexpr -> IF bexpr . RETURN expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ M
 ## Reductions:
 
 State 96:
+=======
+-- On THEN shift to state 101
+-- On RETURN shift to state 111
+-- On PLUS shift to state 71
+-- On OR shift to state 72
+-- On NEQ shift to state 73
+-- On MUL shift to state 74
+-- On MOD shift to state 75
+-- On MINUS shift to state 76
+-- On LTE shift to state 77
+-- On LT shift to state 78
+-- On GTE shift to state 79
+-- On GT shift to state 80
+-- On EQ shift to state 81
+-- On DIV shift to state 82
+-- On CONCAT shift to state 83
+-- On AND shift to state 84
+-- On binop shift to state 69
+## Reductions:
+
+State 101:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr THEN
 ## LR(1) items:
 bexpr -> IF bexpr THEN . expr list(__anonymous_3) ELSE expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1292,23 +2267,55 @@ bexpr -> IF bexpr THEN . expr list(__anonymous_3) ELSE expr [ THEN SEMICOLON RSP
 ## Reductions:
 
 State 97:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 102
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 102:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr THEN expr
 ## LR(1) items:
 bexpr -> IF bexpr THEN expr . list(__anonymous_3) ELSE expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On ELIF shift to state 98
 -- On list(__anonymous_3) shift to state 103
+=======
+-- On ELIF shift to state 103
+-- On list(__anonymous_3) shift to state 108
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On ELSE
 --   reduce production list(__anonymous_3) ->
 
+<<<<<<< HEAD
 State 98:
+=======
+State 103:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## ELIF
 ## LR(1) items:
 list(__anonymous_3) -> ELIF . bexpr THEN expr list(__anonymous_3) [ ELSE ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1326,12 +2333,32 @@ list(__anonymous_3) -> ELIF . bexpr THEN expr list(__anonymous_3) [ ELSE ]
 ## Reductions:
 
 State 99:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On bexpr shift to state 104
+-- On atom shift to state 85
+## Reductions:
+
+State 104:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## ELIF bexpr
 ## LR(1) items:
 bexpr -> bexpr . binop bexpr [ THEN PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND ]
 list(__anonymous_3) -> ELIF bexpr . THEN expr list(__anonymous_3) [ ELSE ]
 ## Transitions:
+<<<<<<< HEAD
 -- On THEN shift to state 100
 -- On PLUS shift to state 64
 -- On OR shift to state 65
@@ -1351,11 +2378,33 @@ list(__anonymous_3) -> ELIF bexpr . THEN expr list(__anonymous_3) [ ELSE ]
 ## Reductions:
 
 State 100:
+=======
+-- On THEN shift to state 105
+-- On PLUS shift to state 71
+-- On OR shift to state 72
+-- On NEQ shift to state 73
+-- On MUL shift to state 74
+-- On MOD shift to state 75
+-- On MINUS shift to state 76
+-- On LTE shift to state 77
+-- On LT shift to state 78
+-- On GTE shift to state 79
+-- On GT shift to state 80
+-- On EQ shift to state 81
+-- On DIV shift to state 82
+-- On CONCAT shift to state 83
+-- On AND shift to state 84
+-- On binop shift to state 69
+## Reductions:
+
+State 105:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## ELIF bexpr THEN
 ## LR(1) items:
 list(__anonymous_3) -> ELIF bexpr THEN . expr list(__anonymous_3) [ ELSE ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1376,18 +2425,49 @@ list(__anonymous_3) -> ELIF bexpr THEN . expr list(__anonymous_3) [ ELSE ]
 ## Reductions:
 
 State 101:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 106
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 106:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## ELIF bexpr THEN expr
 ## LR(1) items:
 list(__anonymous_3) -> ELIF bexpr THEN expr . list(__anonymous_3) [ ELSE ]
 ## Transitions:
+<<<<<<< HEAD
 -- On ELIF shift to state 98
 -- On list(__anonymous_3) shift to state 102
+=======
+-- On ELIF shift to state 103
+-- On list(__anonymous_3) shift to state 107
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On ELSE
 --   reduce production list(__anonymous_3) ->
 
+<<<<<<< HEAD
 State 102:
+=======
+State 107:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## ELIF bexpr THEN expr list(__anonymous_3)
 ## LR(1) items:
@@ -1397,21 +2477,33 @@ list(__anonymous_3) -> ELIF bexpr THEN expr list(__anonymous_3) . [ ELSE ]
 -- On ELSE
 --   reduce production list(__anonymous_3) -> ELIF bexpr THEN expr list(__anonymous_3)
 
+<<<<<<< HEAD
 State 103:
+=======
+State 108:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr THEN expr list(__anonymous_3)
 ## LR(1) items:
 bexpr -> IF bexpr THEN expr list(__anonymous_3) . ELSE expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On ELSE shift to state 104
 ## Reductions:
 
 State 104:
+=======
+-- On ELSE shift to state 109
+## Reductions:
+
+State 109:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr THEN expr list(__anonymous_3) ELSE
 ## LR(1) items:
 bexpr -> IF bexpr THEN expr list(__anonymous_3) ELSE . expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1432,6 +2524,28 @@ bexpr -> IF bexpr THEN expr list(__anonymous_3) ELSE . expr [ THEN SEMICOLON RSP
 ## Reductions:
 
 State 105:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 110
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 110:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr THEN expr list(__anonymous_3) ELSE expr
 ## LR(1) items:
@@ -1441,12 +2555,17 @@ bexpr -> IF bexpr THEN expr list(__anonymous_3) ELSE expr . [ THEN SEMICOLON RSP
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production bexpr -> IF bexpr THEN expr list(__anonymous_3) ELSE expr
 
+<<<<<<< HEAD
 State 106:
+=======
+State 111:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr RETURN
 ## LR(1) items:
 bexpr -> IF bexpr RETURN . expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1467,6 +2586,28 @@ bexpr -> IF bexpr RETURN . expr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ M
 ## Reductions:
 
 State 107:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 112
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 112:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## IF bexpr RETURN expr
 ## LR(1) items:
@@ -1476,7 +2617,11 @@ bexpr -> IF bexpr RETURN expr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ M
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production bexpr -> IF bexpr RETURN expr
 
+<<<<<<< HEAD
 State 108:
+=======
+State 113:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAR IDENT ASSIGN expr
 ## LR(1) items:
@@ -1486,30 +2631,49 @@ stmt -> VAR IDENT ASSIGN expr . [ SEMICOLON ]
 -- On SEMICOLON
 --   reduce production stmt -> VAR IDENT ASSIGN expr
 
+<<<<<<< HEAD
 State 109:
+=======
+State 114:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAL
 ## LR(1) items:
 stmt -> VAL . IDENT DEF expr [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On IDENT shift to state 110
 ## Reductions:
 
 State 110:
+=======
+-- On IDENT shift to state 115
+## Reductions:
+
+State 115:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAL IDENT
 ## LR(1) items:
 stmt -> VAL IDENT . DEF expr [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On DEF shift to state 111
 ## Reductions:
 
 State 111:
+=======
+-- On DEF shift to state 116
+## Reductions:
+
+State 116:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAL IDENT DEF
 ## LR(1) items:
 stmt -> VAL IDENT DEF . expr [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On TRUE shift to state 44
 -- On TILD shift to state 45
 -- On STRING shift to state 46
@@ -1530,6 +2694,28 @@ stmt -> VAL IDENT DEF . expr [ SEMICOLON ]
 ## Reductions:
 
 State 112:
+=======
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On LBRAC shift to state 56
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On expr shift to state 117
+-- On block shift to state 93
+-- On bexpr shift to state 94
+-- On atom shift to state 85
+## Reductions:
+
+State 117:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## VAL IDENT DEF expr
 ## LR(1) items:
@@ -1539,30 +2725,51 @@ stmt -> VAL IDENT DEF expr . [ SEMICOLON ]
 -- On SEMICOLON
 --   reduce production stmt -> VAL IDENT DEF expr
 
+<<<<<<< HEAD
 State 113:
+=======
+State 118:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## stmt
 ## LR(1) items:
 list(__anonymous_4) -> stmt . nonempty_list(SEMICOLON) list(__anonymous_4) [ RBRAC ]
 ## Transitions:
+<<<<<<< HEAD
 -- On SEMICOLON shift to state 114
 -- On nonempty_list(SEMICOLON) shift to state 116
 ## Reductions:
 
 State 114:
+=======
+-- On SEMICOLON shift to state 119
+-- On nonempty_list(SEMICOLON) shift to state 121
+## Reductions:
+
+State 119:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## SEMICOLON
 ## LR(1) items:
 nonempty_list(SEMICOLON) -> SEMICOLON . [ VAR VAL TRUE TILD STRING RETURN RBRAC LSPAR LPAR INT IF IDENT FUN FN FALSE EXCLAM EOF ]
 nonempty_list(SEMICOLON) -> SEMICOLON . nonempty_list(SEMICOLON) [ VAR VAL TRUE TILD STRING RETURN RBRAC LSPAR LPAR INT IF IDENT FUN FN FALSE EXCLAM EOF ]
 ## Transitions:
+<<<<<<< HEAD
 -- On SEMICOLON shift to state 114
 -- On nonempty_list(SEMICOLON) shift to state 115
+=======
+-- On SEMICOLON shift to state 119
+-- On nonempty_list(SEMICOLON) shift to state 120
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On VAR VAL TRUE TILD STRING RETURN RBRAC LSPAR LPAR INT IF IDENT FUN FN FALSE EXCLAM EOF
 --   reduce production nonempty_list(SEMICOLON) -> SEMICOLON
 
+<<<<<<< HEAD
 State 115:
+=======
+State 120:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## SEMICOLON nonempty_list(SEMICOLON)
 ## LR(1) items:
@@ -1572,12 +2779,17 @@ nonempty_list(SEMICOLON) -> SEMICOLON nonempty_list(SEMICOLON) . [ VAR VAL TRUE 
 -- On VAR VAL TRUE TILD STRING RETURN RBRAC LSPAR LPAR INT IF IDENT FUN FN FALSE EXCLAM EOF
 --   reduce production nonempty_list(SEMICOLON) -> SEMICOLON nonempty_list(SEMICOLON)
 
+<<<<<<< HEAD
 State 116:
+=======
+State 121:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## stmt nonempty_list(SEMICOLON)
 ## LR(1) items:
 list(__anonymous_4) -> stmt nonempty_list(SEMICOLON) . list(__anonymous_4) [ RBRAC ]
 ## Transitions:
+<<<<<<< HEAD
 -- On VAR shift to state 53
 -- On VAL shift to state 109
 -- On TRUE shift to state 44
@@ -1596,11 +2808,35 @@ list(__anonymous_4) -> stmt nonempty_list(SEMICOLON) . list(__anonymous_4) [ RBR
 -- On list(__anonymous_4) shift to state 117
 -- On bexpr shift to state 118
 -- On atom shift to state 80
+=======
+-- On VAR shift to state 58
+-- On VAL shift to state 114
+-- On TRUE shift to state 49
+-- On TILD shift to state 50
+-- On STRING shift to state 51
+-- On RETURN shift to state 52
+-- On LSPAR shift to state 53
+-- On LPAR shift to state 54
+-- On INT shift to state 61
+-- On IF shift to state 62
+-- On IDENT shift to state 63
+-- On FN shift to state 64
+-- On FALSE shift to state 66
+-- On EXCLAM shift to state 67
+-- On stmt shift to state 118
+-- On list(__anonymous_4) shift to state 122
+-- On bexpr shift to state 123
+-- On atom shift to state 85
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On RBRAC
 --   reduce production list(__anonymous_4) ->
 
+<<<<<<< HEAD
 State 117:
+=======
+State 122:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## stmt nonempty_list(SEMICOLON) list(__anonymous_4)
 ## LR(1) items:
@@ -1610,13 +2846,18 @@ list(__anonymous_4) -> stmt nonempty_list(SEMICOLON) list(__anonymous_4) . [ RBR
 -- On RBRAC
 --   reduce production list(__anonymous_4) -> stmt nonempty_list(SEMICOLON) list(__anonymous_4)
 
+<<<<<<< HEAD
 State 118:
+=======
+State 123:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## bexpr
 ## LR(1) items:
 bexpr -> bexpr . binop bexpr [ SEMICOLON PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND ]
 stmt -> bexpr . [ SEMICOLON ]
 ## Transitions:
+<<<<<<< HEAD
 -- On PLUS shift to state 64
 -- On OR shift to state 65
 -- On NEQ shift to state 66
@@ -1632,20 +2873,48 @@ stmt -> bexpr . [ SEMICOLON ]
 -- On CONCAT shift to state 76
 -- On AND shift to state 77
 -- On binop shift to state 78
+=======
+-- On PLUS shift to state 71
+-- On OR shift to state 72
+-- On NEQ shift to state 73
+-- On MUL shift to state 74
+-- On MOD shift to state 75
+-- On MINUS shift to state 76
+-- On LTE shift to state 77
+-- On LT shift to state 78
+-- On GTE shift to state 79
+-- On GT shift to state 80
+-- On EQ shift to state 81
+-- On DIV shift to state 82
+-- On CONCAT shift to state 83
+-- On AND shift to state 84
+-- On binop shift to state 69
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On SEMICOLON
 --   reduce production stmt -> bexpr
 
+<<<<<<< HEAD
 State 119:
+=======
+State 124:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LBRAC list(SEMICOLON) list(__anonymous_4)
 ## LR(1) items:
 block -> LBRAC list(SEMICOLON) list(__anonymous_4) . RBRAC [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RBRAC shift to state 120
 ## Reductions:
 
 State 120:
+=======
+-- On RBRAC shift to state 125
+## Reductions:
+
+State 125:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LBRAC list(SEMICOLON) list(__anonymous_4) RBRAC
 ## LR(1) items:
@@ -1655,16 +2924,27 @@ block -> LBRAC list(SEMICOLON) list(__anonymous_4) RBRAC . [ THEN SEMICOLON RSPA
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production block -> LBRAC list(SEMICOLON) list(__anonymous_4) RBRAC
 
+<<<<<<< HEAD
 State 121:
+=======
+State 126:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR expr
 ## LR(1) items:
 atom -> LPAR expr . RPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RPAR shift to state 122
 ## Reductions:
 
 State 122:
+=======
+-- On RPAR shift to state 127
+## Reductions:
+
+State 127:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LPAR expr RPAR
 ## LR(1) items:
@@ -1674,16 +2954,27 @@ atom -> LPAR expr RPAR . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD 
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> LPAR expr RPAR
 
+<<<<<<< HEAD
 State 123:
+=======
+State 128:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LSPAR loption(separated_nonempty_list(COMMA,expr))
 ## LR(1) items:
 atom -> LSPAR loption(separated_nonempty_list(COMMA,expr)) . RSPAR [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On RSPAR shift to state 124
 ## Reductions:
 
 State 124:
+=======
+-- On RSPAR shift to state 129
+## Reductions:
+
+State 129:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## LSPAR loption(separated_nonempty_list(COMMA,expr)) RSPAR
 ## LR(1) items:
@@ -1693,7 +2984,11 @@ atom -> LSPAR loption(separated_nonempty_list(COMMA,expr)) RSPAR . [ THEN SEMICO
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production atom -> LSPAR loption(separated_nonempty_list(COMMA,expr)) RSPAR
 
+<<<<<<< HEAD
 State 125:
+=======
+State 130:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## RETURN expr
 ## LR(1) items:
@@ -1703,13 +2998,18 @@ bexpr -> RETURN expr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MI
 -- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
 --   reduce production bexpr -> RETURN expr
 
+<<<<<<< HEAD
 State 126:
+=======
+State 131:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## TILD bexpr
 ## LR(1) items:
 bexpr -> TILD bexpr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 bexpr -> bexpr . binop bexpr [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
 ## Transitions:
+<<<<<<< HEAD
 -- On PLUS shift to state 64
 -- On OR shift to state 65
 -- On NEQ shift to state 66
@@ -1741,6 +3041,24 @@ funbody -> LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR o
 --   reduce production funbody -> LPAR LHOOK loption(separated_nonempty_list(COMMA,IDENT)) RHOOK RPAR option(annot) expr
 
 State 128:
+=======
+-- On binop shift to state 69
+## Reductions:
+-- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
+--   reduce production bexpr -> TILD bexpr
+
+State 132:
+## Known stack suffix:
+## LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) expr
+## LR(1) items:
+funbody -> LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) expr . [ THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND ]
+## Transitions:
+## Reductions:
+-- On THEN SEMICOLON RSPAR RPAR RETURN PLUS OR NEQ MUL MOD MINUS LTE LT LPAR LBRAC GTE GT FN EQ ELSE ELIF DOT DIV CONCAT COMMA AND
+--   reduce production funbody -> LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) expr
+
+State 133:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## annot
 ## LR(1) items:
@@ -1750,7 +3068,11 @@ option(annot) -> annot . [ TRUE TILD STRING RETURN LSPAR LPAR LBRAC INT IF IDENT
 -- On TRUE TILD STRING RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM
 --   reduce production option(annot) -> annot
 
+<<<<<<< HEAD
 State 129:
+=======
+State 134:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## FUN IDENT funbody
 ## LR(1) items:
@@ -1760,16 +3082,27 @@ decl -> FUN IDENT funbody . [ SEMICOLON ]
 -- On SEMICOLON
 --   reduce production decl -> FUN IDENT funbody
 
+<<<<<<< HEAD
 State 130:
+=======
+State 135:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## list(SEMICOLON) list(__anonymous_0)
 ## LR(1) items:
 file -> list(SEMICOLON) list(__anonymous_0) . EOF [ # ]
 ## Transitions:
+<<<<<<< HEAD
 -- On EOF shift to state 131
 ## Reductions:
 
 State 131:
+=======
+-- On EOF shift to state 136
+## Reductions:
+
+State 136:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## list(SEMICOLON) list(__anonymous_0) EOF
 ## LR(1) items:
@@ -1779,30 +3112,51 @@ file -> list(SEMICOLON) list(__anonymous_0) EOF . [ # ]
 -- On #
 --   reduce production file -> list(SEMICOLON) list(__anonymous_0) EOF
 
+<<<<<<< HEAD
 State 132:
+=======
+State 137:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## decl
 ## LR(1) items:
 list(__anonymous_0) -> decl . nonempty_list(SEMICOLON) list(__anonymous_0) [ EOF ]
 ## Transitions:
+<<<<<<< HEAD
 -- On SEMICOLON shift to state 114
 -- On nonempty_list(SEMICOLON) shift to state 133
 ## Reductions:
 
 State 133:
+=======
+-- On SEMICOLON shift to state 119
+-- On nonempty_list(SEMICOLON) shift to state 138
+## Reductions:
+
+State 138:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## decl nonempty_list(SEMICOLON)
 ## LR(1) items:
 list(__anonymous_0) -> decl nonempty_list(SEMICOLON) . list(__anonymous_0) [ EOF ]
 ## Transitions:
 -- On FUN shift to state 4
+<<<<<<< HEAD
 -- On list(__anonymous_0) shift to state 134
 -- On decl shift to state 132
+=======
+-- On list(__anonymous_0) shift to state 139
+-- On decl shift to state 137
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Reductions:
 -- On EOF
 --   reduce production list(__anonymous_0) ->
 
+<<<<<<< HEAD
 State 134:
+=======
+State 139:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## decl nonempty_list(SEMICOLON) list(__anonymous_0)
 ## LR(1) items:
@@ -1812,7 +3166,11 @@ list(__anonymous_0) -> decl nonempty_list(SEMICOLON) list(__anonymous_0) . [ EOF
 -- On EOF
 --   reduce production list(__anonymous_0) -> decl nonempty_list(SEMICOLON) list(__anonymous_0)
 
+<<<<<<< HEAD
 State 135:
+=======
+State 140:
+>>>>>>> 9b5e5be777cedbec604e13349eafdf5a203f002d
 ## Known stack suffix:
 ## file
 ## LR(1) items:
