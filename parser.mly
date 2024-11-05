@@ -46,7 +46,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    { dl }
+    { Printf.printf "hi" ; dl }
 ;
 
 decl:
@@ -55,8 +55,8 @@ decl:
 ;
 
 funbody:
-  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; annot? ; expr
-   { { formal = [] ; annot = ([], TAType(AEmpty)) ; body = EBlock([]) } }
+  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; annot? ; e = expr
+   { { formal = [] ; annot = ([], TAType(AEmpty)) ; body = e } }
 ;
 
 param:
@@ -109,12 +109,15 @@ bexpr:
   | a = atom {Eatom(a)}
   | TILD b = bexpr {ETild (b)}
   | EXCLAM b = bexpr {ENot(b)}
-  | b1 = bexpr; b2 = binop; b3 = bexpr;  {EBinop(b2,b1,b3)}
+  | b1 = bexpr b2 = binop b3 = bexpr  {EBinop(b2,b1,b3)}
   | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr {(be, bb)}) ELSE b3 = expr {EIfElse(b1, b2,[] , b3)}
   | IF b1 = bexpr RETURN b2 = expr {EIfReturn (b1, b2)}
   | FN f = funbody {EFn(f)}
   | RETURN e = expr {EReturn(e)}
 ;
+
+
+
 block:
   |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s}) RBRAC {lst}
 ;
@@ -125,7 +128,7 @@ stmt:
   | VAR s = IDENT ASSIGN e =expr {SVar(s,e)}
 ;
 
-binop:
+%inline binop:
   | EQ {Eq}
   | NEQ {Neq}
   | LT {Lt}
