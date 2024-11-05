@@ -24,7 +24,7 @@
 %token <string> STRING
 
 /* Priorités et associativités des tokens */
-
+%nonassoc precedence_regle
 %nonassoc IF THEN ELSE
 %left OR
 %left AND
@@ -103,7 +103,7 @@ atom:
 
 expr:
   |s = block {EBlock(s)}
-  |s = bexpr {EBexpr(s)}
+  |s = bexpr {EBexpr(s)} %prec precedence_regle
   
 ;
 
@@ -116,8 +116,9 @@ bexpr:
   | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr {(be, bb)}) ELSE b3 = expr {EIfElse(b1, b2,[] , b3)}
   | IF b1 = bexpr RETURN b2 = expr {EIfReturn (b1, b2)}
   | FN f = funbody {EFn(f)}
-  | RETURN e = expr {EReturn(e)}
+  | RETURN e = expr {EReturn(e)} 
 ;
+
 
 
 
