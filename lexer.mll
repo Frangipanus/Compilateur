@@ -7,7 +7,7 @@
   
   exception Lexing_error of string
 
-  let key_words = Hashtbl.create 9
+  let key_words = Hashtbl.create 11
   let () = Hashtbl.add key_words "if" IF
   let () = Hashtbl.add key_words "then" THEN
   let () = Hashtbl.add key_words "else" ELSE
@@ -17,6 +17,8 @@
   let () = Hashtbl.add key_words "return" RETURN
   let () = Hashtbl.add key_words "val" VAL
   let () = Hashtbl.add key_words "var" VAR
+  let () = Hashtbl.add key_words "True" TRUE
+  let () = Hashtbl.add key_words "False" FALSE
   
   let fin_cont = [PLUS; MINUS; MUL; DIV; MOD; CONCAT ;LT ; LTE; GT ;GTE ;EQ; NEQ ;AND; OR ;LPAR; LBRAC; COMMA; ]
   let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN ; SEMICOLON ;THEN; ELSE; ELIF;]
@@ -35,6 +37,8 @@ let lud = lower | upper | digit
 let ident = lower (lud | lud '_' lud)* '\''*
 let tabu = ' '+
 let retour = '\n' ' '*
+let integer = -? ('0' | ['1'-'9'] digit*)
+let string = [^'"']*
 
 rule token  = parse
   | "//"  { comment lexbuf }
@@ -56,19 +60,26 @@ rule token  = parse
   | ')'   { RPAR }
   | '{'   { LBRAC }
   | '}'   { RBRAC }
+  | '['   { LSPAR }
+  | ']'   { RSPAR }
+  | '<'   { LHOOK }
+  | '>'   { RHOOK }
   | ','   { COMMA }
+  | ':'   { COLON }
   | ';'   { SEMICOLON }
   | "->"  { ARROW }
   | "="   { DEF }
   | ":="  { ASSIGN }
   | '.'   { DOT }
+  | '~'   { TILD }
+  | "!"   { EXCLAM }
+  | '"'   { read_string lexbuf }
+  | integer as s { INT (int_of_string s) }
   | retour as s { level := String.length s -1; token lexbuf }
   | ' ' { token lexbuf }
   | ident as id { try Hashtbl.find key_words id with Not_found -> Ident id }
   | eof { EOF }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
-
-  
 
 and comment = parse 
   | retour as s { let level1 = String.length s -1  in Printf.printf "My tab level is %d\n" level1; token lexbuf }
@@ -78,4 +89,7 @@ and comment2 = parse
   | "*/" { token lexbuf }
   | eof  { raise(Lexing_error ("commentaire non finit")) }
   | _    { comment2 lexbuf }
-  
+
+and read_string = parse
+  | string as s { STRING s }
+  | '"' { token lexbuf }
