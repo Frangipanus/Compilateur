@@ -23,7 +23,7 @@
 %token <int> INT
 %token <string> STRING
 
-/* Priorités et associativités des tokens */
+/* Priorités et associativités des tokens du plus faible au plus fort */ 
 %nonassoc precedence_regle
 %left prec2
 %nonassoc IF THEN ELSE
@@ -34,7 +34,7 @@
 %left MUL DIV MOD
 %nonassoc TILD EXCLAM
 %nonassoc DOT LBRAC RBRAC FN 
-
+%nonassoc ARROW
 
 /* Point d'entrée de la grammaire */
 %start file
@@ -76,7 +76,7 @@ result:
 ;
 
 kokatype:
-  | at = atype { TAType(at) }
+  | at = atype { TAType(at) }%prec precedence_regle
   | at = atype ; ARROW ; res = result { TFun(at, res) }
   | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result {TMulFun(tl, res)}
 ;

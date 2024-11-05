@@ -200,9 +200,8 @@ kokatype -> atype . ARROW result [ TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR
 ## Transitions:
 -- On ARROW shift to state 18
 ## Reductions:
--- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA ARROW
+-- On TRUE TILD STRING RPAR RHOOK RETURN LSPAR LPAR LBRAC INT IF IDENT FN FALSE EXCLAM COMMA
 --   reduce production kokatype -> atype
-** Conflict on ARROW
 
 State 18:
 ## Known stack suffix:
