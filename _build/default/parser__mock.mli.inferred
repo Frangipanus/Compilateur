@@ -1,41 +1,85 @@
 type token =
-    VIR
-  | VAR
+    VAR
   | VAL
+  | TRUE
+  | TILD
   | THEN
-  | SUPS
-  | SUP
+  | STRING of string
+  | SEMICOLON
+  | RSPAR
   | RPAR
+  | RHOOK
   | RETURN
   | RBRAC
-  | POINTVIRG
-  | POINTEGAL
-  | POINT
   | PLUS
-  | OU
+  | OR
+  | NEQ
   | MUL
-  | MOINS
   | MOD
+  | MINUS
+  | LTE
+  | LT
+  | LSPAR
   | LPAR
+  | LHOOK
   | LBRAC
-  | INFS
-  | INF
+  | INT of int
   | IF
   | IDENT of string
+  | GTE
+  | GT
   | FUN
   | FN
-  | FLECHE
-  | ET
+  | FALSE
+  | EXCLAM
+  | EQ
   | EOF
   | ELSE
   | ELIF
-  | EGAL
-  | EGA
+  | DOT
   | DIV
-  | DIF
-  | CONC
+  | DEF
+  | CONCAT
+  | COMMA
+  | COLON
+  | ASSIGN
+  | ARROW
+  | AND
 val menhir_begin_marker : int
-val xv_stmt : int
-val xv_list_stmt_ : int list
-val xv_file : int list
+val xv_stmt : Ast.stmt
+val xv_separated_nonempty_list_COMMA_param_ : (string * Ast.kokaType) list
+val xv_separated_nonempty_list_COMMA_expr_ : Ast.expr list
+val xv_separated_list_COMMA_param_ : (string * Ast.kokaType) list
+val xv_separated_list_COMMA_expr_ : Ast.expr list
+val xv_result : Ast.result
+val xv_param : string * Ast.kokaType
+val xv_option_annot_ : Ast.result option
+val xv_option___anonymous_3_ : Ast.kokaType option
+val xv_nonempty_list_SEMICOLON_ : unit list
+val xv_loption_separated_nonempty_list_COMMA_param__ :
+  (string * Ast.kokaType) list
+val xv_loption_separated_nonempty_list_COMMA_expr__ : Ast.expr list
+val xv_list___anonymous_5_ : Ast.block
+val xv_list___anonymous_4_ : (Ast.bexpr * Ast.expr) list
+val xv_list___anonymous_2_ : Ast.kokaType list
+val xv_list___anonymous_1_ : string list
+val xv_list___anonymous_0_ : Ast.file
+val xv_list_SEMICOLON_ : unit list
+val xv_kokatype : Ast.kokaType
+val xv_funbody : Ast.funbody
+val xv_file : Ast.file
+val xv_expr : Ast.expr
+val xv_decl : Ast.decl
+val xv_block : Ast.block
+val xv_binop : Ast.binop
+val xv_bexpr : Ast.bexpr
+val xv_atype : Ast.atype
+val xv_atom : Ast.atom
+val xv_annot : Ast.result
+val xv___anonymous_5 : Ast.stmt
+val xv___anonymous_4 : Ast.bexpr * Ast.expr
+val xv___anonymous_3 : Ast.kokaType
+val xv___anonymous_2 : Ast.kokaType
+val xv___anonymous_1 : string
+val xv___anonymous_0 : Ast.decl
 val menhir_end_marker : int

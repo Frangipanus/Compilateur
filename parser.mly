@@ -38,7 +38,7 @@
 %start file
 
 /* Type des valeurs renvoyées par l'analyseur syntaxique */
-%type <int list> file
+%type <file> file
 
 %%
 
@@ -46,7 +46,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    { { defs = dl; main = [] } }
+    { dl }
 ;
 
 decl:
@@ -56,7 +56,7 @@ decl:
 
 funbody:
   | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; annot? ; expr
-   { { formal = [] ; annot = ([], Atype(Empty)) ; body = Block([]) } }
+   { { formal = [] ; annot = ([], TAType(AEmpty)) ; body = EBlock([]) } }
 ;
 
 param:
@@ -68,14 +68,15 @@ annot:
 ;
 
 result:
-  | idl = option( LHOOK  idl = separated_list(COMMA, IDENT)  RHOOK {idl}) ; t = kokatype
-    { (idl, t) }
+  | LHOOK  lst = list(COMMA s=IDENT {s})  RHOOK   t = kokatype
+    { (lst, t) }
+  | t = kokatype { ([], t)}
 ;
 
 kokatype:
   | at = atype { TAType(at) }
   | at = atype ; ARROW ; res = result { TFun(at, res) }
-  | LPAR ; tl = separated_list(COMMA, kokatype) ; ARROW ; res = result {TMulFun(tl, res)}
+  | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result {TMulFun(tl, res)}
 ;
    
 atype : 
@@ -108,7 +109,7 @@ bexpr:
   | a = atom {Eatom(a)}
   | TILD b = bexpr {ETild (b)}
   | EXCLAM b = bexpr {ENot(b)}
-  | b1 = bexpr; b2 = binop; b3 = bexpr;  {Ebinop(b1,b2,b3)}
+  | b1 = bexpr; b2 = binop; b3 = bexpr;  {EBinop(b2,b1,b3)}
   | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr {(be, bb)}) ELSE b3 = expr {EIfElse(b1, b2,[] , b3)}
   | IF b1 = bexpr RETURN b2 = expr {EIfReturn (b1, b2)}
   | FN f = funbody {EFn(f)}

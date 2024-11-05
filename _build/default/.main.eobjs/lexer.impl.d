@@ -1,1 +1,1 @@
-lexer.ml: Hashtbl Lexing List Parser Printf String
+lexer.ml: Hashtbl Lexing Parser Printf String
