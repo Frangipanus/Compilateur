@@ -37,7 +37,7 @@ let lud = lower | upper | digit
 let ident = lower (lud | lud '_' lud)* '\''*
 let tabu = ' '+
 let retour = '\n' ' '*
-let integer = -? ('0' | ['1'-'9'] digit*)
+let integer = '-'? ('0' | ['1'-'9'] digit*)
 let string = [^'"']*
 
 rule token  = parse
@@ -77,7 +77,7 @@ rule token  = parse
   | integer as s { INT (int_of_string s) }
   | retour as s { level := String.length s -1; token lexbuf }
   | ' ' { token lexbuf }
-  | ident as id { try Hashtbl.find key_words id with Not_found -> Ident id }
+  | ident as id { try Hashtbl.find key_words id with Not_found -> IDENT id }
   | eof { EOF }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
 

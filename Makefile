@@ -15,6 +15,9 @@ explain:
 clean:
 	dune clean
 
+parser:
+	menhir -v parser.mly
+
 .PHONY: all clean explain main.exe
 
 

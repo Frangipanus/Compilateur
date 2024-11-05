@@ -2,7 +2,7 @@
  (modules lexer))
 (menhir
  (modules parser)
- (flags  --dump)
+ (flags  --dump -v)
  (infer true))
 (executable
  (name main)
