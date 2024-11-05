@@ -48,7 +48,7 @@ decl:
 ;
 
 funbody:
-  | LEFT_PARENTHESIS ; LEFT_HOOk ; il = separated_list(COMMA, IDENT) ; RIGHT_HOOK ; RIGHT_PARENTHESIS ; annot? ; expr
+  | LPAR ; LHOOK ; il = separated_list(COMMA, IDENT) ; RHOOK ; RPAR ; annot? ; expr
  
    { { formal = [] ; annot = ([], Atype(Empty)) ; body = Block([]) } }
 ;
@@ -62,18 +62,18 @@ annot:
 ;
 
 result:
-  | ( LHOOK ; idl = separated_list(COMMA, IDENT) ; RHOOK )? ; t = kokatype
+  | idl = option( LHOOK  idl = separated_list(COMMA, IDENT)  RHOOK {idl}) ; t = kokatype
     { (idl, t) }
 ;
 
 kokatype:
   | at = atype { TAType(at) }
   | at = atype ; ARROW ; res = result { TFun(at, res) }
-  | LPAR ; tl = separated_list(COOMMA, kokatype) ; ARROW ; res = result {TMulFun(tl, res)}
+  | LPAR ; tl = separated_list(COMMA, kokatype) ; ARROW ; res = result {TMulFun(tl, res)}
 ;
    
 atype : 
-| s = IDENT; (LPAR ;LHOOK; ty = kokatype; RHOOK ; RPAR)? {AVar(s, ty)}
+| s = IDENT; ty = option(LPAR ;LHOOK; ty = kokatype; RHOOK ; RPAR {ty}) {AVar(s, ty)}
 | LPAR ty = kokatype RPAR {AType(ty)}
 | LPAR RPAR {AEmpty}
 ;
@@ -102,7 +102,7 @@ bexpr:
   | a = atom {Eatom(a)}
   | TILD b = bexpr {ETild (b)}
   | EXCLAM b = bexpr {ENot(b)}
-  | b1 = bexpr b2 = binop b3 = bexpr = {Ebinop(b1,b2,b3)}
+  | b1 = bexpr; b2 = binop; b3 = bexpr;  {Ebinop(b1,b2,b3)}
   | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr {(be, bb)}) ELSE b3 = expr {EIfElse(b1, b2,[] , b3)}
   | IF b1 = bexpr RETURN b2 = expr {EIfReturn (b1, b2)}
   | FN f = funbody {EFn(f)}
@@ -126,8 +126,8 @@ binop:
   | LTE {Lte}
   | GT {Gt}
   | GTE {Gte}
-  | ADD {Add}
-  | SUB {Sub}
+  | PLUS {Add}
+  | MINUS {Sub}
   | MUL {Mul}
   | DIV {Div}
   | MOD {Mod}
