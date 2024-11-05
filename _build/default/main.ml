@@ -72,4 +72,4 @@ let () =
 	exit 1
     | _->
 	(* Erreur pendant l'interprétation *)
-	eprintf "Erreur : @." 
+	eprintf "Normal : @." 

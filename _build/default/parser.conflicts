@@ -1,5 +1,5 @@
 
-** Conflict (shift/reduce) in state 92.
+** Conflict (shift/reduce) in state 76.
 ** Tokens involved: PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
 ** The following explanations concentrate on token PLUS.
 ** This state is reached from file after reading:
@@ -17,23 +17,22 @@ list(SEMICOLON) list(__anonymous_0) EOF
                                                                                                 bexpr 
                                                                                                 (?)
 
-** In state 92, looking ahead at PLUS, shifting is permitted
+** In state 76, looking ahead at PLUS, shifting is permitted
 ** because of the following sub-derivation:
 
 RETURN expr 
        bexpr 
-       bexpr binop bexpr 
-             . PLUS 
+       bexpr . PLUS bexpr 
 
-** In state 92, looking ahead at PLUS, reducing production
+** In state 76, looking ahead at PLUS, reducing production
 ** expr -> bexpr
 ** is permitted because of the following sub-derivation:
 
-bexpr binop bexpr // lookahead token appears because binop can begin with PLUS
+bexpr PLUS bexpr // lookahead token appears
 RETURN expr // lookahead token is inherited
        bexpr . 
 
-** Conflict (shift/reduce) in state 83.
+** Conflict (shift/reduce) in state 67.
 ** Tokens involved: LPAR LBRAC FN DOT
 ** The following explanations concentrate on token LPAR.
 ** This state is reached from file after reading:
@@ -52,7 +51,7 @@ list(SEMICOLON) list(__anonymous_0) EOF
                                                                                                 atom 
                                                                                                 (?)
 
-** In state 83, looking ahead at LPAR, shifting is permitted
+** In state 67, looking ahead at LPAR, shifting is permitted
 ** because of the following sub-derivation:
 
 atom FN funbody 
@@ -61,7 +60,7 @@ atom FN funbody
                                                                               atom 
                                                                               atom . LPAR loption(separated_nonempty_list(COMMA,expr)) RPAR 
 
-** In state 83, looking ahead at LPAR, reducing production
+** In state 67, looking ahead at LPAR, reducing production
 ** bexpr -> atom
 ** is permitted because of the following sub-derivation:
 
@@ -70,38 +69,6 @@ atom FN funbody // lookahead token is inherited
         LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) expr // lookahead token is inherited
                                                                               bexpr // lookahead token is inherited
                                                                               atom . 
-
-** Conflict (shift/reduce) in state 68.
-** Tokens involved: PLUS OR NEQ MUL MOD MINUS LTE LT GTE GT EQ DIV CONCAT AND
-** The following explanations concentrate on token PLUS.
-** This state is reached from file after reading:
-
-list(SEMICOLON) FUN IDENT LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) bexpr binop bexpr
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-file 
-list(SEMICOLON) list(__anonymous_0) EOF 
-                decl nonempty_list(SEMICOLON) list(__anonymous_0) 
-                FUN IDENT funbody 
-                          LPAR loption(separated_nonempty_list(COMMA,param)) RPAR option(annot) expr 
-                                                                                                bexpr 
-                                                                                                (?)
-
-** In state 68, looking ahead at PLUS, reducing production
-** bexpr -> bexpr binop bexpr
-** is permitted because of the following sub-derivation:
-
-bexpr binop bexpr // lookahead token appears because binop can begin with PLUS
-bexpr binop bexpr . 
-
-** In state 68, looking ahead at PLUS, shifting is permitted
-** because of the following sub-derivation:
-
-bexpr binop bexpr 
-            bexpr binop bexpr 
-                  . PLUS 
 
 ** Conflict (shift/reduce) in state 17.
 ** Token involved: ARROW
