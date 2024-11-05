@@ -8,12 +8,12 @@
 /* Déclaration des tokens */
 %token EOF
 %token IF
+%token THEN
 %token ELSE
 %token ELIF
 %token FN
 %token FUN
 %token RETURN
-%token THEN
 %token TRUE
 %token FALSE
 %token VAL
@@ -25,7 +25,14 @@
 
 /* Priorités et associativités des tokens */
 
-
+%right IF THEN ELIF ELSE
+%left OR
+%left AND
+%left ASSIGN EQ NEQ GT GTE LT LTE
+%left PLUS MINUS CONCAT
+%left MUL DIV MOD
+%left TILD EXCLAM
+%left DOT LBRAC RBRAC FN
 
 /* Point d'entrée de la grammaire */
 %start file
@@ -116,7 +123,6 @@ stmt:
   | b = bexpr {SBexpr(b)}
   | VAL s = IDENT DEF e = expr {SDecl(s, e)}
   | VAR s = IDENT ASSIGN e =expr {SVar(s,e)}
-  
 ;
 
 binop:
