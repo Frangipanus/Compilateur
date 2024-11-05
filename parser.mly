@@ -48,7 +48,8 @@ decl:
 ;
 
 funbody:
-  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; annot? ; expr
+  | LPAR ; LHOOK ; il = separated_list(COMMA, IDENT) ; RHOOK ; RPAR ; annot? ; expr
+ 
    { { formal = [] ; annot = ([], Atype(Empty)) ; body = Block([]) } }
 ;
 
