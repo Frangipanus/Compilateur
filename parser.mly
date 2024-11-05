@@ -25,6 +25,7 @@
 
 /* Priorités et associativités des tokens */
 %nonassoc precedence_regle
+%left prec2
 %nonassoc IF THEN ELSE
 %left OR
 %left AND
@@ -32,7 +33,7 @@
 %left PLUS MINUS CONCAT
 %left MUL DIV MOD
 %nonassoc TILD EXCLAM
-%nonassoc DOT LBRAC RBRAC FN
+%nonassoc DOT LBRAC RBRAC FN 
 
 
 /* Point d'entrée de la grammaire */
@@ -109,7 +110,7 @@ expr:
 
 
 bexpr:
-  | a = atom {Eatom(a)}
+  | a = atom {Eatom(a)} %prec precedence_regle
   | TILD b = bexpr {ETild (b)}
   | EXCLAM b = bexpr {ENot(b)}
   | b1 = bexpr b2 = binop b3 = bexpr  {EBinop(b2,b1,b3)}
