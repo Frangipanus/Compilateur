@@ -76,13 +76,13 @@ result:
 ;
 
 kokatype:
-  | at = atype { TAType(at) }%prec precedence_regle
+  | at = atype { TAType(at) } %prec precedence_regle
   | at = atype ; ARROW ; res = result { TFun(at, res) }
   | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result {TMulFun(tl, res)}
 ;
    
 atype : 
-| s = IDENT; ty = option(LPAR ;LHOOK; ty = kokatype; RHOOK ; RPAR {ty}) {AVar(s, ty)}
+| s = IDENT ty = option(LPAR ;LHOOK; ty = kokatype; RHOOK  RPAR {ty}) {AVar(s, ty)} 
 | LPAR ty = kokatype RPAR {AType(ty)}
 | LPAR RPAR {AEmpty}
 ;
