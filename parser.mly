@@ -25,7 +25,6 @@
 
 /* Priorités et associativités des tokens du plus faible au plus fort */ 
 %nonassoc precedence_regle
-%left prec2
 %nonassoc IF THEN ELSE
 %left OR
 %left AND
@@ -33,9 +32,8 @@
 %left PLUS MINUS CONCAT
 %left MUL DIV MOD
 %nonassoc TILD EXCLAM
-%nonassoc DOT LBRAC RBRAC FN 
+%nonassoc DOT LBRAC RBRAC FN LPAR
 %nonassoc ARROW
-
 /* Point d'entrée de la grammaire */
 %start file
 
@@ -82,7 +80,8 @@ kokatype:
 ;
    
 atype : 
-| s = IDENT ty = option(LPAR ;LHOOK; ty = kokatype; RHOOK  RPAR {ty}) {AVar(s, ty)} 
+| s = IDENT LPAR ;LHOOK; ty = kokatype; RHOOK  RPAR  {AVar(s, Some(ty))} 
+| s= IDENT {AVar(s, None)} %prec precedence_regle
 | LPAR ty = kokatype RPAR {AType(ty)}
 | LPAR RPAR {AEmpty}
 ;
