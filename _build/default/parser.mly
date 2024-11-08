@@ -23,8 +23,8 @@
 %token <int> INT
 %token <string> STRING
 
-/* Priorités et associativités des tokens */
-
+/* Priorités et associativités des tokens du plus faible au plus fort */ 
+%nonassoc precedence_regle
 %nonassoc IF THEN ELSE
 %left OR
 %left AND
@@ -32,8 +32,8 @@
 %left PLUS MINUS CONCAT
 %left MUL DIV MOD
 %nonassoc TILD EXCLAM
-%nonassoc DOT LBRAC RBRAC FN
-
+%nonassoc DOT LBRAC RBRAC FN LPAR
+%nonassoc ARROW
 /* Point d'entrée de la grammaire */
 %start file
 
@@ -46,7 +46,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    { Printf.printf "hi" ; dl }
+    { Printf.printf "HELLO" ; dl }
 ;
 
 decl:
@@ -74,13 +74,14 @@ result:
 ;
 
 kokatype:
-  | at = atype { TAType(at) }
+  | at = atype { TAType(at) } %prec precedence_regle
   | at = atype ; ARROW ; res = result { TFun(at, res) }
   | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result {TMulFun(tl, res)}
 ;
    
 atype : 
-| s = IDENT; ty = option(LPAR ;LHOOK; ty = kokatype; RHOOK ; RPAR {ty}) {AVar(s, ty)}
+| s = IDENT LPAR ;LHOOK; ty = kokatype; RHOOK  RPAR  {AVar(s, Some(ty))} 
+| s= IDENT {AVar(s, None)} %prec precedence_regle
 | LPAR ty = kokatype RPAR {AType(ty)}
 | LPAR RPAR {AEmpty}
 ;
@@ -102,19 +103,22 @@ atom:
 
 expr:
   |s = block {EBlock(s)}
-  |s = bexpr {EBexpr(s)}
+  |s = bexpr {EBexpr(s)} %prec precedence_regle
   
 ;
+
+
 bexpr:
-  | a = atom {Eatom(a)}
+  | a = atom {Eatom(a)} %prec precedence_regle
   | TILD b = bexpr {ETild (b)}
   | EXCLAM b = bexpr {ENot(b)}
   | b1 = bexpr b2 = binop b3 = bexpr  {EBinop(b2,b1,b3)}
   | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr {(be, bb)}) ELSE b3 = expr {EIfElse(b1, b2,[] , b3)}
   | IF b1 = bexpr RETURN b2 = expr {EIfReturn (b1, b2)}
   | FN f = funbody {EFn(f)}
-  | RETURN e = expr {EReturn(e)}
+  | RETURN e = expr {EReturn(e)} 
 ;
+
 
 
 

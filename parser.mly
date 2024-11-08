@@ -46,7 +46,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    { Printf.printf "hi" ; dl }
+    { Printf.printf "HELLO" ; dl }
 ;
 
 decl:
