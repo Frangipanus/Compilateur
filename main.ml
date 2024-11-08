@@ -68,7 +68,7 @@ let () =
 	(* Erreur syntaxique. On récupère sa position absolue et on la
 	   convertit en numéro de ligne *)
 	localisation (Lexing.lexeme_start_p buf);
-	eprintf "Erreur syntaxique@.";
+	eprintf "Erreur syntaxique chef@.";
 	exit 1
     | _->
 	(* Erreur pendant l'interprétation *)

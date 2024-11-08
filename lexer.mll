@@ -2,6 +2,7 @@
 (* Analyseur lexical pour mini-Turtle *)
 
 {
+
   open Lexing
   open Parser
   
@@ -74,15 +75,15 @@ rule token  = parse
   | '~'   { TILD }
   | "!"   { EXCLAM }
   | '"'   { read_string lexbuf }
-  | integer as s { INT (int_of_string s) }
-  | retour as s { level := String.length s -1; token lexbuf }
+  | integer as s {Printf.printf "hielo\n"; INT (int_of_string s) }
+  | retour as s { level := String.length s -1; indented = ref true; token lexbuf }
   | ' ' { token lexbuf }
   | ident as id { try Hashtbl.find key_words id with Not_found -> IDENT id }
   | eof { EOF }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
 
 and comment = parse 
-  | retour as s { let level1 = String.length s -1  in Printf.printf "My tab level is %d\n" level1; token lexbuf }
+  | retour as s { token lexbuf }
   | _  { comment lexbuf }
 
 and comment2 = parse
@@ -93,3 +94,7 @@ and comment2 = parse
 and read_string = parse
   | string as s { STRING s }
   | '"' { token lexbuf }
+
+{
+  
+}

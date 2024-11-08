@@ -90,9 +90,9 @@ atom:
   | TRUE { ATrue }
   | FALSE { AFalse }
   | n = INT { Int(n) }
+  | id = IDENT { Ident(id) }
   | s = STRING { String(s) }
   | LPAR ; RPAR { Empty }
-  | id = IDENT { Ident(id) }
   | LPAR ; e = expr ; RPAR { Expr(e) }
   | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { Eval(at, el) }
   | at = atom ; DOT ; id = IDENT { Dot(at, id) }
@@ -102,8 +102,9 @@ atom:
 ;
 
 expr:
-  |s = block {EBlock(s)}
   |s = bexpr {EBexpr(s)} %prec precedence_regle
+  |s = block {Printf.printf "hi\n";EBlock(s)}
+  
   
 ;
 
