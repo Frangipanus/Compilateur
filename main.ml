@@ -43,7 +43,7 @@ let () =
   let f = open_in !ifile in
 
   (* Création d'un tampon d'analyse lexicale *)
-  let buf = Lexing.from_channel f in
+  let buf = Lexing.from_channel f in   
 
   try
     (* Parsing: la fonction  Parser.prog transforme le tampon lexical en un
