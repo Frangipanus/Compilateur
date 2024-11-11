@@ -1,1 +1,1 @@
-lexer.ml: Hashtbl Lexing List Parser Printf Queue Stack String
+lexer.ml: Hashtbl Lexing List Parser Queue Stack String

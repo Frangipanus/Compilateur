@@ -1,11 +1,4 @@
-;
-fun f2() { 42 };
-fun f3() {
+fun foo-x()
   42
-};
-fun f4() {
-  42;
-};
 fun main()
-  ()
-
+  foo-x()

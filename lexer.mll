@@ -33,11 +33,10 @@
 let digit = ['0'-'9']
 let lower = ['a'-'z' '_']
 let upper = ['A'-'Z']
-let other = ['a'-'z' '_' 'A'-'Z' '0'-'9']
+let other = ['a'-'z' '-' 'A'-'Z' '0'-'9']
 let lud = lower | upper | digit
-let ident = lower (lud | lud '_' lud)* '\''*
+let ident = lower (lud | lud '-' lud)* '\''*
 let tabu = ' '+
-
 let integer = '-'? ('0' | ['1'-'9'] digit*)
 let string = [^'"']*
 
@@ -114,19 +113,17 @@ and read_string = parse
               let c = pos.pos_cnum - pos.pos_bol in 
               let m = ref (Stack.top pile) in 
               if c > !m then ( 
-                Printf.printf "here\n";
                   if (not (List.mem (!last) fin_cont) &&  (not(List.mem (List.nth next 0) debut_cont))) then (
                       Queue.add LBRAC tokens;
-                      Printf.printf "heil\n";
                       Stack.push c pile;
                       );
                   if (!last = LBRAC) then Stack.push c pile
                 )
               else (
                 while c < !m do
-                  let accu = Stack.pop pile in 
+                  let _ = Stack.pop pile in  
                   m := Stack.top pile;
-                  if next <> [SEMICOLON;RBRAC] then Queue.add RBRAC tokens
+                  if next <> [SEMICOLON;RBRAC] then (Queue.add RBRAC tokens; Queue.add RBRAC tokens)
                 done;
                 if c > !m then raise(Lexing_error("Erreur d'indentation"));
                 if (not (List.mem (!last) fin_cont) && not (List.mem (List.nth next 0) debut_cont)) then
