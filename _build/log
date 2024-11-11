@@ -1,4 +1,4 @@
-# dune exec ./main.exe test.koka
+# dune exec ./main.exe syntax/good/testfile-types-9.koka
 # OCAMLPARAM: unset
 # Shared cache: disabled
 # Shared cache location: /home/paul/.cache/dune/db
@@ -14,4 +14,4 @@
 #  ; build_dir = In_build_dir "default"
 #  ; instrument_with = []
 #  }
-$ /home/paul/.opam/5.2.1~rc1/bin/ocamlc.opt -config > /tmp/dune_ff8211_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_6f4e2c_output

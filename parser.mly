@@ -16,7 +16,7 @@
 %token FALSE
 %token VAL
 %token VAR
-%token PLUS MINUS MUL DIV MOD CONCAT LT LTE GT GTE EQ NEQ AND OR LPAR RPAR LBRAC RBRAC LHOOK RHOOK LSPAR RSPAR COMMA ARROW DEF DOT ASSIGN SEMICOLON COLON TILD EXCLAM
+%token PLUS MINUS MUL DIV MOD CONCAT LT LTE  GTE EQ NEQ AND OR LPAR RPAR LBRAC RBRAC  GT LSPAR RSPAR COMMA ARROW DEF DOT ASSIGN SEMICOLON COLON TILD EXCLAM
 %token <string> IDENT
 %token <int> INT
 %token <string> STRING
@@ -66,19 +66,19 @@ annot:
 ;
 
 result:
-  | LHOOK  lst = list(COMMA s=IDENT {s})  RHOOK   t = kokatype
+  | LT  lst = separated_list(COMMA, IDENT)  GT   t = kokatype
     { (lst, t) }
   | t = kokatype { ([], t)}
 ;
-
+     
 kokatype:
   | at = atype { TAType(at) } %prec precedence_regle
   | at = atype ; ARROW ; res = result { TFun(at, res) }
-  | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result { TMulFun(tl, res) }
+  | LPAR ; tl = separated_list(COMMA,kokatype) ; RPAR; ARROW ; res = result { TMulFun(tl, res) }
 ;
-   
+  
 atype : 
-| s = IDENT LPAR ;LHOOK; ty = kokatype; RHOOK  RPAR  {AVar(s, Some(ty))} 
+| s = IDENT LPAR ;LT; ty = kokatype; GT  RPAR  {AVar(s, Some(ty))} 
 | s= IDENT {AVar(s, None)} %prec precedence_regle
 | LPAR ty = kokatype RPAR {AType(ty)}
 | LPAR RPAR {AEmpty}

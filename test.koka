@@ -1,4 +1,2 @@
-fun foo-x()
-  42
-fun main()
-  foo-x()
+fun foo(f: (int,int) -> int) { 1 }
+fun main() { }

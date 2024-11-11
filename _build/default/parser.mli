@@ -11,7 +11,6 @@ type token =
   | SEMICOLON
   | RSPAR
   | RPAR
-  | RHOOK
   | RETURN
   | RBRAC
   | PLUS
@@ -24,7 +23,6 @@ type token =
   | LT
   | LSPAR
   | LPAR
-  | LHOOK
   | LBRAC
   | INT of (int)
   | IF

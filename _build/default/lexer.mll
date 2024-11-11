@@ -35,7 +35,7 @@ let lower = ['a'-'z' '_']
 let upper = ['A'-'Z']
 let other = ['a'-'z' '-' 'A'-'Z' '0'-'9']
 let lud = lower | upper | digit
-let ident = lower (lud | lud '-' lud)* '\''*
+let ident = lower ('-' (upper | lower))? (lud | lud '-' (upper | lower))* ('\'' | '-')?
 let tabu = ' '+
 let integer = '-'? ('0' | ['1'-'9'] digit*)
 let string = [^'"']*
@@ -62,8 +62,6 @@ rule token  = parse
   | '}'   { [SEMICOLON;RBRAC] }
   | '['   { [LSPAR] }
   | ']'   { [RSPAR] }
-  | '<'   { [LHOOK] }
-  | '>'   { [RHOOK] }
   | ','   { [COMMA] }
   | ':'   { [COLON] }
   | ';'   { [SEMICOLON] }
@@ -92,9 +90,9 @@ and comment2 = parse
   | _    { comment2 lexbuf }
 
 and read_string = parse
-  | string as s { [STRING s] }
-  | '"' { token lexbuf }
-
+  | string '"' as s { [STRING s] }
+  |_ {raise (Lexing_error("error: wtf comment t'a fait?"))}
+   
 { 
   let next_token =
     let tokens = Queue.create () in
@@ -121,9 +119,10 @@ and read_string = parse
                 )
               else (
                 while c < !m do
+                  
                   let _ = Stack.pop pile in  
                   m := Stack.top pile;
-                  if next <> [SEMICOLON;RBRAC] then (Queue.add RBRAC tokens; Queue.add RBRAC tokens)
+                  if next <> [SEMICOLON;RBRAC] then ( Queue.add SEMICOLON tokens; Queue.add RBRAC tokens)
                 done;
                 if c > !m then raise(Lexing_error("Erreur d'indentation"));
                 if (not (List.mem (!last) fin_cont) && not (List.mem (List.nth next 0) debut_cont)) then
