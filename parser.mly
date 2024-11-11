@@ -44,7 +44,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    { Printf.printf "HELLO" ; dl }
+    {  dl }
 ;
 
 decl:
@@ -101,7 +101,7 @@ atom:
 
 expr:
   |s = bexpr { EBexpr(s) } %prec precedence_regle
-  |s = block { Printf.printf "hi\n";EBlock(s) } 
+  |s = block {EBlock(s) } 
 ;
 
 bexpr:

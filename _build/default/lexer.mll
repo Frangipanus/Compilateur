@@ -37,96 +37,106 @@ let other = ['a'-'z' '_' 'A'-'Z' '0'-'9']
 let lud = lower | upper | digit
 let ident = lower (lud | lud '_' lud)* '\''*
 let tabu = ' '+
-let retour = '\n' ' '*
+
 let integer = '-'? ('0' | ['1'-'9'] digit*)
 let string = [^'"']*
 
 rule token  = parse
   | "//"  { comment lexbuf }
   | "/*"  { comment2 lexbuf }
-  | "++"  { [CONCAT]}
-  | '+'   { [PLUS]}
-  | '-'   { [MINUS]}
-  | '*'   { [MUL]}
-  | '/'   { [DIV]}
-  | "<="  { [LTE]}
-  | "<"   { [LT]}
-  | ">="  { [GTE]}
-  | ">"   { [GT]}
-  | "=="  { [EQ]}
-  | "!="  { [NEQ]}
-  | "&&"  { [AND]}
-  | "||"  { [OR]}
-  | '('   { [LPAR]}
-  | ')'   { [RPAR]}
-  | '{'   { [LBRAC]}
-  | '}'   { [SEMICOLON;RBRAC]}
-  | '['   { [LSPAR]}
-  | ']'   { [RSPAR]}
-  | '<'   { [LHOOK]}
-  | '>'   { [RHOOK]}
-  | ','   { [COMMA]}
-  | ':'   { [COLON]}
-  | ';'   { [SEMICOLON]}
-  | "->"  { [ARROW]}
-  | "="   { [DEF]}
-  | ":="  { [ASSIGN]}
-  | '.'   { [DOT]}
-  | '~'   { [TILD]}
-  | "!"   { [EXCLAM]}
-  | '"'   { read_string lexbuf}
-  | integer as s {Printf.printf "hielo\n"; [INT (int_of_string s)] }
-  | retour as s {token lexbuf }
+  | "++"  { [CONCAT] }
+  | '+'   { [PLUS] }
+  | '-'   { [MINUS] }
+  | '*'   { [MUL] }
+  | '/'   { [DIV] }
+  | "<="  { [LTE] }
+  | "<"   { [LT] }
+  | ">="  { [GTE] }
+  | ">"   { [GT] }
+  | "=="  { [EQ] }
+  | "!="  { [NEQ] }
+  | "&&"  { [AND] }
+  | "||"  { [OR] }
+  | '('   { [LPAR] }
+  | ')'   { [RPAR] }
+  | '{'   { [LBRAC] }
+  | '}'   { [SEMICOLON;RBRAC] }
+  | '['   { [LSPAR] }
+  | ']'   { [RSPAR] }
+  | '<'   { [LHOOK] }
+  | '>'   { [RHOOK] }
+  | ','   { [COMMA] }
+  | ':'   { [COLON] }
+  | ';'   { [SEMICOLON] }
+  | "->"  { [ARROW] }
+  | "="   { [DEF] }
+  | ":="  { [ASSIGN] }
+  | '.'   { [DOT] }
+  | '~'   { [TILD] }
+  | "!"   { [EXCLAM] }
+  | '"'   { read_string lexbuf }
+  | integer as s { [INT (int_of_string s)] }
+  |'\n' {Lexing.new_line lexbuf; token lexbuf}
   | ' ' { token lexbuf }
   | ident as id { try [Hashtbl.find key_words id] with Not_found -> [IDENT id] }
   | eof { [SEMICOLON;EOF] }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
 
 and comment = parse 
-  | retour { token lexbuf }
+  | "\n" {Lexing.new_line lexbuf;  token lexbuf }
   | _  { comment lexbuf }
 
 and comment2 = parse
   | "*/" { token lexbuf }
   | eof  { raise(Lexing_error ("commentaire non finit")) }
-  |"\n"{ comment2 lexbuf}
+  | "\n" {Lexing.new_line lexbuf; comment2 lexbuf }
   | _    { comment2 lexbuf }
 
 and read_string = parse
   | string as s { [STRING s] }
   | '"' { token lexbuf }
 
-
-  { 
-   
+{ 
   let next_token =
     let tokens = Queue.create () in
     let pile = Stack.create () in 
-   Stack.push 0 pile;
+    Stack.push 0 pile;
     Queue.add SEMICOLON tokens; (* prochains lexèmes à renvoyer *)
     fun lb ->
-        if Queue.is_empty tokens then begin
-	  let l = token lb in
-    let pos = Lexing.lexeme_start_p lb in 
-    let line = pos.pos_lnum in 
-    if (line <> !last_line) then begin    
-          last_line := line;
-          let c = pos.pos_cnum - pos.pos_bol in 
-          let m = Stack.top pile in 
-           if c > m then ( 
-              if (not(List.mem (!last) fin_cont) && not(List.mem (List.nth l 0) debut_cont)) then (
-                  Queue.add LBRAC tokens;
-                  Stack.push c pile
-                  )
-              else ();
-              if (!last = LBRAC) then Stack.push c pile else ()
-            )
-           else (
-            
-           )
-
-    end;
-	  List.iter (fun t -> Queue.add t tokens) l
+      
+      if Queue.is_empty tokens then begin
+      
+        let next = token lb in
+        let pos = Lexing.lexeme_start_p lb in 
+        let line = pos.pos_lnum in 
+        if (line <> !last_line) then begin    
+              last_line := line;
+              let c = pos.pos_cnum - pos.pos_bol in 
+              let m = ref (Stack.top pile) in 
+              if c > !m then ( 
+                Printf.printf "here\n";
+                  if (not (List.mem (!last) fin_cont) &&  (not(List.mem (List.nth next 0) debut_cont))) then (
+                      Queue.add LBRAC tokens;
+                      Printf.printf "heil\n";
+                      Stack.push c pile;
+                      );
+                  if (!last = LBRAC) then Stack.push c pile
+                )
+              else (
+                while c < !m do
+                  let accu = Stack.pop pile in 
+                  m := Stack.top pile;
+                  if next <> [SEMICOLON;RBRAC] then Queue.add RBRAC tokens
+                done;
+                if c > !m then raise(Lexing_error("Erreur d'indentation"));
+                if (not (List.mem (!last) fin_cont) && not (List.mem (List.nth next 0) debut_cont)) then
+                  Queue.add SEMICOLON tokens;
+              )
         end;
-        Queue.pop tokens
+        
+	      List.iter (fun t -> Queue.add t tokens) next
+      end;
+      let acc = Queue.pop tokens in 
+      last := acc;
+      acc
 }

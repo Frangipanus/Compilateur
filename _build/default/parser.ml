@@ -14,7 +14,7 @@ module MenhirBasics = struct
     | TILD
     | THEN
     | STRING of (
-# 24 "parser.mly"
+# 22 "parser.mly"
        (string)
 # 20 "parser.ml"
   )
@@ -37,13 +37,13 @@ module MenhirBasics = struct
     | LHOOK
     | LBRAC
     | INT of (
-# 23 "parser.mly"
+# 21 "parser.mly"
        (int)
 # 43 "parser.ml"
   )
     | IF
     | IDENT of (
-# 22 "parser.mly"
+# 20 "parser.mly"
        (string)
 # 49 "parser.ml"
   )
@@ -437,14 +437,14 @@ and ('s, 'r) _menhir_cell1_FUN =
 
 and ('s, 'r) _menhir_cell1_IDENT = 
   | MenhirCell1_IDENT of 's * ('s, 'r) _menhir_state * (
-# 22 "parser.mly"
+# 20 "parser.mly"
        (string)
 # 443 "parser.ml"
 )
 
 and 's _menhir_cell0_IDENT = 
   | MenhirCell0_IDENT of 's * (
-# 22 "parser.mly"
+# 20 "parser.mly"
        (string)
 # 450 "parser.ml"
 )
@@ -485,7 +485,7 @@ and _menhir_box_file =
 let _menhir_action_01 =
   fun res ->
     (
-# 67 "parser.mly"
+# 65 "parser.mly"
                          ( res )
 # 491 "parser.ml"
      : (Ast.result))
@@ -493,7 +493,7 @@ let _menhir_action_01 =
 let _menhir_action_02 =
   fun () ->
     (
-# 90 "parser.mly"
+# 88 "parser.mly"
          ( ATrue )
 # 499 "parser.ml"
      : (Ast.atom))
@@ -501,7 +501,7 @@ let _menhir_action_02 =
 let _menhir_action_03 =
   fun () ->
     (
-# 91 "parser.mly"
+# 89 "parser.mly"
           ( AFalse )
 # 507 "parser.ml"
      : (Ast.atom))
@@ -509,7 +509,7 @@ let _menhir_action_03 =
 let _menhir_action_04 =
   fun n ->
     (
-# 92 "parser.mly"
+# 90 "parser.mly"
             ( Int(n) )
 # 515 "parser.ml"
      : (Ast.atom))
@@ -517,7 +517,7 @@ let _menhir_action_04 =
 let _menhir_action_05 =
   fun id ->
     (
-# 93 "parser.mly"
+# 91 "parser.mly"
                ( Ident(id) )
 # 523 "parser.ml"
      : (Ast.atom))
@@ -525,7 +525,7 @@ let _menhir_action_05 =
 let _menhir_action_06 =
   fun s ->
     (
-# 94 "parser.mly"
+# 92 "parser.mly"
                ( String(s) )
 # 531 "parser.ml"
      : (Ast.atom))
@@ -533,7 +533,7 @@ let _menhir_action_06 =
 let _menhir_action_07 =
   fun () ->
     (
-# 95 "parser.mly"
+# 93 "parser.mly"
                 ( Empty )
 # 539 "parser.ml"
      : (Ast.atom))
@@ -541,7 +541,7 @@ let _menhir_action_07 =
 let _menhir_action_08 =
   fun e ->
     (
-# 96 "parser.mly"
+# 94 "parser.mly"
                            ( Expr(e) )
 # 547 "parser.ml"
      : (Ast.atom))
@@ -554,7 +554,7 @@ let _menhir_action_09 =
 # 555 "parser.ml"
      in
     (
-# 97 "parser.mly"
+# 95 "parser.mly"
                                                                ( Eval(at, el) )
 # 560 "parser.ml"
      : (Ast.atom))
@@ -562,7 +562,7 @@ let _menhir_action_09 =
 let _menhir_action_10 =
   fun at id ->
     (
-# 98 "parser.mly"
+# 96 "parser.mly"
                                  ( Dot(at, id) )
 # 568 "parser.ml"
      : (Ast.atom))
@@ -570,7 +570,7 @@ let _menhir_action_10 =
 let _menhir_action_11 =
   fun at fb ->
     (
-# 99 "parser.mly"
+# 97 "parser.mly"
                                   ( Fn(at, fb) )
 # 576 "parser.ml"
      : (Ast.atom))
@@ -578,7 +578,7 @@ let _menhir_action_11 =
 let _menhir_action_12 =
   fun at b ->
     (
-# 100 "parser.mly"
+# 98 "parser.mly"
                           ( AtomBlock(at, b) )
 # 584 "parser.ml"
      : (Ast.atom))
@@ -591,7 +591,7 @@ let _menhir_action_13 =
 # 592 "parser.ml"
      in
     (
-# 101 "parser.mly"
+# 99 "parser.mly"
                                                      ( Brac(el) )
 # 597 "parser.ml"
      : (Ast.atom))
@@ -599,7 +599,7 @@ let _menhir_action_13 =
 let _menhir_action_14 =
   fun s ty ->
     (
-# 83 "parser.mly"
+# 81 "parser.mly"
                                                      (AVar(s, Some(ty)))
 # 605 "parser.ml"
      : (Ast.atype))
@@ -607,7 +607,7 @@ let _menhir_action_14 =
 let _menhir_action_15 =
   fun s ->
     (
-# 84 "parser.mly"
+# 82 "parser.mly"
            (AVar(s, None))
 # 613 "parser.ml"
      : (Ast.atype))
@@ -615,7 +615,7 @@ let _menhir_action_15 =
 let _menhir_action_16 =
   fun ty ->
     (
-# 85 "parser.mly"
+# 83 "parser.mly"
                           (AType(ty))
 # 621 "parser.ml"
      : (Ast.atype))
@@ -623,7 +623,7 @@ let _menhir_action_16 =
 let _menhir_action_17 =
   fun () ->
     (
-# 86 "parser.mly"
+# 84 "parser.mly"
             (AEmpty)
 # 629 "parser.ml"
      : (Ast.atype))
@@ -631,253 +631,253 @@ let _menhir_action_17 =
 let _menhir_action_18 =
   fun a ->
     (
-# 113 "parser.mly"
-             (Eatom(a))
+# 108 "parser.mly"
+             ( Eatom(a) )
 # 637 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_19 =
   fun b ->
     (
-# 114 "parser.mly"
-                   (ETild (b))
+# 109 "parser.mly"
+                   ( ETild (b) )
 # 645 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_20 =
   fun b ->
     (
-# 115 "parser.mly"
-                     (ENot(b))
+# 110 "parser.mly"
+                     ( ENot(b) )
 # 653 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_21 =
   fun b1 b3 ->
     let b2 = 
-# 137 "parser.mly"
-       (Eq)
+# 129 "parser.mly"
+       ( Eq )
 # 661 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 666 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_22 =
   fun b1 b3 ->
     let b2 = 
-# 138 "parser.mly"
-        (Neq)
+# 130 "parser.mly"
+        ( Neq )
 # 674 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 679 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_23 =
   fun b1 b3 ->
     let b2 = 
-# 139 "parser.mly"
-       (Lt)
+# 131 "parser.mly"
+       ( Lt )
 # 687 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 692 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_24 =
   fun b1 b3 ->
     let b2 = 
-# 140 "parser.mly"
-        (Lte)
+# 132 "parser.mly"
+        ( Lte )
 # 700 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 705 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_25 =
   fun b1 b3 ->
     let b2 = 
-# 141 "parser.mly"
-       (Gt)
+# 133 "parser.mly"
+       ( Gt )
 # 713 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 718 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_26 =
   fun b1 b3 ->
     let b2 = 
-# 142 "parser.mly"
-        (Gte)
+# 134 "parser.mly"
+        ( Gte )
 # 726 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 731 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_27 =
   fun b1 b3 ->
     let b2 = 
-# 143 "parser.mly"
-         (Add)
+# 135 "parser.mly"
+         ( Add )
 # 739 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 744 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_28 =
   fun b1 b3 ->
     let b2 = 
-# 144 "parser.mly"
-          (Sub)
+# 136 "parser.mly"
+          ( Sub )
 # 752 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 757 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_29 =
   fun b1 b3 ->
     let b2 = 
-# 145 "parser.mly"
-        (Mul)
+# 137 "parser.mly"
+        ( Mul )
 # 765 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 770 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_30 =
   fun b1 b3 ->
     let b2 = 
-# 146 "parser.mly"
-        (Div)
+# 138 "parser.mly"
+        ( Div )
 # 778 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 783 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_31 =
   fun b1 b3 ->
     let b2 = 
-# 147 "parser.mly"
-        (Mod)
+# 139 "parser.mly"
+        ( Mod )
 # 791 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 796 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_32 =
   fun b1 b3 ->
     let b2 = 
-# 148 "parser.mly"
-           (Concat)
+# 140 "parser.mly"
+           ( Concat )
 # 804 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 809 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_33 =
   fun b1 b3 ->
     let b2 = 
-# 149 "parser.mly"
-        (And)
+# 141 "parser.mly"
+        ( And )
 # 817 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 822 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_34 =
   fun b1 b3 ->
     let b2 = 
-# 150 "parser.mly"
-       (Or)
+# 142 "parser.mly"
+       ( Or )
 # 830 "parser.ml"
      in
     (
-# 116 "parser.mly"
-                                      (EBinop(b2,b1,b3))
+# 111 "parser.mly"
+                                      ( EBinop(b2,b1,b3) )
 # 835 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_35 =
   fun b1 b2 b3 lst ->
     (
-# 117 "parser.mly"
-                                                                                                      (EIfElse(b1, b2,[] , b3))
+# 112 "parser.mly"
+                                                                                                        ( EIfElse(b1, b2,[] , b3) )
 # 843 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_36 =
   fun b1 b2 ->
     (
-# 118 "parser.mly"
-                                   (EIfReturn (b1, b2))
+# 113 "parser.mly"
+                                   ( EIfReturn (b1, b2) )
 # 851 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_37 =
   fun f ->
     (
-# 119 "parser.mly"
-                   (EFn(f))
+# 114 "parser.mly"
+                   ( EFn(f) )
 # 859 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_38 =
   fun e ->
     (
-# 120 "parser.mly"
-                    (EReturn(e))
+# 115 "parser.mly"
+                    ( EReturn(e) )
 # 867 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_39 =
   fun lst ->
     (
-# 127 "parser.mly"
-                                                              (lst)
+# 119 "parser.mly"
+                                                              ( lst )
 # 875 "parser.ml"
      : (Ast.block))
 
 let _menhir_action_40 =
   fun body i ->
     (
-# 54 "parser.mly"
+# 52 "parser.mly"
     ( { name = i ; body = body } )
 # 883 "parser.ml"
      : (Ast.decl))
@@ -885,24 +885,24 @@ let _menhir_action_40 =
 let _menhir_action_41 =
   fun s ->
     (
-# 105 "parser.mly"
-             (EBexpr(s))
+# 103 "parser.mly"
+             ( EBexpr(s) )
 # 891 "parser.ml"
      : (Ast.expr))
 
 let _menhir_action_42 =
   fun s ->
     (
-# 106 "parser.mly"
-             (Printf.printf "hi\n";EBlock(s))
+# 104 "parser.mly"
+             (EBlock(s) )
 # 899 "parser.ml"
      : (Ast.expr))
 
 let _menhir_action_43 =
   fun dl ->
     (
-# 49 "parser.mly"
-    ( Printf.printf "HELLO" ; dl )
+# 47 "parser.mly"
+    (  dl )
 # 907 "parser.ml"
      : (Ast.file))
 
@@ -914,7 +914,7 @@ let _menhir_action_44 =
 # 915 "parser.ml"
      in
     (
-# 59 "parser.mly"
+# 57 "parser.mly"
    ( { formal = [] ; annot = ([], TAType(AEmpty)) ; body = e } )
 # 920 "parser.ml"
      : (Ast.funbody))
@@ -922,7 +922,7 @@ let _menhir_action_44 =
 let _menhir_action_45 =
   fun at ->
     (
-# 77 "parser.mly"
+# 75 "parser.mly"
                ( TAType(at) )
 # 928 "parser.ml"
      : (Ast.kokaType))
@@ -930,7 +930,7 @@ let _menhir_action_45 =
 let _menhir_action_46 =
   fun at res ->
     (
-# 78 "parser.mly"
+# 76 "parser.mly"
                                       ( TFun(at, res) )
 # 936 "parser.ml"
      : (Ast.kokaType))
@@ -938,8 +938,8 @@ let _menhir_action_46 =
 let _menhir_action_47 =
   fun res tl ->
     (
-# 79 "parser.mly"
-                                                                    (TMulFun(tl, res))
+# 77 "parser.mly"
+                                                                    ( TMulFun(tl, res) )
 # 944 "parser.ml"
      : (Ast.kokaType))
 
@@ -970,7 +970,7 @@ let _menhir_action_50 =
 let _menhir_action_51 =
   fun d xs ->
     let x = 
-# 48 "parser.mly"
+# 46 "parser.mly"
                                                   (d)
 # 976 "parser.ml"
      in
@@ -991,7 +991,7 @@ let _menhir_action_52 =
 let _menhir_action_53 =
   fun s xs ->
     let x = 
-# 71 "parser.mly"
+# 69 "parser.mly"
                                     (s)
 # 997 "parser.ml"
      in
@@ -1012,7 +1012,7 @@ let _menhir_action_54 =
 let _menhir_action_55 =
   fun s xs ->
     let x = 
-# 79 "parser.mly"
+# 77 "parser.mly"
                                         (s)
 # 1018 "parser.ml"
      in
@@ -1033,8 +1033,8 @@ let _menhir_action_56 =
 let _menhir_action_57 =
   fun bb be xs ->
     let x = 
-# 117 "parser.mly"
-                                                                           ((be, bb))
+# 112 "parser.mly"
+                                                                           ( (be, bb) )
 # 1039 "parser.ml"
      in
     (
@@ -1054,7 +1054,7 @@ let _menhir_action_58 =
 let _menhir_action_59 =
   fun s xs ->
     let x = 
-# 127 "parser.mly"
+# 119 "parser.mly"
                                                    (s)
 # 1060 "parser.ml"
      in
@@ -1131,7 +1131,7 @@ let _menhir_action_67 =
 let _menhir_action_68 =
   fun s ty ->
     (
-# 63 "parser.mly"
+# 61 "parser.mly"
                                       ( (s, ty) )
 # 1137 "parser.ml"
      : (string * Ast.kokaType))
@@ -1139,7 +1139,7 @@ let _menhir_action_68 =
 let _menhir_action_69 =
   fun lst t ->
     (
-# 72 "parser.mly"
+# 70 "parser.mly"
     ( (lst, t) )
 # 1145 "parser.ml"
      : (Ast.result))
@@ -1147,7 +1147,7 @@ let _menhir_action_69 =
 let _menhir_action_70 =
   fun t ->
     (
-# 73 "parser.mly"
+# 71 "parser.mly"
                  ( ([], t))
 # 1153 "parser.ml"
      : (Ast.result))
@@ -1187,24 +1187,24 @@ let _menhir_action_74 =
 let _menhir_action_75 =
   fun b ->
     (
-# 131 "parser.mly"
-              (SBexpr(b))
+# 123 "parser.mly"
+              ( SBexpr(b) )
 # 1193 "parser.ml"
      : (Ast.stmt))
 
 let _menhir_action_76 =
   fun e s ->
     (
-# 132 "parser.mly"
-                               (SDecl(s, e))
+# 124 "parser.mly"
+                               ( SDecl(s, e) )
 # 1201 "parser.ml"
      : (Ast.stmt))
 
 let _menhir_action_77 =
   fun e s ->
     (
-# 133 "parser.mly"
-                                 (SVar(s,e))
+# 125 "parser.mly"
+                                 ( SVar(s,e) )
 # 1209 "parser.ml"
      : (Ast.stmt))
 

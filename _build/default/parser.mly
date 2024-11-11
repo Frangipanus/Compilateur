@@ -4,8 +4,6 @@
 %}
 
 /* Déclaration des tokens */
-
-/* Déclaration des tokens */
 %token EOF
 %token IF
 %token THEN
@@ -46,7 +44,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    { Printf.printf "HELLO" ; dl }
+    {  dl }
 ;
 
 decl:
@@ -76,7 +74,7 @@ result:
 kokatype:
   | at = atype { TAType(at) } %prec precedence_regle
   | at = atype ; ARROW ; res = result { TFun(at, res) }
-  | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result {TMulFun(tl, res)}
+  | LPAR ; tl = list(COMMA s=  kokatype {s}) ; ARROW ; res = result { TMulFun(tl, res) }
 ;
    
 atype : 
@@ -102,49 +100,43 @@ atom:
 ;
 
 expr:
-  |s = bexpr {EBexpr(s)} %prec precedence_regle
-  |s = block {Printf.printf "hi\n";EBlock(s)}
-  
-  
+  |s = bexpr { EBexpr(s) } %prec precedence_regle
+  |s = block {EBlock(s) } 
 ;
-
 
 bexpr:
-  | a = atom {Eatom(a)} %prec precedence_regle
-  | TILD b = bexpr {ETild (b)}
-  | EXCLAM b = bexpr {ENot(b)}
-  | b1 = bexpr b2 = binop b3 = bexpr  {EBinop(b2,b1,b3)}
-  | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr {(be, bb)}) ELSE b3 = expr {EIfElse(b1, b2,[] , b3)}
-  | IF b1 = bexpr RETURN b2 = expr {EIfReturn (b1, b2)}
-  | FN f = funbody {EFn(f)}
-  | RETURN e = expr {EReturn(e)} 
+  | a = atom { Eatom(a) } %prec precedence_regle
+  | TILD b = bexpr { ETild (b) }
+  | EXCLAM b = bexpr { ENot(b) }
+  | b1 = bexpr b2 = binop b3 = bexpr  { EBinop(b2,b1,b3) }
+  | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr { (be, bb) }) ELSE b3 = expr { EIfElse(b1, b2,[] , b3) }
+  | IF b1 = bexpr RETURN b2 = expr { EIfReturn (b1, b2) }
+  | FN f = funbody { EFn(f) }
+  | RETURN e = expr { EReturn(e) } 
 ;
 
-
-
-
 block:
-  |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s}) RBRAC {lst}
+  |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s}) RBRAC { lst }
 ;
 
 stmt: 
-  | b = bexpr {SBexpr(b)}
-  | VAL s = IDENT DEF e = expr {SDecl(s, e)}
-  | VAR s = IDENT ASSIGN e =expr {SVar(s,e)}
+  | b = bexpr { SBexpr(b) }
+  | VAL s = IDENT DEF e = expr { SDecl(s, e) }
+  | VAR s = IDENT ASSIGN e =expr { SVar(s,e) }
 ;
 
 %inline binop:
-  | EQ {Eq}
-  | NEQ {Neq}
-  | LT {Lt}
-  | LTE {Lte}
-  | GT {Gt}
-  | GTE {Gte}
-  | PLUS {Add}
-  | MINUS {Sub}
-  | MUL {Mul}
-  | DIV {Div}
-  | MOD {Mod}
-  | CONCAT {Concat}
-  | AND {And}
-  | OR {Or}
+  | EQ { Eq }
+  | NEQ { Neq }
+  | LT { Lt }
+  | LTE { Lte }
+  | GT { Gt }
+  | GTE { Gte }
+  | PLUS { Add }
+  | MINUS { Sub }
+  | MUL { Mul }
+  | DIV { Div }
+  | MOD { Mod }
+  | CONCAT { Concat }
+  | AND { And }
+  | OR { Or }
