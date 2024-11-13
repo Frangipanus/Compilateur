@@ -2,15 +2,7 @@ type ident = string
 
 (* Atomes *)
 type loc = (Lexing.position * Lexing.position)
-type tout = 
-  |Tatom of atom 
-  |Tkokatype of kokaType
-  |Tatype of atype 
-  |Tresult of result 
-  |Tparam of param 
-  |Tbinop of binop 
-  |Tstmt of stmt 
-  |Texpr of expr
+
 
 and atom = 
   | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc
@@ -24,45 +16,46 @@ and atom =
 
 (* type *)
 and kokaType =
-  | TAType of atype
-  | TFun of atype * result
-  | TMulFun of kokaType list * result
+  | TAType of atype*loc
+  | TFun of atype * result*loc
+  | TMulFun of kokaType list * result *loc
 
 and atype =
-  | AVar of ident * (kokaType option)
-  | AType of kokaType
-  | AEmpty
+  | AVar of ident * (kokaType option) *loc
+  | AType of kokaType *loc
+  | AEmpty of loc
 
-and result = ident list * kokaType
+and result = ident list * kokaType* loc
 
-and param = ident * kokaType
+and param = ident * kokaType *loc
 
 (* operations *)
-and binop = Eq | Neq | Lt | Lte | Gt | Gte | Add | Sub | Mul | Div | Mod | Concat | And | Or
+and binop = Eq   | Neq   | Lt  | Lte  | Gt  | Gte   | Add   | Sub   
+| Mul | Div  | Mod  | Concat  | And  | Or  
 
 (* statement *)
 and stmt =
-  | SBexpr of bexpr
-  | SDecl of ident * expr
-  | SVar of ident * expr
+  | SBexpr of bexpr *loc
+  | SDecl of ident * expr *loc
+  | SVar of ident * expr *loc
 
 (* expression *)
 and expr =
-  | EBlock of block
-  | EBexpr of bexpr
+  | EBlock of block *loc
+  | EBexpr of bexpr *loc
 
-and block = stmt list
+and block = stmt list 
 
 and bexpr =
-  | Eatom of atom
-  | ETild of bexpr
-  | ENot of bexpr
-  | EBinop of binop * bexpr * bexpr
-  | EAsign of ident * bexpr
-  | EIfElse of bexpr * expr * ( (bexpr * expr) list ) * expr
-  | EIfReturn of bexpr * expr
-  | EFn of funbody
-  | EReturn of expr
+  | Eatom of atom *loc
+  | ETild of bexpr *loc
+  | ENot of bexpr *loc
+  | EBinop of binop * bexpr * bexpr *loc
+  | EAsign of ident * bexpr *loc
+  | EIfElse of bexpr * expr * ( (bexpr * expr) list ) * expr *loc
+  | EIfReturn of bexpr * expr *loc
+  | EFn of funbody *loc
+  | EReturn of expr *loc
 
 (* corps d'une fonction *)
 and funbody = {
