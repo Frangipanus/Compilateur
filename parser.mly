@@ -32,6 +32,7 @@
 %nonassoc TILD EXCLAM
 %nonassoc DOT LBRAC RBRAC FN LPAR
 %nonassoc ARROW
+%nonassoc tres_prio
 /* Point d'entrée de la grammaire */
 %start file
 
@@ -39,22 +40,24 @@
 %type <file> file
 
 %%
-
+  
 /* Règles de grammaire */
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    {  dl }
+    {dl }
 ;
 
 decl:
   | FUN ; i = IDENT ; body = funbody
-    { { name = i ; body = body } }
+    {{ name = i ; body = body } }
 ;
 
 funbody:
-  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; annot? ; e = expr
-   { { formal = [] ; annot = ([], TAType(AEmpty)) ; body = e } }
+  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; a = annot ; e = expr %prec tres_prio
+   { { formal = pl ; annot = a ; body = e } }
+  | LPAR  ; pl = separated_list(COMMA, param) ; RPAR  ; e = expr
+   { { formal = pl ; annot = ([], TAType(AEmpty)) ; body = e } }
 ;
 
 param:
@@ -85,18 +88,18 @@ atype :
 ;
 
 atom:
-  | TRUE { ATrue }
-  | FALSE { AFalse }
-  | n = INT { Int(n) }
-  | id = IDENT { Ident(id) }
-  | s = STRING { String(s) }
-  | LPAR ; RPAR { Empty }
-  | LPAR ; e = expr ; RPAR { Expr(e) }
-  | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { Eval(at, el) }
-  | at = atom ; DOT ; id = IDENT { Dot(at, id) }
-  | at = atom ; FN ; fb = funbody { Fn(at, fb) }
-  | at = atom ; b = block { AtomBlock(at, b) }
-  | LSPAR ; el = separated_list(COMMA, expr) ; RSPAR { Brac(el) }
+  | TRUE { ATrue ($startpos, $endpos) }
+  | FALSE { AFalse ($startpos, $endpos) }
+  | n = INT { Int(n, ($startpos, $endpos)) }
+  | id = IDENT { Ident(id, ($startpos, $endpos)) }
+  | s = STRING { String(s, ($startpos, $endpos)) }
+  | LPAR ; RPAR { Empty ($startpos, $endpos) }
+  | LPAR ; e = expr ; RPAR { Expr(e, ($startpos, $endpos)) }
+  | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { Eval(at, el, ($startpos, $endpos)) }
+  | at = atom ; DOT ; id = IDENT { Dot(at, id, ($startpos, $endpos)) }
+  | at = atom ; FN ; fb = funbody { Fn(at, fb, ($startpos, $endpos)) }
+  | at = atom ; b = block { AtomBlock(at, b, ($startpos, $endpos)) }
+  | LSPAR ; el = separated_list(COMMA, expr) ; RSPAR { Brac(el, ($startpos, $endpos)) }
 ;
 
 expr:

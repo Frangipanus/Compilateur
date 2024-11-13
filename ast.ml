@@ -1,15 +1,26 @@
 type ident = string
 
 (* Atomes *)
-type atom = 
-  | ATrue | AFalse | Int of int | String of string | Empty
-  | Ident of ident
-  | Expr of expr
-  | Eval of atom * (expr list)
-  | Dot of atom * ident
-  | Fn of atom * funbody
-  | AtomBlock of atom * block
-  | Brac of expr list
+type loc = (Lexing.position * Lexing.position)
+type tout = 
+  |Tatom of atom 
+  |Tkokatype of kokaType
+  |Tatype of atype 
+  |Tresult of result 
+  |Tparam of param 
+  |Tbinop of binop 
+  |Tstmt of stmt 
+  |Texpr of expr
+
+and atom = 
+  | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc
+  | Ident of ident * loc
+  | Expr of expr * loc
+  | Eval of atom * (expr list) * loc
+  | Dot of atom * ident * loc
+  | Fn of atom * funbody * loc
+  | AtomBlock of atom * block * loc
+  | Brac of expr list * loc
 
 (* type *)
 and kokaType =
