@@ -4,23 +4,13 @@ type ident = string
 type loc = (Lexing.position * Lexing.position)
 
 
-and atom = 
-  | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc
-  | Ident of ident * loc
-  | Expr of expr * loc
-  | Eval of atom * (expr list) * loc
-  | Dot of atom * ident * loc
-  | Fn of atom * funbody * loc
-  | AtomBlock of atom * block * loc
-  | Brac of expr list * loc
+
 
 (* type *)
 and kokaType =
-  | TAType of atype*loc
-  | TFun of atype * result*loc
+  | TAType of kokaType*loc
+  | TFun of kokaType * result*loc
   | TMulFun of kokaType list * result *loc
-
-and atype =
   | AVar of ident * (kokaType option) *loc
   | AType of kokaType *loc
   | AEmpty of loc
@@ -36,32 +26,38 @@ and binop = Eq   | Neq   | Lt  | Lte  | Gt  | Gte   | Add   | Sub
 (* statement *)
 and stmt =
   | SBexpr of bexpr *loc
-  | SDecl of ident * expr *loc
-  | SVar of ident * expr *loc
+  | SDecl of ident * bexpr *loc
+  | SVar of ident * bexpr *loc
 
 (* expression *)
-and expr =
-  | EBlock of block *loc
-  | EBexpr of bexpr *loc
 
-and block = stmt list 
 
 and bexpr =
-  | Eatom of atom *loc
+  | EBlock of stmt list *loc
+  | EBexpr of bexpr *loc
+  | Eatom of bexpr *loc
   | ETild of bexpr *loc
   | ENot of bexpr *loc
   | EBinop of binop * bexpr * bexpr *loc
   | EAsign of ident * bexpr *loc
-  | EIfElse of bexpr * expr * ( (bexpr * expr) list ) * expr *loc
-  | EIfReturn of bexpr * expr *loc
+  |EIf of bexpr*bexpr * bexpr * loc
+  | EIfElse of bexpr * bexpr * ( (bexpr * bexpr) list ) * bexpr *loc
+  | EIfReturn of bexpr * bexpr *loc
   | EFn of funbody *loc
-  | EReturn of expr *loc
+  | EReturn of bexpr *loc
+  | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc
+  | Ident of ident * loc
+  | Eval of bexpr * (bexpr list) * loc
+  | Dot of bexpr * ident * loc
+  | Fn of bexpr * funbody * loc
+  | AtomBlock of bexpr * (stmt list) * loc
+  | Brac of bexpr list * loc 
 
 (* corps d'une fonction *)
 and funbody = {
   formal : param list; (* arguments *)
   annot  : result; (* annotation *)
-  body   : expr;
+  body   : bexpr;
 }
 
 (* declaration de fonctions *)

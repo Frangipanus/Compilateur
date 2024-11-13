@@ -23,7 +23,8 @@
 
 /* Priorités et associativités des tokens du plus faible au plus fort */ 
 %nonassoc precedence_regle
-%nonassoc IF THEN ELSE
+%nonassoc THEN
+%nonassoc IF ELSE ELIF
 %left OR
 %left AND
 %nonassoc ASSIGN EQ NEQ GT GTE LT LTE
@@ -96,7 +97,7 @@ atom:
   | id = IDENT { Ident(id, ($startpos,$endpos)) }
   | s = STRING { String(s, ($startpos,$endpos)) }
   | LPAR ; RPAR { Empty(($startpos,$endpos)) }
-  | LPAR ; e = expr ; RPAR { Expr(e, ($startpos,$endpos)) }
+  | LPAR ; e = expr ; RPAR { e }
   | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { Eval(at, el, ($startpos,$endpos)) }
   | at = atom ; DOT ; id = IDENT { Dot(at, id,($startpos,$endpos)) }
   | at = atom ; FN ; fb = funbody { Fn(at, fb, ($startpos,$endpos)) }
@@ -114,11 +115,16 @@ bexpr:
   | TILD b = bexpr { ETild (b,($startpos,$endpos)) }
   | EXCLAM b = bexpr { ENot(b,($startpos,$endpos)) }
   | b1 = bexpr b2 = binop b3 = bexpr  { EBinop(b2,b1,b3, ($startpos,$endpos)) }
-  | IF b1 = bexpr THEN b2 = expr lst = list(ELIF be = bexpr THEN bb = expr { (be, bb) }) ELSE b3 = expr { EIfElse(b1, b2,lst , b3, ($startpos,$endpos)) }
+  | IF b1 = bexpr THEN b2 = expr lst = elifs { EIf(b1, b2,lst, ($startpos,$endpos)) }
   | IF b1 = bexpr RETURN b2 = expr { EIfReturn (b1, b2, ($startpos,$endpos)) }
   | FN f = funbody { EFn(f, ($startpos,$endpos)) }
   | RETURN e = expr { EReturn(e, ($startpos,$endpos)) } 
 ;
+
+elifs: 
+  |%prec precedence_regle {EBlock([], ($startpos,$endpos))}
+  | ELIF b2 = bexpr THEN b3 = bexpr s = elifs {EIf(b2, b3, s, ($startpos,$endpos))}
+  |ELSE b3 = bexpr {b3}
 
 block:
   |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s})  RBRAC { lst }

@@ -18,12 +18,11 @@
   let () = Hashtbl.add key_words "return" RETURN
   let () = Hashtbl.add key_words "val" VAL
   let () = Hashtbl.add key_words "var" VAR
-  let () = Hashtbl.add key_words "True" TRUE
-  let () = Hashtbl.add key_words "False" FALSE
+  let () = Hashtbl.add key_words "true" TRUE
+  let () = Hashtbl.add key_words "false" FALSE
   
   let fin_cont = [PLUS; MINUS; MUL; DIV; MOD; CONCAT ;LT ; LTE; GT ;GTE ;EQ; NEQ ;AND; OR ;LPAR; LBRAC; COMMA; ]
-  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN ; SEMICOLON ;THEN; ELSE; ELIF;]
-
+  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN  ;THEN; ELSE; ELIF;]
   let level = ref (-1)  
   let last = ref SEMICOLON
   let indented = ref false 
@@ -122,7 +121,7 @@ and read_string = parse
                   
                   let _ = Stack.pop pile in  
                   m := Stack.top pile;
-                  if next <> [SEMICOLON;RBRAC] then ( Queue.add SEMICOLON tokens; Queue.add RBRAC tokens)
+                  if (List.length next == 2 && List.nth next 1 = RBRAC) then () else ( Queue.add SEMICOLON tokens; Queue.add RBRAC tokens)
                 done;
                 if c > !m then raise(Lexing_error("Erreur d'indentation"));
                 if (not (List.mem (!last) fin_cont) && not (List.mem (List.nth next 0) debut_cont)) then

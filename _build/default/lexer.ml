@@ -16,19 +16,18 @@
   let () = Hashtbl.add key_words "return" RETURN
   let () = Hashtbl.add key_words "val" VAL
   let () = Hashtbl.add key_words "var" VAR
-  let () = Hashtbl.add key_words "True" TRUE
-  let () = Hashtbl.add key_words "False" FALSE
+  let () = Hashtbl.add key_words "true" TRUE
+  let () = Hashtbl.add key_words "false" FALSE
   
   let fin_cont = [PLUS; MINUS; MUL; DIV; MOD; CONCAT ;LT ; LTE; GT ;GTE ;EQ; NEQ ;AND; OR ;LPAR; LBRAC; COMMA; ]
-  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN ; SEMICOLON ;THEN; ELSE; ELIF;]
-
+  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN  ;THEN; ELSE; ELIF;]
   let level = ref (-1)  
   let last = ref SEMICOLON
   let indented = ref false 
   let last_line = ref (-1)
 
 
-# 32 "lexer.ml"
+# 31 "lexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
    "\000\000\219\255\220\255\088\000\222\255\223\255\015\000\224\255\
@@ -242,204 +241,204 @@ let rec token lexbuf =
 and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 44 "lexer.mll"
+# 43 "lexer.mll"
           ( comment lexbuf )
-# 248 "lexer.ml"
+# 247 "lexer.ml"
 
   | 1 ->
-# 45 "lexer.mll"
+# 44 "lexer.mll"
           ( comment2 lexbuf )
-# 253 "lexer.ml"
+# 252 "lexer.ml"
 
   | 2 ->
-# 46 "lexer.mll"
+# 45 "lexer.mll"
           ( [CONCAT] )
-# 258 "lexer.ml"
+# 257 "lexer.ml"
 
   | 3 ->
-# 47 "lexer.mll"
+# 46 "lexer.mll"
           ( [PLUS] )
-# 263 "lexer.ml"
+# 262 "lexer.ml"
 
   | 4 ->
-# 48 "lexer.mll"
+# 47 "lexer.mll"
           ( [MINUS] )
-# 268 "lexer.ml"
+# 267 "lexer.ml"
 
   | 5 ->
-# 49 "lexer.mll"
+# 48 "lexer.mll"
           ( [MUL] )
-# 273 "lexer.ml"
+# 272 "lexer.ml"
 
   | 6 ->
-# 50 "lexer.mll"
+# 49 "lexer.mll"
           ( [DIV] )
-# 278 "lexer.ml"
+# 277 "lexer.ml"
 
   | 7 ->
-# 51 "lexer.mll"
+# 50 "lexer.mll"
           ( [LTE] )
-# 283 "lexer.ml"
+# 282 "lexer.ml"
 
   | 8 ->
-# 52 "lexer.mll"
+# 51 "lexer.mll"
           ( [LT] )
-# 288 "lexer.ml"
+# 287 "lexer.ml"
 
   | 9 ->
-# 53 "lexer.mll"
+# 52 "lexer.mll"
           ( [GTE] )
-# 293 "lexer.ml"
+# 292 "lexer.ml"
 
   | 10 ->
-# 54 "lexer.mll"
+# 53 "lexer.mll"
           ( [GT] )
-# 298 "lexer.ml"
+# 297 "lexer.ml"
 
   | 11 ->
-# 55 "lexer.mll"
+# 54 "lexer.mll"
           ( [EQ] )
-# 303 "lexer.ml"
+# 302 "lexer.ml"
 
   | 12 ->
-# 56 "lexer.mll"
+# 55 "lexer.mll"
           ( [NEQ] )
-# 308 "lexer.ml"
+# 307 "lexer.ml"
 
   | 13 ->
-# 57 "lexer.mll"
+# 56 "lexer.mll"
           ( [AND] )
-# 313 "lexer.ml"
+# 312 "lexer.ml"
 
   | 14 ->
-# 58 "lexer.mll"
+# 57 "lexer.mll"
           ( [OR] )
-# 318 "lexer.ml"
+# 317 "lexer.ml"
 
   | 15 ->
-# 59 "lexer.mll"
+# 58 "lexer.mll"
           ( [LPAR] )
-# 323 "lexer.ml"
+# 322 "lexer.ml"
 
   | 16 ->
-# 60 "lexer.mll"
+# 59 "lexer.mll"
           ( [RPAR] )
-# 328 "lexer.ml"
+# 327 "lexer.ml"
 
   | 17 ->
-# 61 "lexer.mll"
+# 60 "lexer.mll"
           ( [LBRAC] )
-# 333 "lexer.ml"
+# 332 "lexer.ml"
 
   | 18 ->
-# 62 "lexer.mll"
+# 61 "lexer.mll"
           ( [SEMICOLON;RBRAC] )
-# 338 "lexer.ml"
+# 337 "lexer.ml"
 
   | 19 ->
-# 63 "lexer.mll"
+# 62 "lexer.mll"
           ( [LSPAR] )
-# 343 "lexer.ml"
+# 342 "lexer.ml"
 
   | 20 ->
-# 64 "lexer.mll"
+# 63 "lexer.mll"
           ( [RSPAR] )
-# 348 "lexer.ml"
+# 347 "lexer.ml"
 
   | 21 ->
-# 65 "lexer.mll"
+# 64 "lexer.mll"
           ( [COMMA] )
-# 353 "lexer.ml"
+# 352 "lexer.ml"
 
   | 22 ->
-# 66 "lexer.mll"
+# 65 "lexer.mll"
           ( [COLON] )
-# 358 "lexer.ml"
+# 357 "lexer.ml"
 
   | 23 ->
-# 67 "lexer.mll"
+# 66 "lexer.mll"
           ( [SEMICOLON] )
-# 363 "lexer.ml"
+# 362 "lexer.ml"
 
   | 24 ->
-# 68 "lexer.mll"
+# 67 "lexer.mll"
           ( [ARROW] )
-# 368 "lexer.ml"
+# 367 "lexer.ml"
 
   | 25 ->
-# 69 "lexer.mll"
+# 68 "lexer.mll"
           ( [DEF] )
-# 373 "lexer.ml"
+# 372 "lexer.ml"
 
   | 26 ->
-# 70 "lexer.mll"
+# 69 "lexer.mll"
           ( [ASSIGN] )
-# 378 "lexer.ml"
+# 377 "lexer.ml"
 
   | 27 ->
-# 71 "lexer.mll"
+# 70 "lexer.mll"
           ( [DOT] )
-# 383 "lexer.ml"
+# 382 "lexer.ml"
 
   | 28 ->
-# 72 "lexer.mll"
+# 71 "lexer.mll"
           ( [TILD] )
-# 388 "lexer.ml"
+# 387 "lexer.ml"
 
   | 29 ->
-# 73 "lexer.mll"
+# 72 "lexer.mll"
           ( [EXCLAM] )
-# 393 "lexer.ml"
+# 392 "lexer.ml"
 
   | 30 ->
-# 74 "lexer.mll"
+# 73 "lexer.mll"
           ( read_string lexbuf )
-# 398 "lexer.ml"
+# 397 "lexer.ml"
 
   | 31 ->
 let
-# 75 "lexer.mll"
+# 74 "lexer.mll"
                s
-# 404 "lexer.ml"
+# 403 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 75 "lexer.mll"
+# 74 "lexer.mll"
                  ( [INT (int_of_string s)] )
-# 408 "lexer.ml"
+# 407 "lexer.ml"
 
   | 32 ->
-# 76 "lexer.mll"
+# 75 "lexer.mll"
         (Lexing.new_line lexbuf; token lexbuf)
-# 413 "lexer.ml"
+# 412 "lexer.ml"
 
   | 33 ->
-# 77 "lexer.mll"
+# 76 "lexer.mll"
         ( token lexbuf )
-# 418 "lexer.ml"
+# 417 "lexer.ml"
 
   | 34 ->
 let
-# 78 "lexer.mll"
+# 77 "lexer.mll"
              id
-# 424 "lexer.ml"
+# 423 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 78 "lexer.mll"
+# 77 "lexer.mll"
                 ( try [Hashtbl.find key_words id] with Not_found -> [IDENT id] )
-# 428 "lexer.ml"
+# 427 "lexer.ml"
 
   | 35 ->
-# 79 "lexer.mll"
+# 78 "lexer.mll"
         ( [SEMICOLON;EOF] )
-# 433 "lexer.ml"
+# 432 "lexer.ml"
 
   | 36 ->
 let
-# 80 "lexer.mll"
+# 79 "lexer.mll"
          c
-# 439 "lexer.ml"
+# 438 "lexer.ml"
 = Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
-# 80 "lexer.mll"
+# 79 "lexer.mll"
            ( raise (Lexing_error ("error read: "^(String.make 1 c))) )
-# 443 "lexer.ml"
+# 442 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_token_rec lexbuf __ocaml_lex_state
@@ -449,14 +448,14 @@ and comment lexbuf =
 and __ocaml_lex_comment_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 83 "lexer.mll"
+# 82 "lexer.mll"
          (Lexing.new_line lexbuf;  token lexbuf )
-# 455 "lexer.ml"
+# 454 "lexer.ml"
 
   | 1 ->
-# 84 "lexer.mll"
+# 83 "lexer.mll"
        ( comment lexbuf )
-# 460 "lexer.ml"
+# 459 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_comment_rec lexbuf __ocaml_lex_state
@@ -466,24 +465,24 @@ and comment2 lexbuf =
 and __ocaml_lex_comment2_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 87 "lexer.mll"
+# 86 "lexer.mll"
          ( token lexbuf )
-# 472 "lexer.ml"
+# 471 "lexer.ml"
 
   | 1 ->
-# 88 "lexer.mll"
+# 87 "lexer.mll"
          ( raise(Lexing_error ("commentaire non finit")) )
-# 477 "lexer.ml"
+# 476 "lexer.ml"
 
   | 2 ->
-# 89 "lexer.mll"
+# 88 "lexer.mll"
          (Lexing.new_line lexbuf; comment2 lexbuf )
-# 482 "lexer.ml"
+# 481 "lexer.ml"
 
   | 3 ->
-# 90 "lexer.mll"
+# 89 "lexer.mll"
          ( comment2 lexbuf )
-# 487 "lexer.ml"
+# 486 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_comment2_rec lexbuf __ocaml_lex_state
@@ -494,25 +493,25 @@ and __ocaml_lex_read_string_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
 let
-# 93 "lexer.mll"
+# 92 "lexer.mll"
                   s
-# 500 "lexer.ml"
+# 499 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 93 "lexer.mll"
+# 92 "lexer.mll"
                     ( [STRING s] )
-# 504 "lexer.ml"
+# 503 "lexer.ml"
 
   | 1 ->
-# 94 "lexer.mll"
+# 93 "lexer.mll"
      (raise (Lexing_error("error: wtf comment t'a fait?")))
-# 509 "lexer.ml"
+# 508 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_read_string_rec lexbuf __ocaml_lex_state
 
 ;;
 
-# 96 "lexer.mll"
+# 95 "lexer.mll"
   
   let next_token =
     let tokens = Queue.create () in
@@ -542,7 +541,7 @@ let
                   
                   let _ = Stack.pop pile in  
                   m := Stack.top pile;
-                  if next <> [SEMICOLON;RBRAC] then ( Queue.add SEMICOLON tokens; Queue.add RBRAC tokens)
+                  if (List.length next == 2 && List.nth next 1 = RBRAC) then () else ( Queue.add SEMICOLON tokens; Queue.add RBRAC tokens)
                 done;
                 if c > !m then raise(Lexing_error("Erreur d'indentation"));
                 if (not (List.mem (!last) fin_cont) && not (List.mem (List.nth next 0) debut_cont)) then
@@ -556,4 +555,4 @@ let
       last := acc;
       acc
 
-# 560 "lexer.ml"
+# 559 "lexer.ml"
