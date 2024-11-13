@@ -50,14 +50,12 @@ val xv_separated_nonempty_list_COMMA_kokatype_ : Ast.kokaType list
 val xv_separated_nonempty_list_COMMA_expr_ : Ast.expr list
 val xv_separated_nonempty_list_COMMA_IDENT_ : string list
 val xv_separated_list_COMMA_param_ : Ast.param list
-val xv_separated_list_COMMA_kokatype_ : Ast.kokaType list
 val xv_separated_list_COMMA_expr_ : Ast.expr list
 val xv_separated_list_COMMA_IDENT_ : string list
 val xv_result : Ast.result
 val xv_param : Ast.param
 val xv_nonempty_list_SEMICOLON_ : unit list
 val xv_loption_separated_nonempty_list_COMMA_param__ : Ast.param list
-val xv_loption_separated_nonempty_list_COMMA_kokatype__ : Ast.kokaType list
 val xv_loption_separated_nonempty_list_COMMA_expr__ : Ast.expr list
 val xv_loption_separated_nonempty_list_COMMA_IDENT__ : string list
 val xv_list___anonymous_2_ : Ast.block

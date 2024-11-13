@@ -5,7 +5,7 @@ open Parser
 open Lexer
 
 (* Option de compilation, pour s'arrêter à l'issue du parser *)
-let parse_only = ref true
+let parse_only = ref false
 
 (* Nom du fichier source *)
 let ifile = ref ""
@@ -28,7 +28,7 @@ let localisation pos =
 let () =
   (* Parsing de la ligne de commande *)
   Arg.parse options (set_file ifile) usage;
-
+  Printf.printf "%b" (!parse_only);
   (* On vérifie que le nom du fichier source a bien été indiqué *)
   if !ifile="" then begin eprintf "Aucun fichier à compiler\n@?"; exit 1 end;
 
