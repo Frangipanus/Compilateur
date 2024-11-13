@@ -3,6 +3,6 @@ fun f1()
     if true then 
       42 
     else 
-      var x = 48
+      var x = 48}
 fun f2()
   42
