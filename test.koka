@@ -1,11 +1,8 @@
-fun f1() 42
-fun f2() { 42 }
-fun f3() {
+fun f1() 
+  if true then {
+    if true then 
+      42 
+    else 
+      var x = 48
+fun f2()
   42
-}
-fun f4() {
-  42;
-}
-fun main()
-  ()
-
