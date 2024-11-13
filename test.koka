@@ -1,2 +1,11 @@
-fun foo(f: (int,int) -> int) { 1 }
-fun main() { }
+fun f1() 42
+fun f2() { 42 }
+fun f3() {
+  42
+}
+fun f4() {
+  42;
+}
+fun main()
+  ()
+
