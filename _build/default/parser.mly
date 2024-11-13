@@ -116,7 +116,7 @@ bexpr:
 ;
 
 block:
-  |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s}) RBRAC { lst }
+  |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s})  RBRAC { lst }
 ;
 
 stmt: 
