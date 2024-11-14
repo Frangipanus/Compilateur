@@ -1,4 +1,4 @@
-
+open Ast
 open Format
 open Lexing
 open Parser
@@ -28,7 +28,7 @@ let localisation pos =
 let () =
   (* Parsing de la ligne de commande *)
   Arg.parse options (set_file ifile) usage;
-  Printf.printf "%b" (!parse_only);
+  
   (* On vérifie que le nom du fichier source a bien été indiqué *)
   if !ifile="" then begin eprintf "Aucun fichier à compiler\n@?"; exit 1 end;
 
@@ -68,8 +68,11 @@ let () =
 	(* Erreur syntaxique. On récupère sa position absolue et on la
 	   convertit en numéro de ligne *)
 	localisation (Lexing.lexeme_start_p buf);
-	eprintf "Erreur syntaxique chef@.";
+	eprintf "Erreur syntaxique@.";
 	exit 1
+    |Error2 -> localisation (Lexing.lexeme_start_p buf);
+    eprintf "Erreur syntaxique@.";
+    exit 1
     | _->
 	(* Erreur pendant l'interprétation *)
-	eprintf "Normal : @." 
+	eprintf "Normal : @." ; exit 2

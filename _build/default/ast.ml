@@ -1,5 +1,5 @@
 type ident = string
-
+exception Error2
 (* Atomes *)
 type loc = (Lexing.position * Lexing.position)
 
