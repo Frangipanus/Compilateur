@@ -41,8 +41,6 @@ and bexpr =
   | EBinop of binop * bexpr * bexpr *loc
   | EAsign of ident * bexpr *loc
   |EIf of bexpr*bexpr * bexpr * loc
-  | EIfElse of bexpr * bexpr * ( (bexpr * bexpr) list ) * bexpr *loc
-  | EIfReturn of bexpr * bexpr *loc
   | EFn of funbody *loc
   | EReturn of bexpr *loc
   | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc

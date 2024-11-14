@@ -33,6 +33,7 @@
 %nonassoc TILD EXCLAM
 %nonassoc DOT LBRAC RBRAC FN LPAR RPAR
 %nonassoc ARROW
+%nonassoc tres
 /* Point d'entrée de la grammaire */
 %start file
 
@@ -45,7 +46,7 @@
 
 file:
   | SEMICOLON* ; dl = list( d = decl ; SEMICOLON+ {d}) ; EOF
-    {  dl }
+    { dl }
 ;
 
 decl:
@@ -62,6 +63,7 @@ funbody:
 ;
 
 param:
+
   | s = IDENT ; COLON ; ty = kokatype { (s, ty, ($startpos,$endpos)) } 
 ;
 
@@ -115,16 +117,16 @@ bexpr:
   | TILD b = bexpr { ETild (b,($startpos,$endpos)) }
   | EXCLAM b = bexpr { ENot(b,($startpos,$endpos)) }
   | b1 = bexpr b2 = binop b3 = bexpr  { EBinop(b2,b1,b3, ($startpos,$endpos)) }
-  | IF b1 = bexpr THEN b2 = expr lst = elifs { EIf(b1, b2,lst, ($startpos,$endpos)) }
-  | IF b1 = bexpr RETURN b2 = expr { EIfReturn (b1, b2, ($startpos,$endpos)) }
+  | IF b1 = bexpr THEN b2 = expr lst = elifs {EIf(b1, b2,lst, ($startpos,$endpos)) }
+  | IF b1 = bexpr RETURN b2 = expr { EIf (b1, EReturn(b2, ($startpos, $endpos)), EBlock([],($startpos, $endpos)), ($startpos,$endpos)) }
   | FN f = funbody { EFn(f, ($startpos,$endpos)) }
   | RETURN e = expr { EReturn(e, ($startpos,$endpos)) } 
 ;
 
 elifs: 
-  |%prec precedence_regle {EBlock([], ($startpos,$endpos))}
-  | ELIF b2 = bexpr THEN b3 = bexpr s = elifs {EIf(b2, b3, s, ($startpos,$endpos))}
-  |ELSE b3 = bexpr {b3}
+  |%prec precedence_regle  {EBlock([], ($startpos,$endpos))}
+  | ELIF b2 = bexpr THEN b3 = expr s = elifs {EIf(b2, b3, s, ($startpos,$endpos))}
+  | ELSE b3 = expr {b3}
 
 block:
   |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s})  RBRAC { lst }

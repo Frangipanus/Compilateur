@@ -1,8 +1,4 @@
 fun f1() 
-  if true then {
-    if true then 
-      42 
-    else 
-      var x = 48}
-fun f2()
-  42
+  if true then if false then 42 else 43 
+    
+
