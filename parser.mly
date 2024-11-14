@@ -1,5 +1,12 @@
 %{
   open Ast
+  
+  let is_good lst = 
+  match (List.rev lst) with 
+  |[] -> (true)
+  |_ -> (match List.hd (List.rev lst) with 
+        |SBexpr(_,_)-> true 
+        |_ -> false) 
 
 %}
 
@@ -86,7 +93,7 @@ kokatype:
 ;
   
 atype : 
-| s = IDENT LPAR ;LT; ty = kokatype; GT  RPAR  {AVar(s, Some(ty), ($startpos,$endpos))} 
+| s = IDENT  ;LT; ty = kokatype; GT    {AVar(s, Some(ty), ($startpos,$endpos))} 
 | s= IDENT {AVar(s, None, ($startpos,$endpos))} %prec precedence_regle
 | LPAR ty = kokatype RPAR {AType(ty, ($startpos,$endpos))} 
 | LPAR RPAR {AEmpty ($startpos,$endpos)} %prec precedence_regle
@@ -109,13 +116,14 @@ atom:
 
 expr:
   |s = bexpr { EBexpr(s, ($startpos,$endpos)) } %prec precedence_regle
-  |s = block {EBlock(s, ($startpos,$endpos)) } 
+  |s = block {if not(is_good s) then (raise  Error2); EBlock(s, ($startpos,$endpos)) } 
 ;
 
 bexpr:
   | a = atom { Eatom(a, ($startpos,$endpos)) } %prec precedence_regle
   | TILD b = bexpr { ETild (b,($startpos,$endpos)) }
   | EXCLAM b = bexpr { ENot(b,($startpos,$endpos)) }
+  |s = IDENT ASSIGN b =  bexpr {EAsign(s, b, ($startpos, $endpos))}
   | b1 = bexpr b2 = binop b3 = bexpr  { EBinop(b2,b1,b3, ($startpos,$endpos)) }
   | IF b1 = bexpr THEN b2 = expr lst = elifs {EIf(b1, b2,lst, ($startpos,$endpos)) }
   | IF b1 = bexpr RETURN b2 = expr { EIf (b1, EReturn(b2, ($startpos, $endpos)), EBlock([],($startpos, $endpos)), ($startpos,$endpos)) }

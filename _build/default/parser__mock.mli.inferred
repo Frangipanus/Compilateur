@@ -43,6 +43,7 @@ type token =
   | ASSIGN
   | ARROW
   | AND
+val is_good : Ast.stmt list -> bool
 val menhir_begin_marker : int
 val xv_stmt : Ast.stmt
 val xv_separated_nonempty_list_COMMA_param_ : Ast.param list

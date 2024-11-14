@@ -18,8 +18,8 @@
   let () = Hashtbl.add key_words "return" RETURN
   let () = Hashtbl.add key_words "val" VAL
   let () = Hashtbl.add key_words "var" VAR
-  let () = Hashtbl.add key_words "true" TRUE
-  let () = Hashtbl.add key_words "false" FALSE
+  let () = Hashtbl.add key_words "True" TRUE
+  let () = Hashtbl.add key_words "False" FALSE
   
   let fin_cont = [PLUS; MINUS; MUL; DIV; MOD; CONCAT ;LT ; LTE; GT ;GTE ;EQ; NEQ ;AND; OR ;LPAR; LBRAC; COMMA; ]
   let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN  ;THEN; ELSE; ELIF;]
@@ -31,13 +31,14 @@
 }
 let digit = ['0'-'9']
 let lower = ['a'-'z' '_']
+let letter_l = ['a' - 'z']
 let upper = ['A'-'Z']
-let other = ['a'-'z' '-' 'A'-'Z' '0'-'9']
-let lud = lower | upper | digit
-let ident = lower ('-' (upper | lower))? (lud | lud '-' (upper | lower))* ('\'' | '-')?
+let other = ['a'-'z' '-' 'A'-'Z' '0'-'9' '_']
+let lud = letter_l | upper | digit
+let ident = (lower ('-' (upper | lower))? ( (lud|'_') | (lud '-' (upper | letter_l)))* ('\'' | (lud '-'))?) | (lud '-')
 let tabu = ' '+
 let integer = '-'? ('0' | ['1'-'9'] digit*)
-let string = [^'"']*
+
 
 rule token  = parse
   | "//"  { comment lexbuf }
@@ -69,13 +70,17 @@ rule token  = parse
   | ":="  { [ASSIGN] }
   | '.'   { [DOT] }
   | '~'   { [TILD] }
+  |"%" {[MOD]}
   | "!"   { [EXCLAM] }
-  | '"'   { read_string lexbuf }
-  | integer as s { [INT (int_of_string s)] }
+  | '"'   { [IDENT(read_string lexbuf)] }
+  |"True" {[TRUE]}
+  | "False" {[FALSE]}
+  | integer as s { [INT(int_of_string s)] }
   |'\n' {Lexing.new_line lexbuf; token lexbuf}
   | ' ' { token lexbuf }
+  | '\t' {token lexbuf}
   | ident as id { try [Hashtbl.find key_words id] with Not_found -> [IDENT id] }
-  | eof { [SEMICOLON;EOF] }
+  | eof { Lexing.new_line lexbuf;[EOF] }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
 
 and comment = parse 
@@ -89,8 +94,12 @@ and comment2 = parse
   | _    { comment2 lexbuf }
 
 and read_string = parse
-  | string '"' as s { [STRING s] }
-  |_ {raise (Lexing_error("error: wtf comment t'a fait?"))}
+  | "\\\\" {"\\"^(read_string lexbuf)}
+  | "\\\""  {"\""^(read_string lexbuf)}
+  |  '"' as s { "" }
+  | "\\t" {"\t"^(read_string lexbuf)} 
+  | "\n" {raise (Lexing_error("Les string sont sur une seule ligne"))}
+  | _ as c { (String.make 1 c) ^(read_string lexbuf)}
    
 { 
   let next_token =
@@ -104,10 +113,12 @@ and read_string = parse
       
         let next = token lb in
         let pos = Lexing.lexeme_start_p lb in 
-        let line = pos.pos_lnum in 
-        if (line <> !last_line) then begin    
+        let line = pos.pos_lnum in
+        if (line <> !last_line) || ((List.length next = 1 && List.nth next 0 = EOF) ) then begin    
               last_line := line;
-              let c = pos.pos_cnum - pos.pos_bol in 
+              let c =  
+              if (List.length next = 1 && List.nth next 0 = EOF) then (0) else (pos.pos_cnum - pos.pos_bol) in
+             
               let m = ref (Stack.top pile) in 
               if c > !m then ( 
                   if (not (List.mem (!last) fin_cont) &&  (not(List.mem (List.nth next 0) debut_cont))) then (
@@ -124,7 +135,7 @@ and read_string = parse
                   if (List.length next == 2 && List.nth next 1 = RBRAC) then () else ( Queue.add SEMICOLON tokens; Queue.add RBRAC tokens)
                 done;
                 if c > !m then raise(Lexing_error("Erreur d'indentation"));
-                if (not (List.mem (!last) fin_cont) && not (List.mem (List.nth next 0) debut_cont)) then
+                if ((not (List.mem (!last) fin_cont)) && (not (List.mem (List.nth next 0) debut_cont))) then
                   Queue.add SEMICOLON tokens;
               )
         end;
