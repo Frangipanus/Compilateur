@@ -1,11 +1,10 @@
 open Ast
 type ident = string
-
 type typ = 
   |TInt 
   |TBool
   |TString 
-  |TArrow of typ list * typ 
+  |TArrow of typ list * full_type
   |TList of typ 
   |Tvar of var
   |TMaybe of typ
@@ -14,10 +13,18 @@ type typ =
 and var = 
   {id: ident; mutable typ : typ option} (*non si c'est une variables libre*)
   (* Atomes *) 
+
+and effect= 
+  |Div 
+  |Console
+  |Full
+  |NoEffect
+and full_type = 
+  {typ: typ; effect : effect}
 type loc = (Lexing.position * Lexing.position)
   
   
-  
+
   
   (* type *)
   and tkokaType =
@@ -49,20 +56,20 @@ type loc = (Lexing.position * Lexing.position)
     | EBlock of tstmt list *loc
     | EBexpr of tbexpr *loc
     | Eatom of tbexpr *loc
-    | ETild of tbexpr *loc
-    | ENot of tbexpr *loc
-    | EBinop of binop * tbexpr * tbexpr *loc
-    | EAsign of ident * tbexpr *loc
-    |EIf of tbexpr*tbexpr * tbexpr * loc
-    | EFn of tfunbody *loc
-    | EReturn of tbexpr *loc
-    | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc
-    | Ident of ident * loc
-    | Eval of tbexpr * (tbexpr list) * loc
-    | Dot of tbexpr * ident * loc
-    | Fn of tbexpr * tfunbody * loc
-    | AtomBlock of tbexpr * (tstmt list) * loc
-    | Brac of tbexpr list * loc 
+    | ETild of tbexpr *loc * typ
+    | ENot of tbexpr *loc * typ
+    | EBinop of binop * tbexpr * tbexpr *loc * typ
+    | EAsign of ident * tbexpr *loc * typ
+    |EIf of tbexpr*tbexpr * tbexpr * loc * typ
+    | EFn of tfunbody *loc * typ
+    | EReturn of tbexpr *loc * typ
+    | ATrue of loc * typ| AFalse of loc * typ | Int of int*loc * typ | String of string *loc * typ | Empty of loc * typ
+    | Ident of ident * loc * typ
+    | Eval of tbexpr * (tbexpr list) * loc * typ
+    | Dot of tbexpr * ident * loc * typ
+    | Fn of tbexpr * tfunbody * loc * typ
+    | AtomBlock of tbexpr * (tstmt list) * loc * typ
+    | Brac of tbexpr list * loc * typ 
   
   (* corps d'une fonction *)
   and tfunbody = {
@@ -80,6 +87,7 @@ type loc = (Lexing.position * Lexing.position)
   
   (* fichier *)
   and tfile = tdecl list
+  exception Type_Error of string * loc
 
   let rec head t = 
     match t with 
@@ -90,14 +98,35 @@ let rec kokatype_to_type kty = match kty with
     |AEmpty(_) -> TUnit
     |TAType(t,_) |AType(t, _) -> kokatype_to_type t 
     |TMulFun(lst, res, _) -> TArrow( (List.fold_left (fun acc x -> (kokatype_to_type x)::acc) [] (List.rev lst)), result_to_type res)
-    |TFun(typ, res, _) -> TArrow([kokatype_to_type typ], result_to_type res)
-    |AVar(id, typ_opt, _) -> TInt
+    |TFun(typ, res, _) -> TArrow([kokatype_to_type typ],  result_to_type res)
+    |AVar(id, typ_opt, loc) -> (match typ_opt  with
+                            | None -> (match id with 
+                                      |"unit" -> TUnit
+                                      |"bool" -> TBool
+                                      |"string" -> TString
+                                      |"int" -> TInt
+                                      |_ -> raise (Type_Error(("Erreur de typage: "^id^" n'est pas un mot de type!"), loc)) )
+                            |Some(v) -> (match  id with
+                                        | "maybe" -> TMaybe((kokatype_to_type v))
+                                        | "list" -> TList((kokatype_to_type v))
+                                        | _ -> raise(Type_Error("Erreur de typage: "^id^"n'est pas un mot de type!", loc)))
+                            )
 and param_list_to_type lst = 
   match List.rev lst with 
     |[] -> []
     | [(id,typ,_)] ->  [(kokatype_to_type typ)]
     |_-> List.fold_left (fun acc (id, x, _) -> (kokatype_to_type x)::acc) ([]) (List.rev lst)
-and result_to_type res = TInt
+and result_to_type res : full_type = let (lst, typ, loc) = res in 
+  let effet=(
+  if (List.mem "console" lst && List.mem "div" lst) then NoEffect
+   else
+     if (List.mem "console" lst ) then Console
+     else if (List.mem "div" lst) then Div 
+     else NoEffect)
+    in 
+  {typ = (kokatype_to_type typ); effect = effet}
+
+
 
 let rec find_type (b : bexpr) : typ= 
   TString
