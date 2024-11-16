@@ -1,5 +1,6 @@
 type ident = string
-exception Error2
+exception Error2 of string
+
 (* Atomes *)
 type loc = (Lexing.position * Lexing.position)
 
@@ -34,8 +35,6 @@ and stmt =
 
 and bexpr =
   | EBlock of stmt list *loc
-  | EBexpr of bexpr *loc
-  | Eatom of bexpr *loc
   | ETild of bexpr *loc
   | ENot of bexpr *loc
   | EBinop of binop * bexpr * bexpr *loc
@@ -44,10 +43,8 @@ and bexpr =
   | EFn of funbody *loc
   | EReturn of bexpr *loc
   | ATrue of loc| AFalse of loc | Int of int*loc | String of string *loc | Empty of loc
-  | Ident of ident * loc
   | Eval of bexpr * (bexpr list) * loc
-  | Dot of bexpr * ident * loc
-  | Fn of bexpr * funbody * loc
+  | Fn of bexpr * funbody * loc (*Devrait jamais arriver. Planter si ca arrive?*)
   | AtomBlock of bexpr * (stmt list) * loc
   | Brac of bexpr list * loc 
 

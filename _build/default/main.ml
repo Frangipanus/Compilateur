@@ -70,9 +70,9 @@ let () =
 	localisation (Lexing.lexeme_start_p buf);
 	eprintf "Erreur syntaxique@.";
 	exit 1
-    |Error2 -> localisation (Lexing.lexeme_start_p buf);
-    eprintf "Erreur syntaxique@.";
-    exit 1
+    |Error2( s ) -> (localisation (Lexing.lexeme_start_p buf);
+    Printf.printf "%s\n" s;
+    exit 1)
     | _->
 	(* Erreur pendant l'interprétation *)
 	eprintf "Normal : @." ; exit 2
