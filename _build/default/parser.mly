@@ -103,24 +103,27 @@ atom:
   | TRUE { ATrue ($startpos,$endpos) }
   | FALSE { AFalse ($startpos,$endpos)}
   | n = INT { Int(n, ($startpos,$endpos)) }
-  | id = IDENT { Ident(id, ($startpos,$endpos)) }
+  | id = IDENT { String(id, ($startpos,$endpos)) }
   | s = STRING { String(s, ($startpos,$endpos)) }
   | LPAR ; RPAR { Empty(($startpos,$endpos)) }
   | LPAR ; e = expr ; RPAR { e }
   | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { Eval(at, el, ($startpos,$endpos)) }
-  | at = atom ; DOT ; id = IDENT { Dot(at, id,($startpos,$endpos)) }
-  | at = atom ; FN ; fb = funbody { Fn(at, fb, ($startpos,$endpos)) }
+  | at = atom ; DOT ; id = IDENT { Eval((String(id, ($startpos, $endpos))), [at],($startpos,$endpos)) }
+  | at = atom ; FN ; fb = funbody {match at with 
+                                  | Eval(id, arg, _) -> Eval(id, arg@[EFn(fb, ($startpos, $endpos))], ($startpos, $endpos))
+                                  | String(id, loc) -> Eval(String(id,loc), [EFn(fb, ($startpos, $endpos))], ($startpos, $endpos))
+                                  |_ -> raise (Error2(("Erreur: on n'applique pas une fonction a une anno"))) }
   | at = atom ; b = block { AtomBlock(at, b,($startpos,$endpos)) }
   | LSPAR ; el = separated_list(COMMA, expr) ; RSPAR { Brac(el, ($startpos,$endpos)) }
 ;
 
 expr:
-  |s = bexpr { EBexpr(s, ($startpos,$endpos)) } %prec precedence_regle
-  |s = block {if not(is_good s) then (raise  Error2); EBlock(s, ($startpos,$endpos)) } 
+  |s = bexpr {s } %prec precedence_regle
+  |s = block {if not(is_good s) then (raise (Error2 ("Le bloc ne doit pas finir par val ou var")) ); EBlock(s, ($startpos,$endpos)) } 
 ;
 
 bexpr:
-  | a = atom { Eatom(a, ($startpos,$endpos)) } %prec precedence_regle
+  | a = atom { a } %prec precedence_regle
   | TILD b = bexpr { ETild (b,($startpos,$endpos)) }
   | EXCLAM b = bexpr { ENot(b,($startpos,$endpos)) }
   |s = IDENT ASSIGN b =  bexpr {EAsign(s, b, ($startpos, $endpos))}
