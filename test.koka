@@ -1,5 +1,4 @@
 
-fun foo(f: () -> int)
-  42
-fun main()
-  foo fn () { 2 }
+fun mul(x: int, y: int)
+  val t = x * y
+  (t + 8192 / 2) / 8192
