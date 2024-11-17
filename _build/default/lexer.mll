@@ -22,7 +22,7 @@
   let () = Hashtbl.add key_words "False" FALSE
   
   let fin_cont = [PLUS; MINUS; MUL; DIV; MOD; CONCAT ;LT ; LTE; GT ;GTE ;EQ; NEQ ;AND; OR ;LPAR; LBRAC; COMMA; ]
-  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LPAR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN  ;THEN; ELSE; ELIF;]
+  let debut_cont = [PLUS; MINUS ;MUL; DIV; MOD; CONCAT; LT; LTE; GT; GTE; EQ; NEQ; AND; OR; LBRAC; COMMA; RPAR; RBRAC ;ARROW ; DEF; DOT ;ASSIGN  ;THEN; ELSE; ELIF;]
   let level = ref (-1)  
   let last = ref SEMICOLON
   let indented = ref false 
@@ -72,7 +72,7 @@ rule token  = parse
   | '~'   { [TILD] }
   |"%" {[MOD]}
   | "!"   { [EXCLAM] }
-  | '"'   { [IDENT(read_string lexbuf)] }
+  
   |"True" {[TRUE]}
   | "False" {[FALSE]}
   | integer as s { [INT(int_of_string s)] }
@@ -81,6 +81,7 @@ rule token  = parse
   | '\t' {token lexbuf}
   | ident as id { try [Hashtbl.find key_words id] with Not_found -> [IDENT id] }
   | eof { Lexing.new_line lexbuf;[EOF] }
+  | '"'   { [IDENT(read_string lexbuf)] }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
 
 and comment = parse 

@@ -17,7 +17,7 @@ let options =
   ["--parse-only", Arg.Set parse_only,
    "  Pour ne faire uniquement que la phase d'analyse syntaxique"]
 
-let usage = "usage: mini-turtle [option] file.logo"
+let usage = "usage: petit kokoa [option] test.koka"
 
 (* localise une erreur en indiquant la ligne et la colonne *)
 let localisation pos =

@@ -6,6 +6,7 @@
   |[] -> (true)
   |_ -> (match List.hd (List.rev lst) with 
         |SBexpr(_,_)-> true 
+        |SDecl(id, _, _) -> (Printf.printf "%s\n" id;false)
         |_ -> false) 
 
 %}
@@ -119,7 +120,7 @@ atom:
 
 expr:
   |s = bexpr {s } %prec precedence_regle
-  |s = block {if not(is_good s) then (raise (Error2 ("Le bloc ne doit pas finir par val ou var")) ); EBlock(s, ($startpos,$endpos)) } 
+  |s = block {if not(is_good s) then (raise (Error2 ("Le bloc ne doit pas finir par val ou var et ratio\n")) ); EBlock(s, ($startpos,$endpos)) } 
 ;
 
 bexpr:
