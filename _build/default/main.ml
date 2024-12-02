@@ -3,9 +3,10 @@ open Format
 open Lexing
 open Parser
 open Lexer
-
+open Algow
 (* Option de compilation, pour s'arrêter à l'issue du parser *)
 let parse_only = ref false
+let type_only = ref false 
 
 (* Nom du fichier source *)
 let ifile = ref ""
@@ -15,7 +16,8 @@ let set_file f s = f := s
 (* Les options du compilateur que l'on affiche avec --help *)
 let options =
   ["--parse-only", Arg.Set parse_only,
-   "  Pour ne faire uniquement que la phase d'analyse syntaxique"]
+   "  Pour ne faire uniquement que la phase d'analyse syntaxique";
+   "--type_only", Arg.Set type_only, "evident"]
 
 let usage = "usage: petit kokoa [option] test.koka"
 
@@ -56,7 +58,6 @@ let () =
 
     (* On s'arrête ici si on ne veut faire que le parsing *)
     if !parse_only then exit 0;
-
   with
     | Lexer.Lexing_error c ->
 	(* Erreur lexicale. On récupère sa position absolue et
@@ -70,8 +71,8 @@ let () =
 	localisation (Lexing.lexeme_start_p buf);
 	eprintf "Erreur syntaxique@.";
 	exit 1
-    |Error2( s ) -> (localisation (Lexing.lexeme_start_p buf);
-    Printf.printf "%s\n" s;
+    |Error2 -> (localisation (Lexing.lexeme_start_p buf);
+    Printf.printf "Ratio\n" ;
     exit 1)
     | _->
 	(* Erreur pendant l'interprétation *)
