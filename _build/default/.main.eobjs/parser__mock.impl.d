@@ -1,1 +1,1 @@
-parser__mock.ml.mock: Ast Lexing List Printf
+parser__mock.ml.mock: Ast Lexing List

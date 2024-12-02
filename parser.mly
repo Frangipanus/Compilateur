@@ -1,12 +1,11 @@
 %{
   open Ast
   
-  let is_good lst = 
+  let is_good (lst : stmt list) = 
   match (List.rev lst) with 
   |[] -> (true)
-  |_ -> (match List.hd (List.rev lst) with 
-        |SBexpr(_,_)-> true 
-        |SDecl(id, _, _) -> (Printf.printf "%s\n" id;false)
+  |_ -> (match (List.hd (List.rev lst)).stmt with 
+        |SBexpr(_)-> true 
         |_ -> false) 
 
 %}
@@ -64,15 +63,14 @@ decl:
 
 funbody:
   | LPAR  ; pl = separated_list(COMMA, param) ; RPAR ; a = annot ; e = expr 
-   { { formal = pl ; annot = a ; body = e } }
+   { { formal = pl ; annot = Some(a) ; body = e } }
    
   | LPAR  ; pl = separated_list(COMMA, param) ; RPAR  ; e = expr %prec precedence_regle
-   { { formal = pl ; annot = ([], TAType(AEmpty(($startpos,$endpos)), ($startpos,$endpos)), ($startpos,$endpos)) ; body = e } }
+   { { formal = pl ; annot = None ; body = e } }
 ;
 
 param:
-
-  | s = IDENT ; COLON ; ty = kokatype { (s, ty, ($startpos,$endpos)) } 
+  | s = IDENT ; COLON ; ty = kokatype { {param = (s, ty); loc= ($startpos,$endpos)} } 
 ;
 
 annot:
@@ -81,73 +79,70 @@ annot:
 
 result:
   | LT  lst = separated_list(COMMA, IDENT)  GT   t = kokatype
-    { (lst, t, ($startpos,$endpos)) }
-  | t = kokatype { ([], t, ($startpos,$endpos))}
+    { {res = (lst, t); loc= ($startpos,$endpos)} }
+  | t = kokatype { { res = ([], t); loc = ($startpos,$endpos) } }
 ;
      
 kokatype:
-  | at = atype { TAType(at, ($startpos,$endpos)) } %prec precedence_regle
-  | at = atype ; ARROW ; res = result { TFun(at, res, ($startpos,$endpos)) }
-  | LPAR ; tl1 = kokatype; COMMA; tl = separated_nonempty_list(COMMA,kokatype) ; RPAR; ARROW ; res = result { TMulFun(tl1::tl, res, ($startpos,$endpos)) } 
-  | LPAR ; tl = kokatype ; RPAR; ARROW ; res = result { TMulFun([tl], res, ($startpos,$endpos)) } 
-  | LPAR; RPAR; ARROW; res = result {TMulFun([], res, ($startpos,$endpos))}
+  | at = atype { { typ = TAType(at); loc= ($startpos,$endpos) } } %prec precedence_regle
+  | at = atype ; ARROW ; res = result { { typ = TFun(at, res); loc = ($startpos,$endpos) } }
+  | LPAR ; tl1 = kokatype; COMMA; tl = separated_nonempty_list(COMMA,kokatype) ; RPAR; ARROW ; res = result { { typ = TMulFun(tl1::tl, res); loc= ($startpos,$endpos) } } 
+  | LPAR ; tl = kokatype ; RPAR; ARROW ; res = result { { typ = TMulFun([tl], res); loc = ($startpos,$endpos) } } 
+  | LPAR; RPAR; ARROW; res = result { { typ = TMulFun([], res) ; loc = ($startpos,$endpos) } }
 ;
   
 atype : 
-| s = IDENT  ;LT; ty = kokatype; GT    {AVar(s, Some(ty), ($startpos,$endpos))} 
-| s= IDENT {AVar(s, None, ($startpos,$endpos))} %prec precedence_regle
-| LPAR ty = kokatype RPAR {AType(ty, ($startpos,$endpos))} 
-| LPAR RPAR {AEmpty ($startpos,$endpos)} %prec precedence_regle
+| s = IDENT  ;LT; ty = kokatype; GT    { { typ = AVar(s, Some(ty)); loc= ($startpos,$endpos) } } 
+| s= IDENT { { typ = AVar(s, None); loc= ($startpos,$endpos) } } %prec precedence_regle
+| LPAR ty = kokatype RPAR { { typ = AType(ty); loc= ($startpos,$endpos) } } 
+| LPAR RPAR { { typ = AEmpty; loc= ($startpos,$endpos) } } %prec precedence_regle
 ;
 
 atom:
-  | TRUE { ATrue ($startpos,$endpos) }
-  | FALSE { AFalse ($startpos,$endpos)}
-  | n = INT { Int(n, ($startpos,$endpos)) }
-  | id = IDENT { String(id, ($startpos,$endpos)) }
-  | s = STRING { String(s, ($startpos,$endpos)) }
-  | LPAR ; RPAR { Empty(($startpos,$endpos)) }
+  | TRUE { { bexpr = ATrue; loc= ($startpos,$endpos) } }
+  | FALSE { { bexpr = AFalse; loc= ($startpos,$endpos) } }
+  | n = INT { { bexpr = Int(n); loc= ($startpos,$endpos) } }
+  | id = IDENT { { bexpr = Ident(id); loc= ($startpos,$endpos) } }
+  | s = STRING { { bexpr = String(s); loc= ($startpos,$endpos) } }
+  | LPAR ; RPAR { { bexpr = Empty; loc= (($startpos,$endpos)) } }
   | LPAR ; e = expr ; RPAR { e }
-  | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { Eval(at, el, ($startpos,$endpos)) }
-  | at = atom ; DOT ; id = IDENT { Eval((String(id, ($startpos, $endpos))), [at],($startpos,$endpos)) }
-  | at = atom ; FN ; fb = funbody {match at with 
-                                  | Eval(id, arg, _) -> Eval(id, arg@[EFn(fb, ($startpos, $endpos))], ($startpos, $endpos))
-                                  | String(id, loc) -> Eval(String(id,loc), [EFn(fb, ($startpos, $endpos))], ($startpos, $endpos))
-                                  |_ -> raise (Error2(("Erreur: on n'applique pas une fonction a une anno"))) }
-  | at = atom ; b = block { AtomBlock(at, b,($startpos,$endpos)) }
-  | LSPAR ; el = separated_list(COMMA, expr) ; RSPAR { Brac(el, ($startpos,$endpos)) }
+  | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { { bexpr = Eval(at, el); loc= ($startpos,$endpos) } }
+  | at = atom ; DOT ; id = IDENT {{bexpr = (Eval({ bexpr = Ident(id); loc= ($startpos,$endpos) }, [at])) ; loc =  ($startpos,$endpos) } }
+  | at = atom ; FN  fb = funbody { { bexpr = Fn(at, fb) ; loc= ($startpos,$endpos) } }
+  | at = atom ; b = block { { bexpr = AtomBlock(at, b); loc= ($startpos,$endpos) } }
+  | LSPAR ; el = separated_list(COMMA, expr) ; RSPAR { { bexpr = Brac(el); loc= ($startpos,$endpos) } }
 ;
 
 expr:
-  |s = bexpr {s } %prec precedence_regle
-  |s = block {if not(is_good s) then (raise (Error2 ("Le bloc ne doit pas finir par val ou var et ratio\n")) ); EBlock(s, ($startpos,$endpos)) } 
+  |s = bexpr { s } %prec precedence_regle
+  |s = block {if not(is_good s) then (raise  Error2) else {bexpr = EBlock(s); loc = ($startpos, $endpos)} } 
 ;
 
 bexpr:
   | a = atom { a } %prec precedence_regle
-  | TILD b = bexpr { ETild (b,($startpos,$endpos)) }
-  | EXCLAM b = bexpr { ENot(b,($startpos,$endpos)) }
-  |s = IDENT ASSIGN b =  bexpr {EAsign(s, b, ($startpos, $endpos))}
-  | b1 = bexpr b2 = binop b3 = bexpr  { EBinop(b2,b1,b3, ($startpos,$endpos)) }
-  | IF b1 = bexpr THEN b2 = expr lst = elifs {EIf(b1, b2,lst, ($startpos,$endpos)) }
-  | IF b1 = bexpr RETURN b2 = expr { EIf (b1, EReturn(b2, ($startpos, $endpos)), EBlock([],($startpos, $endpos)), ($startpos,$endpos)) }
-  | FN f = funbody { EFn(f, ($startpos,$endpos)) }
-  | RETURN e = expr { EReturn(e, ($startpos,$endpos)) } 
+  | TILD b = bexpr { { bexpr = ETild (b); loc= ($startpos,$endpos) } }
+  | EXCLAM b = bexpr { { bexpr = ENot(b); loc= ($startpos,$endpos) } }
+  |s = IDENT ASSIGN b =  bexpr { { bexpr = EAsign(s, b); loc= ($startpos, $endpos) } }
+  | b1 = bexpr b2 = binop b3 = bexpr  { { bexpr = EBinop(b2,b1,b3); loc= ($startpos,$endpos) } }
+  | IF b1 = bexpr THEN b2 = expr lst = elifs { { bexpr = EIf(b1, b2,lst); loc= ($startpos,$endpos) } }
+  | IF b1 = bexpr RETURN b2 = expr { { bexpr = EIf (b1, { bexpr = EReturn(b2); loc= ($startpos, $endpos) }, { bexpr = EBlock([]); loc= ($startpos, $endpos) }); loc= ($startpos,$endpos)} }
+  | FN f = funbody { { bexpr = EFn(f); loc= ($startpos,$endpos) } }
+  | RETURN e = expr { { bexpr = EReturn(e); loc= ($startpos,$endpos) } } 
 ;
 
 elifs: 
-  |%prec precedence_regle  {EBlock([], ($startpos,$endpos))}
-  | ELIF b2 = bexpr THEN b3 = expr s = elifs {EIf(b2, b3, s, ($startpos,$endpos))}
-  | ELSE b3 = expr {b3}
+  |%prec precedence_regle  { { bexpr = EBlock([]); loc= ($startpos,$endpos) } }
+  | ELIF b2 = bexpr THEN b3 = expr s = elifs { {bexpr = EIf(b2, b3, s); loc= ($startpos,$endpos) } }
+  | ELSE b3 = expr { b3 }
 
 block:
   |LBRAC SEMICOLON* lst = list(s = stmt SEMICOLON+ {s})  RBRAC { lst }
 ;
 
 stmt: 
-  | b = bexpr { SBexpr(b, ($startpos,$endpos)) }
-  | VAL s = IDENT DEF e = expr { SDecl(s, e, ($startpos,$endpos)) }
-  | VAR s = IDENT ASSIGN e =expr { SVar(s,e, ($startpos,$endpos)) }
+  | b = bexpr { { stmt = SBexpr(b); loc = ($startpos,$endpos) } }
+  | VAL s = IDENT DEF e = expr { { stmt = SDecl(s, e); loc = ($startpos,$endpos) } }
+  | VAR s = IDENT ASSIGN e = expr { { stmt = SVar(s,e); loc = ($startpos,$endpos) } }
 ;
 
 %inline binop:

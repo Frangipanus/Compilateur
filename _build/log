@@ -1,4 +1,4 @@
-# dune exec ./main.exe test.koka
+# dune build main.exe
 # OCAMLPARAM: unset
 # Shared cache: disabled
 # Shared cache location: /home/paul/.cache/dune/db
@@ -14,4 +14,13 @@
 #  ; build_dir = In_build_dir "default"
 #  ; instrument_with = []
 #  }
-$ /usr/bin/ocamlc.opt -config > /tmp/dune_c2688d_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_c69bb7_output
+$ (cd _build/default && /usr/bin/ocamldep.opt -modules -impl main.ml) > _build/default/.main.eobjs/main.impl.d
+$ (cd _build/default && /usr/bin/ocamldep.opt -modules -impl algow.ml) > _build/default/.main.eobjs/algow.impl.d
+$ (cd _build/default && /usr/bin/ocamlc.opt -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -o .main.eobjs/byte/algow.cmo -c -impl algow.ml)
+> File "algow.ml", line 127, characters 11-14:
+> 127 |   | Tvar { def = None } -> t
+>                  ^^^
+> Error: This record pattern is expected to have type var
+>        There is no field def within type var
+[2]
