@@ -224,14 +224,14 @@ type schema = { vars : Vset.t; typ : full_type }
 
 module Smap = Map.Make(String)
 
-type env = { bindings : schema Smap.t; fvars : Vset.t }
+type env = { bindings : schema Smap.t; fvars : Vset.t; muta : ident list }
 
-let empty = { bindings = Smap.empty; fvars = Vset.empty }
+let empty = { bindings = Smap.empty; fvars = Vset.empty; muta = [] }
 
 let add s (t : full_type) env =
   let fvs = fvars t.typ in
   { bindings = Smap.add s { vars = Vset.empty ; typ = t } env.bindings;
-    fvars = Vset.union fvs env.fvars }
+    fvars = Vset.union fvs env.fvars; muta = env.muta }
 
 let add_gen s (t : full_type) env =
   let fvs = fvars t.typ in
@@ -239,7 +239,7 @@ let add_gen s (t : full_type) env =
     (fun v acc -> Vset.union (fvars (Tvar v)) acc )
     env.fvars Vset.empty) in
   { bindings = Smap.add s { vars = Vset.diff fvs nfvars ; typ = t } env.bindings;
-    fvars = nfvars }
+    fvars = nfvars; muta = env.muta }
 
 module Vmap = Map.Make(V)
 
@@ -305,7 +305,7 @@ and w_funbody env name (fb : funbody) =
   let ft, tbody = match fb.annot with
   | Some(k) -> begin 
         let ft = w_result env k in
-        let env = match name with
+        let env= match name with
           | Some(f) -> add f { typ = Tarrow(tl, ft) ; effect = NoEffect } env
           | None -> env
         in let return_type = V.create () in
@@ -318,7 +318,7 @@ and w_funbody env name (fb : funbody) =
         ft, tbody end
   | None -> 
       let return_type = V.create () in
-      let env = match name with
+      let env= match name with
       | Some(f) -> add f { typ = Tarrow(tl, { typ = Tvar(return_type); effect = NoEffect }); effect = NoEffect } env
       | None -> env
       in let tbody = w_bexpr env fb.body name return_type in
@@ -405,6 +405,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       end
 
   | EAsign(id, be) ->
+    if not(List.mem id env.muta) then (raise (TypeError("La variables n'est pas mutable\n"))) else();
       let tbe = w_bexpr env be fun_name return_type in
       { bexpr = EAsign(id, tbe); loc = bexpr.loc; typ = { typ = Tunit; effect = tbe.typ.effect } }
 
@@ -605,7 +606,8 @@ and w_stmt env stmt fun_name return_type : tstmt * env = match stmt.stmt with
   | SVar(id, be) ->
     let tbe = w_bexpr env be fun_name return_type in
     let env' = add id tbe.typ env in
-    { stmt = SVar(id, tbe); typ = { typ = Tunit; effect = tbe.typ.effect }; loc = stmt.loc }, env'
+
+    { stmt = SVar(id, tbe); typ = { typ = Tunit; effect = tbe.typ.effect }; loc = stmt.loc }, {env' with muta = id::env'.muta}
   
 (* Renvoie le full_type correspondant au résulat res *)
 and w_result env res = match res.res with
