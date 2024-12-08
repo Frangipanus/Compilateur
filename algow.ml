@@ -559,8 +559,9 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           | [], [] -> ()
           | _, [] | [], _ -> raise (TypeError "Nombre d'arguments invalide")
           | h1::t1, h2::t2 -> 
-              try unify_types (head h1) (head h2.typ.typ); 
-              loop t1 t2 with UnificationFailure(_,_) -> raise (TypeError "Arguments de mauvais type")
+              try unify_full_types (full_type_of_type h1) (full_type_of_type h2.typ.typ); 
+              loop t1 t2 
+            with UnificationFailure(_,_)|UnificationEffectFailure(_,_) -> raise (TypeError "Arguments de mauvais type")
           in loop tl targs;
           let eff = add_effect tf.typ.effect (add_effect rt.effect (List.fold_left (fun acc (x : tbexpr) -> add_effect acc x.typ.effect) NoEffect targs)) in
           { bexpr = Eval(tf, targs); typ = { typ = rt.typ; effect = eff }; loc = bexpr.loc}
