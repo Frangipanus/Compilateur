@@ -81,7 +81,7 @@ rule token  = parse
   | '\t' {token lexbuf}
   | ident as id { try [Hashtbl.find key_words id] with Not_found -> [IDENT id] }
   | eof { Lexing.new_line lexbuf;[EOF] }
-  | '"'   { [IDENT(read_string lexbuf)] }
+  | '"'   { [STRING(read_string lexbuf)] }
   | _ as c { raise (Lexing_error ("error read: "^(String.make 1 c))) }
 
 and comment = parse 

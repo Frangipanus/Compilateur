@@ -13,7 +13,7 @@ type typ =
   | Tvar of var
 
 and var = 
-  {id: int; mutable typ : typ option} (*None si c'est une variables libre*)
+  {id: int; mutable typ : full_type option} (*None si c'est une variables libre*)
   
 and effect= 
   | Div 
@@ -103,6 +103,9 @@ and tdecl = {
 (* fichier *)
 and tfile = tdecl list
 
+
+
+
 exception Type_Error of string * loc
 
 module Env = Map.Make(String) (*C'est l'environnement de variable.*)
@@ -114,7 +117,7 @@ module V = struct
 end
 
 let rec head t = match t with
-  | Tvar { typ = Some(t') } -> head t'
+  | Tvar { typ = Some(t') } -> head t'.typ
   | _ -> t
   open Format
 
@@ -123,7 +126,7 @@ let rec head t = match t with
     | Tbool -> fprintf fmt "bool"
     | Tstring -> fprintf fmt "string"
     | Tunit -> fprintf fmt "()"
-    | Tarrow (tl, ft) -> fprintf fmt "@([@[ %a @]) -> %a@]" print_type_list tl print_full_type ft
+    | Tarrow (tl, ft) -> fprintf fmt "@[(@[ %a @]) -> %a@]" print_type_list tl print_full_type ft
     | Tlist(t) -> fprintf fmt "list<@[%a@]>" print_type t
     | Tmaybe(t) -> fprintf fmt "maybe<@[%a@]>" print_type t
     | Tvar(v) -> fprintf fmt "'%d" v.id
@@ -164,17 +167,14 @@ let rec canon t = match t with
   | _ -> canon (head t)
 
 exception UnificationFailure of typ * typ
-exception UnificationEffectFailure of effect * effect
 
 let unification_error t1 t2 = raise (UnificationFailure (canon t1, canon t2))
-let unification_error_eff e1 e2 = raise (UnificationEffectFailure (e1, e2))
 
 let rec occur v t = match head t with
   | Tvar { id = n } when n = v.id -> true
   | Tarrow(tl, ft) -> occur v ft.typ || (List.exists (fun t' -> occur v t') tl)
   | Tlist(t') | Tmaybe(t') -> occur v t'
   | _ -> false
-
 let egal_effect e1 e2 = 
   match e1, e2 with 
     |NoEffect, NoEffect -> true
@@ -183,34 +183,20 @@ let egal_effect e1 e2 =
     |Full, Full -> true
     |_ -> false
 
-    let full_type_of_type t = { typ = t; effect = NoEffect }
-
-let rec unify_types (t1 : typ) (t2 : typ) = match head t1, head t2 with
-  | ta, tb when ta = tb -> ()
-  | Tarrow(tl1, ft1), Tarrow(tl2, ft2) ->
-      let rec loop l1 l2 = match l1, l2 with
-      | [], [] -> ()
-      | [], _ | _, [] -> unification_error t1 t2
-      | h1::t1, h2::t2 -> loop t1 t2; unify_types h1 h2
-      in loop tl1 tl2; unify_types ft1.typ ft2.typ
-  | Tlist(t1'), Tlist(t2') | Tmaybe(t1'), Tmaybe(t2') -> unify_types t1' t2'
-  | Tvar v, t -> if occur v t then unification_error t1 t2 else v.typ <-  Some(t2)
-  | t, Tvar v -> if occur v t then unification_error t1 t2 else v.typ <- Some(t1)
-  | _ -> (unification_error t1 t2)
-
-let rec unify_full_types (t1 : full_type) (t2 : full_type) =
-  if t1.effect <> t2.effect then unification_error_eff t1.effect t2.effect
-  else match head t1.typ, head t2.typ with
+let rec unify (t1 : full_type) (t2 : full_type) = 
+  if (not(egal_effect t1.effect t2.effect)) then  (unification_error t1.typ t2.typ)
+  else
+  match (head t1.typ), (head t2.typ) with
   | ta, tb when ta = tb -> ()
   | Tarrow(tl1, ft1), Tarrow(tl2, ft2) ->
       let rec loop l1 l2 = match l1, l2 with
       | [], [] -> ()
       | [], _ | _, [] -> unification_error t1.typ t2.typ
-      | h1::t1, h2::t2 -> loop t1 t2; unify_full_types (full_type_of_type h1) (full_type_of_type h2)
-      in loop tl1 tl2; unify_full_types ft1 ft2
-  | Tlist(t1'), Tlist(t2') | Tmaybe(t1'), Tmaybe(t2') -> unify_full_types (full_type_of_type t1') (full_type_of_type t2')
-  | Tvar v, t -> if occur v t then unification_error t1.typ t2.typ else v.typ <- Some(t2.typ)
-  | t, Tvar v -> if occur v t then unification_error t1.typ t2.typ else v.typ <- Some(t1.typ)
+      | h1::t1, h2::t2 -> loop t1 t2; unify { typ = h1; effect = NoEffect } { typ = h2; effect = NoEffect }
+      in loop tl1 tl2; unify ft1 ft2
+  | Tlist(t1'), Tlist(t2') | Tmaybe(t1'), Tmaybe(t2') -> unify { typ = t1'; effect = NoEffect } { typ = t2'; effect = NoEffect }
+  | Tvar v, t -> if occur v t then unification_error t1.typ t2.typ else v.typ <- Some(t2)
+  | t, Tvar v -> if occur v t then unification_error t1.typ t2.typ else v.typ <- Some(t1)
   | _ -> (unification_error t1.typ t2.typ)
 
 module Vset = Set.Make(V)
@@ -284,7 +270,9 @@ let effect_of_ident id = match id with
   | "console" -> Console
   | _ ->raise (TypeError "effet inexistant" )
 
-(* type waiting_type = { mutable typ : full_type option } *)
+let full_type_of_type t = { typ = t; effect = NoEffect }
+
+type waiting_type = { mutable typ : full_type option }
 
 (* Renvoie la tdecl correspondant à la decl, et le nouvel environnement *)
 let rec w_decl env (decl : decl) =
@@ -296,37 +284,31 @@ let rec w_decl env (decl : decl) =
 
 (* Renvoie le tfunbody correspondant au funbody, la liste de types des paramètres, et le type de renvoi de la fonction*)
 and w_funbody env name (fb : funbody) =
-  let env, tl, formal', name = List.fold_right 
-    (fun { param = (x, t); loc = loc } (env, tl, fl, name) -> 
+  let env, tl, formal' = List.fold_right 
+    (fun { param = (x, t); loc = loc } (env, tl, fl) -> 
       let t' = w_type env t in
-      let name = if Some(x) = name then None else name in
-      add x { typ = t'; effect = NoEffect } env, t'::tl, { name = x; typ = t'; loc = loc}::fl, name) 
-      fb.formal (env, [], [], name) in
+      add x { typ = t'; effect = NoEffect } env, t'::tl, { name = x; typ = t'; loc = loc}::fl) 
+      fb.formal (env, [], []) in
   let ft, tbody = match fb.annot with
-  | Some(k) -> begin 
-        let ft = w_result env k in
-        let env = match name with
-          | Some(f) -> add f { typ = Tarrow(tl, ft) ; effect = NoEffect } env
-          | None -> env
-        in let return_type = V.create () in
-        return_type.typ <- Some(ft.typ);
-        let tbody = w_bexpr env fb.body name return_type in
-        (try unify_full_types tbody.typ ft with 
-          | UnificationFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais type")
-          | UnificationEffectFailure(_,_) -> raise (TypeError "La fonction a le mauvais effet")
-          );
-        ft, tbody end
-  | None -> 
-      let return_type = V.create () in
+  | Some(k) -> 
+      let ft = w_result env k in
       let env = match name with
-      | Some(f) -> add f { typ = Tarrow(tl, { typ = Tvar(return_type); effect = NoEffect }); effect = NoEffect } env
+        | Some(f) -> add f { typ = Tarrow(tl, ft) ; effect = NoEffect } env
+        | None -> env
+      in let tbody = w_bexpr env fb.body name { typ = Some(ft) } in
+      (try unify tbody.typ ft with UnificationFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais type"));
+      ft, tbody
+  | None ->
+      let env = match name with
+      | Some(f) -> add f { typ = Tarrow(tl, { typ = Tvar(V.create ()); effect = NoEffect }); effect = NoEffect } env
       | None -> env
-      in let tbody = w_bexpr env fb.body name return_type in
+      in
+      let tbody = w_bexpr env fb.body name { typ = None } in
       tbody.typ, tbody
-    in { formal = formal' ; body = tbody ; typ = { typ = Tarrow(tl, ft); effect = NoEffect }}, tl, ft
+  in { formal = formal' ; body = tbody ; typ = { typ = Tarrow(tl, ft); effect = NoEffect }}, tl, ft
 
 (* Renvoie le tbexpr correspondant à bexpr et vérifie que les éventuels return sont du bon type *)
-and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr with
+and w_bexpr env bexpr fun_name return_type : tbexpr = match bexpr.bexpr with
   | EBlock sl -> 
       let tsl, _, ft = ( List.fold_left 
         (fun (acc, env, ft) (stmt : stmt) -> 
@@ -356,52 +338,35 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tbe1 = w_bexpr env be1 fun_name return_type in
       let tbe2 = w_bexpr env be2 fun_name return_type in
       begin match op with
-      | Add | Sub | Mul | Div | Mod -> begin
-        try
-          unify_types tbe1.typ.typ Tint;
-          unify_types tbe2.typ.typ Tint;
-          { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tint; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        with UnificationFailure(_,_) -> raise (TypeError "Opération entre deux objets du mauvais type") end
-
-      | Lt | Lte | Gt | Gte -> begin 
-        try
-          unify_types tbe1.typ.typ Tint;
-          unify_types tbe2.typ.typ Tint;
-          { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        with UnificationFailure(_,_) -> raise (TypeError "Opération entre deux objets du mauvais type") end
-
-      | Eq | Neq -> begin 
-        (try
-          unify_types tbe1.typ.typ tbe2.typ.typ
-        with UnificationFailure(_,_) -> raise (TypeError "Comparaison de deux éléments de types différents"));
+      | Add | Sub | Mul | Div | Mod  -> begin match head tbe1.typ.typ, head tbe2.typ.typ with
+        | Tint, Tint -> { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tint; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
+        | _ -> raise (TypeError "Opération entre deux objets du mauvais type")
+        end
+      | Lt | Lte | Gt | Gte ->  begin match head tbe1.typ.typ, head tbe2.typ.typ with
+        | Tint, Tint -> { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
+        | _ -> raise (TypeError "Hehello Opération entre deux objets du mauvais type")
+        end
+      | Eq | Neq ->
         let t1 = head tbe1.typ.typ in
         let t2 = head tbe2.typ.typ in
-        if t1 <> Tint && t1 <> Tbool && t1 <> Tstring then raise (TypeError "Impossible de comparer deux éléments de types autre que int, bool ou string.")
+        if if t1 <> Tint && t1 <> Tbool && t1 <> Tstring then raise (TypeError "Impossible de comparer deux éléments de types autre que int, bool ou string.")
+        else t1 <> t2 then raise (TypeError "Comparaison de deux éléments de types différents")
         else { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        end 
-      | And | Or -> begin 
-        try
-          unify_types tbe1.typ.typ Tbool;
-          unify_types tbe2.typ.typ Tbool;
-          { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        with UnificationFailure(_,_) ->raise (TypeError "Opération entre deux objets du mauvais type") end
 
-      | Concat -> 
-        try
-          unify_types tbe1.typ.typ Tstring;
-          unify_types tbe2.typ.typ Tstring;
-          { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tstring; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        with UnificationFailure(_,_) -> try
-          unify_types tbe1.typ.typ (Tlist(Tvar(V.create())));
-          unify_types tbe2.typ.typ (Tlist(Tvar(V.create())));
-          try
-            let Tlist(t1) = head tbe1.typ.typ in
-            let Tlist(t2) = head tbe2.typ.typ in
-            unify_types t1 t2;
-            { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tlist(t1); effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-          with UnificationFailure(_,_) -> raise (TypeError "Impossible de concaténer deux listes contenant des types différents")
-        with UnificationFailure(_,_) -> raise (TypeError "Opération entre deux objets du mauvais type");
-        
+      | And | Or -> begin match head tbe1.typ.typ, head tbe2.typ.typ with
+        | Tbool, Tbool -> { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
+        | _ -> raise (TypeError "Opération entre deux objets du mauvais type")
+        end
+
+      | Concat -> begin match head tbe1.typ.typ, head tbe2.typ.typ with
+        | Tstring, Tstring -> { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tstring; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
+        | Tlist(t1), Tlist(t2) ->
+            try
+              unify (full_type_of_type t1) (full_type_of_type t2);
+              { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tlist(t1); effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
+            with UnificationFailure(_,_) -> raise (TypeError "Impossible de concaténer deux listes contenant des types différents")
+        | _ -> raise (TypeError "Opération entre deux objets du mauvais type")
+        end
       end
 
   | EAsign(id, be) ->
@@ -412,18 +377,19 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tbe1 = w_bexpr env be1 fun_name return_type in
       let tbe2 = w_bexpr env be2 fun_name return_type in
       let tbe3 = w_bexpr env be3 fun_name return_type in
-      try unify_types tbe1.typ.typ Tbool;
-        try
-          unify_types tbe2.typ.typ tbe3.typ.typ;
-          let t2 = head tbe2.typ.typ in
-          let t3 = head tbe3.typ.typ in
-          { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
-        with UnificationFailure(_,_) -> raise ( TypeError "Les résultats des deux cas de 'If' doivent être du même type")
-      with UnificationFailure(_,_) -> raise (TypeError "'If' attends un booléen");
+      let t1 = head tbe1.typ.typ in
+      let t2 = head tbe2.typ.typ in
+      let t3 = head tbe3.typ.typ in
+      if t1 <> Tbool then raise (TypeError "'If' attends un booléen\n")
+      else try
       
+        unify (full_type_of_type t2) (full_type_of_type t3);
+        { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
+      with UnificationFailure(_,_) -> raise ( TypeError "Les résultats des deux cas de 'If' doivent être du même type")
     end
 
   | EFn(fb) ->
+     
       let tfb, tl, ft = w_funbody env None fb in
       if (has_doublon (List.map (fun x ->  x.name) (tfb.formal))) then raise (TypeError "fonction a 2 paramètre de meme nom")
   else
@@ -434,12 +400,14 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       
       begin match return_type.typ with
       | None -> 
-          return_type.typ <- Some(tbe.typ.typ);
+          return_type.typ <- Some(tbe.typ);
           { bexpr = EReturn(tbe); typ = tbe.typ; loc = bexpr.loc }
 
       | Some(t) -> 
-          try unify_types t tbe.typ.typ; { bexpr = EReturn(tbe); typ = tbe.typ; loc = bexpr.loc }
-          with UnificationFailure(_,_) -> raise (TypeError "Mauvais type retourné")
+          if t.effect = tbe.typ.effect then
+            try unify t tbe.typ; { bexpr = EReturn(tbe); typ = tbe.typ; loc = bexpr.loc }
+            with UnificationFailure(_,_) -> raise (TypeError "Mauvais type retourné")
+          else raise (TypeError "Mauvais effet retourné.")
       end
 
   | ATrue -> { bexpr = ATrue; typ = { typ = Tbool; effect = NoEffect }; loc = bexpr.loc }
@@ -453,7 +421,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
   | Empty -> { bexpr = Empty; typ = { typ = Tunit; effect = NoEffect }; loc = bexpr.loc }
 
   | Ident(id) -> begin
-      Printf.printf "id = %s\n" id;
       try 
         let t = find id env in
         
@@ -480,7 +447,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
               let tbe1 = w_bexpr env be1 fun_name return_type in
               let tbe2 = w_bexpr env be2 fun_name return_type in
               try
-                unify_types tbe1.typ.typ (Tmaybe tbe2.typ.typ);
+                unify tbe1.typ { typ = Tmaybe tbe2.typ.typ; effect = tbe2.typ.effect };
                 { bexpr = Default(tbe1, tbe2); typ = { typ = tbe2.typ.typ; effect = add_effect tbe1.typ.effect tbe2.typ.effect }; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeError "Arguments incompatibles")
           | _ -> raise (TypeError "Mauvais nombre d'arguments pour default")
@@ -491,7 +458,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           | [be] ->
               let tbe = w_bexpr env be fun_name return_type in
               try
-                unify_types tbe.typ.typ (Tlist (Tvar(V.create ())));
+                unify tbe.typ { typ = Tlist (Tvar(V.create ())); effect = NoEffect };
                 { bexpr = Head(tbe); typ = { typ = Tmaybe tbe.typ.typ; effect = tbe.typ.effect }; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeError "head prend une liste en argument")
           | _ -> raise (TypeError "Mauvais nombre d'arguments pour head")
@@ -502,7 +469,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           | [be] ->
               let tbe = w_bexpr env be fun_name return_type in
               try
-                unify_types tbe.typ.typ (Tlist (Tvar(V.create ())));
+                unify tbe.typ { typ = Tlist (Tvar(V.create ())); effect = NoEffect };
                 { bexpr = Tail(tbe); typ = tbe.typ; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeError "tail prend une liste en argument")
           | _ -> raise (TypeError "Mauvais nombre d'arguments pour tail")
@@ -536,9 +503,8 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           end
 
       | Ident("while") ->
-        Printf.printf "hello world %d\n" (List.length args);
           begin match args with
-          | [be1; be2] ->
+          | [be1; be2] -> Printf.printf "good\n";
               let tbe1 = w_bexpr env be1 fun_name return_type in
               let tbe2 = w_bexpr env be2 fun_name return_type in
               begin match head tbe1.typ.typ, head tbe2.typ.typ with
@@ -554,12 +520,17 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           let tl, rt = match head tf.typ.typ with
           | Tarrow(tl, rt) -> tl, rt
           | _ -> raise (TypeError "Fonction attendue")
+          in let rt = match rt.typ with
+          | Tvar(_) -> begin match return_type.typ with
+              | None -> rt
+              | Some(ft) -> ft
+              end
+          | _ -> rt
           in let rec loop l1 (l2 : tbexpr list) = match l1, l2 with
           | [], [] -> ()
           | _, [] | [], _ -> raise (TypeError "Nombre d'arguments invalide")
           | h1::t1, h2::t2 -> 
-              try unify_types (head h1) (head h2.typ.typ); 
-              loop t1 t2 with UnificationFailure(_,_) -> raise (TypeError "Arguments de mauvais type")
+              try unify (full_type_of_type (head h1)) (full_type_of_type (head h2.typ.typ)); loop t1 t2 with UnificationFailure(_,_) -> raise (TypeError "Arguments de mauvais type")
           in loop tl targs;
           let eff = add_effect tf.typ.effect (add_effect rt.effect (List.fold_left (fun acc (x : tbexpr) -> add_effect acc x.typ.effect) NoEffect targs)) in
           { bexpr = Eval(tf, targs); typ = { typ = rt.typ; effect = eff }; loc = bexpr.loc}
@@ -587,7 +558,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           let eff = List.fold_left 
             (fun acc (x : tbexpr) -> 
               try
-                unify_types x.typ.typ htyp.typ;
+                unify x.typ htyp;
                 add_effect acc x.typ.effect
               with UnificationFailure(_,_) -> raise (TypeError "Une file ne peut contenir qu'un seul type")) htyp.effect t
           in { bexpr = List(tbel); typ = { typ = Tlist(htyp.typ); effect = eff }; loc = bexpr.loc }
@@ -641,27 +612,4 @@ let w (file : file)  =
     acc@[decl'], env')
    ([], empty) file)
 
-(*let rec print_file fmt file = match file with
-  | [] -> fprintf fmt ""
-  | decl -> fprintf fmt "@[%a@]" print_decl decl
-  | decl::t -> fprintf fmt "@[%a@], %a" print_decl declt print_file t
 
-and print_decl fmt decl =
-  fprintf fmt "@[%s %a@]" decl.name print_funbody decl.body
-
-and print_funbody fmt fb =
-  fprintf fmt "@[(%a) = %a : %a@]" print_param_list fb.formal print_decl fb.body print_type fb.typ
-
-and print_param_list fmt pl = match pl with
-  | [] -> fprintf fmt ""
-  | param -> fprintf fmt "@[%s : %a@]" param.name print_type param.typ
-  | param::t -> fprintf fmt "@[%s : %a@], %a" param.name print_type param.typ print_param_list t
-
-and print_bexpr fmt bexpr = match bexpr.bexpr with
-  | EBlock(sl) -> fprintf fmt "{%a} : %a" print_stmt_list sl print_type bexpr.typ
-  | ETild(be) -> fprintf fmt "~(%a) : %a" print_bexpr be print_type bexpr.typ
-  | ENot(be) -> fprintf fmt "!(%a) : %a" print_bexpr be print_type bexpr.typ
-
-and print_stmt_list fmt sl = failwith "AF"
-
-and print_stmt fmt stmt = failwith "AF"*)

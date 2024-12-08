@@ -1,6 +1,6 @@
 
 all: main.exe
-	dune exec  ./main.exe  test.koka 
+	dune exec  ./main.exe --type-only  test.koka 
 tests: main.exe
 	for f in syntax/good/*.koka; do dune exec ./main.exe $$f; done
 

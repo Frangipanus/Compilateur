@@ -17,7 +17,7 @@ let set_file f s = f := s
 let options =
   ["--parse-only", Arg.Set parse_only,
    "  Pour ne faire uniquement que la phase d'analyse syntaxique";
-   "--type_only", Arg.Set type_only, "evident"]
+   "--type-only", Arg.Set type_only, "Pour ne faire uniquement la phase de typage"]
 
 let usage = "usage: petit kokoa [option] test.koka"
 
@@ -58,6 +58,8 @@ let () =
 
     (* On s'arrête ici si on ne veut faire que le parsing *)
     if !parse_only then exit 0;
+    let p2 = Algow.w p in 
+    if !type_only then (Printf.printf "here\n";exit 0);
   with
     | Lexer.Lexing_error c ->
 	(* Erreur lexicale. On récupère sa position absolue et
@@ -74,6 +76,7 @@ let () =
     |Error2 -> (localisation (Lexing.lexeme_start_p buf);
     Printf.printf "Ratio\n" ;
     exit 1)
-    | _->
-	(* Erreur pendant l'interprétation *)
-	eprintf "Normal : @." ; exit 2
+    |Algow.TypeError(s) -> (Printf.printf "%s" s; exit 1)
+    |Algow.UnificationFailure(_,_) -> exit 1
+    | _->(
+	(* Erreur pendant l'interprétation *)eprintf "Normal ha : @." ; exit 2)
