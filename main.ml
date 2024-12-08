@@ -78,5 +78,4 @@ let () =
     exit 1)
     |Algow.TypeError(s) -> (Printf.printf "%s" s; exit 1)
     |Algow.UnificationFailure(_,_) -> exit 1
-    | _->(
-	(* Erreur pendant l'interprétation *)eprintf "Normal ha : @." ; exit 2)
+   

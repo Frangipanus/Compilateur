@@ -218,6 +218,7 @@ module Vset = Set.Make(V)
 let rec fvars t = match head t with
   | Tint | Tbool | Tstring | Tunit -> Vset.empty
   | Tarrow(tl, ft) -> List.fold_left (fun acc t' -> Vset.union acc (fvars t')) Vset.empty (ft.typ::tl)
+  | Tlist(t) | Tmaybe(t) -> fvars t
   | Tvar v -> Vset.singleton v
 
 type schema = { vars : Vset.t; typ : full_type }
@@ -414,12 +415,15 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tbe2 = w_bexpr env be2 fun_name return_type in
       let tbe3 = w_bexpr env be3 fun_name return_type in
       try unify_types tbe1.typ.typ Tbool;
+      if head tbe3.typ.typ = Tunit then (          let t2 = head tbe2.typ.typ in
+      { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
+        ) else(
         try
           unify_types tbe2.typ.typ tbe3.typ.typ;
           let t2 = head tbe2.typ.typ in
           let t3 = head tbe3.typ.typ in
           { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
-        with UnificationFailure(_,_) -> raise ( TypeError "Les résultats des deux cas de 'If' doivent être du même type")
+        with UnificationFailure(_,_) -> raise ( TypeError "Les résultats des deux cas de 'If' doivent être du même type"))
       with UnificationFailure(_,_) -> raise (TypeError "'If' attends un booléen");
       
     end
@@ -481,9 +485,10 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
               let tbe1 = w_bexpr env be1 fun_name return_type in
               let tbe2 = w_bexpr env be2 fun_name return_type in
               try
+                (*printf "%a \n %a \n" print_full_type tbe1.typ print_full_type tbe2.typ;*)
                 unify_types tbe1.typ.typ (Tmaybe tbe2.typ.typ);
                 { bexpr = Default(tbe1, tbe2); typ = { typ = tbe2.typ.typ; effect = add_effect tbe1.typ.effect tbe2.typ.effect }; loc = bexpr.loc }
-              with UnificationFailure(_,_) -> raise (TypeError "Arguments incompatibles")
+              with UnificationFailure(_,_) -> raise (TypeError "Arguments incompatibles \n")
           | _ -> raise (TypeError "Mauvais nombre d'arguments pour default")
           end
 
@@ -492,8 +497,9 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           | [be] ->
               let tbe = w_bexpr env be fun_name return_type in
               try
-                unify_types tbe.typ.typ (Tlist (Tvar(V.create ())));
-                { bexpr = Head(tbe); typ = { typ = Tmaybe tbe.typ.typ; effect = tbe.typ.effect }; loc = bexpr.loc }
+                let var = V.create () in
+                unify_types tbe.typ.typ (Tlist (Tvar(var)));
+                { bexpr = Head(tbe); typ = { typ = Tmaybe (head (Tvar var)); effect = tbe.typ.effect }; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeError "head prend une liste en argument")
           | _ -> raise (TypeError "Mauvais nombre d'arguments pour head")
           end
