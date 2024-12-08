@@ -108,8 +108,14 @@ atom:
   | LPAR ; e = expr ; RPAR { e }
   | at = atom ; LPAR ; el = separated_list(COMMA, expr) ; RPAR { { bexpr = Eval(at, el); loc= ($startpos,$endpos) } }
   | at = atom ; DOT ; id = IDENT {{bexpr = (Eval({ bexpr = Ident(id); loc= ($startpos,$endpos) }, [at])) ; loc =  ($startpos,$endpos) } }
-  | at = atom ; FN  fb = funbody { { bexpr = Fn(at, fb) ; loc= ($startpos,$endpos) } }
-  | at = atom ; b = block { { bexpr = AtomBlock(at, b); loc= ($startpos,$endpos) } }
+  | at = atom  FN  fb = funbody 
+    { match at.bexpr with
+      | Eval(at, el) -> { bexpr = Eval(at, el@[{bexpr = EFn(fb); loc = ($startpos,$endpos)}]) ; loc= ($startpos,$endpos) } 
+      | _ -> { bexpr = Eval(at, [{bexpr = EFn(fb); loc = ($startpos,$endpos)}]); loc = ($startpos,$endpos)}}
+  | at = atom ; b = block { 
+      match at.bexpr with
+      | Eval(at, el) -> { bexpr = Eval(at, el@[{bexpr = EFn({formal = []; annot = None; body = {bexpr = EBlock(b); loc = ($startpos, $endpos)}}); loc = ($startpos, $endpos)}]); loc= ($startpos,$endpos) }
+      | _ -> { bexpr = Eval(at, [{bexpr = EFn({formal = []; annot = None; body = {bexpr = EBlock(b); loc = ($startpos, $endpos)}}); loc = ($startpos, $endpos)}]); loc= ($startpos,$endpos) } }
   | LSPAR ; el = separated_list(COMMA, expr) ; RSPAR { { bexpr = Brac(el); loc= ($startpos,$endpos) } }
 ;
 

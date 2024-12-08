@@ -523,7 +523,7 @@ let
 
   | 39 ->
 # 84 "lexer.mll"
-          ( [IDENT(read_string lexbuf)] )
+          ( [STRING(read_string lexbuf)] )
 # 528 "lexer.ml"
 
   | 40 ->

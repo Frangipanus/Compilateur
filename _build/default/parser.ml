@@ -628,9 +628,11 @@ let _menhir_action_11 =
     let _endpos = _endpos_fb_ in
     let _startpos = _startpos_at_ in
     (
-# 111 "parser.mly"
-                                 ( { bexpr = Fn(at, fb) ; loc= (_startpos,_endpos) } )
-# 634 "parser.ml"
+# 112 "parser.mly"
+    ( match at.bexpr with
+      | Eval(at, el) -> { bexpr = Eval(at, el@[{bexpr = EFn(fb); loc = (_startpos,_endpos)}]) ; loc= (_startpos,_endpos) } 
+      | _ -> { bexpr = Eval(at, [{bexpr = EFn(fb); loc = (_startpos,_endpos)}]); loc = (_startpos,_endpos)})
+# 636 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_12 =
@@ -638,9 +640,12 @@ let _menhir_action_12 =
     let _endpos = _endpos_b_ in
     let _startpos = _startpos_at_ in
     (
-# 112 "parser.mly"
-                          ( { bexpr = AtomBlock(at, b); loc= (_startpos,_endpos) } )
-# 644 "parser.ml"
+# 115 "parser.mly"
+                          ( 
+      match at.bexpr with
+      | Eval(at, el) -> { bexpr = Eval(at, el@[{bexpr = EFn({formal = []; annot = None; body = {bexpr = EBlock(b); loc = (_startpos, _endpos)}}); loc = (_startpos, _endpos)}]); loc= (_startpos,_endpos) }
+      | _ -> { bexpr = Eval(at, [{bexpr = EFn({formal = []; annot = None; body = {bexpr = EBlock(b); loc = (_startpos, _endpos)}}); loc = (_startpos, _endpos)}]); loc= (_startpos,_endpos) } )
+# 649 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_13 =
@@ -648,14 +653,14 @@ let _menhir_action_13 =
     let el = 
 # 241 "<standard.mly>"
     ( xs )
-# 652 "parser.ml"
+# 657 "parser.ml"
      in
     let _endpos = _endpos__3_ in
     let _startpos = _startpos__1_ in
     (
-# 113 "parser.mly"
+# 119 "parser.mly"
                                                      ( { bexpr = Brac(el); loc= (_startpos,_endpos) } )
-# 659 "parser.ml"
+# 664 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_14 =
@@ -665,7 +670,7 @@ let _menhir_action_14 =
     (
 # 95 "parser.mly"
                                        ( { typ = AVar(s, Some(ty)); loc= (_startpos,_endpos) } )
-# 669 "parser.ml"
+# 674 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_15 =
@@ -675,7 +680,7 @@ let _menhir_action_15 =
     (
 # 96 "parser.mly"
            ( { typ = AVar(s, None); loc= (_startpos,_endpos) } )
-# 679 "parser.ml"
+# 684 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_16 =
@@ -685,7 +690,7 @@ let _menhir_action_16 =
     (
 # 97 "parser.mly"
                           ( { typ = AType(ty); loc= (_startpos,_endpos) } )
-# 689 "parser.ml"
+# 694 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_17 =
@@ -695,15 +700,15 @@ let _menhir_action_17 =
     (
 # 98 "parser.mly"
             ( { typ = AEmpty; loc= (_startpos,_endpos) } )
-# 699 "parser.ml"
+# 704 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_18 =
   fun a ->
     (
-# 122 "parser.mly"
+# 128 "parser.mly"
              ( a )
-# 707 "parser.ml"
+# 712 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_19 =
@@ -711,9 +716,9 @@ let _menhir_action_19 =
     let _endpos = _endpos_b_ in
     let _startpos = _startpos__1_ in
     (
-# 123 "parser.mly"
+# 129 "parser.mly"
                    ( { bexpr = ETild (b); loc= (_startpos,_endpos) } )
-# 717 "parser.ml"
+# 722 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_20 =
@@ -721,9 +726,9 @@ let _menhir_action_20 =
     let _endpos = _endpos_b_ in
     let _startpos = _startpos__1_ in
     (
-# 124 "parser.mly"
+# 130 "parser.mly"
                      ( { bexpr = ENot(b); loc= (_startpos,_endpos) } )
-# 727 "parser.ml"
+# 732 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_21 =
@@ -731,219 +736,219 @@ let _menhir_action_21 =
     let _endpos = _endpos_b_ in
     let _startpos = _startpos_s_ in
     (
-# 125 "parser.mly"
+# 131 "parser.mly"
                                ( { bexpr = EAsign(s, b); loc= (_startpos, _endpos) } )
-# 737 "parser.ml"
+# 742 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_22 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 149 "parser.mly"
+# 155 "parser.mly"
        ( Eq )
-# 745 "parser.ml"
+# 750 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 752 "parser.ml"
+# 757 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_23 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 150 "parser.mly"
+# 156 "parser.mly"
         ( Neq )
-# 760 "parser.ml"
+# 765 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 767 "parser.ml"
+# 772 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_24 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 151 "parser.mly"
+# 157 "parser.mly"
        ( Lt )
-# 775 "parser.ml"
+# 780 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 782 "parser.ml"
+# 787 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_25 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 152 "parser.mly"
+# 158 "parser.mly"
         ( Lte )
-# 790 "parser.ml"
+# 795 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 797 "parser.ml"
+# 802 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_26 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 153 "parser.mly"
+# 159 "parser.mly"
        ( Gt )
-# 805 "parser.ml"
+# 810 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 812 "parser.ml"
+# 817 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_27 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 154 "parser.mly"
+# 160 "parser.mly"
         ( Gte )
-# 820 "parser.ml"
+# 825 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 827 "parser.ml"
+# 832 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_28 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 155 "parser.mly"
+# 161 "parser.mly"
          ( Add )
-# 835 "parser.ml"
+# 840 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 842 "parser.ml"
+# 847 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_29 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 156 "parser.mly"
+# 162 "parser.mly"
           ( Sub )
-# 850 "parser.ml"
+# 855 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 857 "parser.ml"
+# 862 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_30 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 157 "parser.mly"
+# 163 "parser.mly"
         ( Mul )
-# 865 "parser.ml"
+# 870 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 872 "parser.ml"
+# 877 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_31 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 158 "parser.mly"
+# 164 "parser.mly"
         ( Div )
-# 880 "parser.ml"
+# 885 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 887 "parser.ml"
+# 892 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_32 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 159 "parser.mly"
+# 165 "parser.mly"
         ( Mod )
-# 895 "parser.ml"
+# 900 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 902 "parser.ml"
+# 907 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_33 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 160 "parser.mly"
+# 166 "parser.mly"
            ( Concat )
-# 910 "parser.ml"
+# 915 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 917 "parser.ml"
+# 922 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_34 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 161 "parser.mly"
+# 167 "parser.mly"
         ( And )
-# 925 "parser.ml"
+# 930 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 932 "parser.ml"
+# 937 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_35 =
   fun _endpos_b3_ _startpos_b1_ b1 b3 ->
     let b2 = 
-# 162 "parser.mly"
+# 168 "parser.mly"
        ( Or )
-# 940 "parser.ml"
+# 945 "parser.ml"
      in
     let _endpos = _endpos_b3_ in
     let _startpos = _startpos_b1_ in
     (
-# 126 "parser.mly"
+# 132 "parser.mly"
                                       ( { bexpr = EBinop(b2,b1,b3); loc= (_startpos,_endpos) } )
-# 947 "parser.ml"
+# 952 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_36 =
@@ -951,9 +956,9 @@ let _menhir_action_36 =
     let _endpos = _endpos_lst_ in
     let _startpos = _startpos__1_ in
     (
-# 127 "parser.mly"
+# 133 "parser.mly"
                                              ( { bexpr = EIf(b1, b2,lst); loc= (_startpos,_endpos) } )
-# 957 "parser.ml"
+# 962 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_37 =
@@ -961,9 +966,9 @@ let _menhir_action_37 =
     let _endpos = _endpos_b2_ in
     let _startpos = _startpos__1_ in
     (
-# 128 "parser.mly"
+# 134 "parser.mly"
                                    ( { bexpr = EIf (b1, { bexpr = EReturn(b2); loc= (_startpos, _endpos) }, { bexpr = EBlock([]); loc= (_startpos, _endpos) }); loc= (_startpos,_endpos)} )
-# 967 "parser.ml"
+# 972 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_38 =
@@ -971,9 +976,9 @@ let _menhir_action_38 =
     let _endpos = _endpos_f_ in
     let _startpos = _startpos__1_ in
     (
-# 129 "parser.mly"
+# 135 "parser.mly"
                    ( { bexpr = EFn(f); loc= (_startpos,_endpos) } )
-# 977 "parser.ml"
+# 982 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_39 =
@@ -981,17 +986,17 @@ let _menhir_action_39 =
     let _endpos = _endpos_e_ in
     let _startpos = _startpos__1_ in
     (
-# 130 "parser.mly"
+# 136 "parser.mly"
                     ( { bexpr = EReturn(e); loc= (_startpos,_endpos) } )
-# 987 "parser.ml"
+# 992 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_40 =
   fun lst ->
     (
-# 139 "parser.mly"
+# 145 "parser.mly"
                                                                ( lst )
-# 995 "parser.ml"
+# 1000 "parser.ml"
      : (Ast.stmt list))
 
 let _menhir_action_41 =
@@ -999,7 +1004,7 @@ let _menhir_action_41 =
     (
 # 61 "parser.mly"
     ( { name = i ; body = body } )
-# 1003 "parser.ml"
+# 1008 "parser.ml"
      : (Ast.decl))
 
 let _menhir_action_42 =
@@ -1007,9 +1012,9 @@ let _menhir_action_42 =
     let _endpos = _endpos__0_ in
     let _startpos = _endpos__0_ in
     (
-# 134 "parser.mly"
+# 140 "parser.mly"
                            ( { bexpr = EBlock([]); loc= (_startpos,_endpos) } )
-# 1013 "parser.ml"
+# 1018 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_43 =
@@ -1017,25 +1022,25 @@ let _menhir_action_43 =
     let _endpos = _endpos_s_ in
     let _startpos = _startpos__1_ in
     (
-# 135 "parser.mly"
+# 141 "parser.mly"
                                              ( {bexpr = EIf(b2, b3, s); loc= (_startpos,_endpos) } )
-# 1023 "parser.ml"
+# 1028 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_44 =
   fun b3 ->
     (
-# 136 "parser.mly"
+# 142 "parser.mly"
                    ( b3 )
-# 1031 "parser.ml"
+# 1036 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_45 =
   fun s ->
     (
-# 117 "parser.mly"
+# 123 "parser.mly"
              ( s )
-# 1039 "parser.ml"
+# 1044 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_46 =
@@ -1043,9 +1048,9 @@ let _menhir_action_46 =
     let _endpos = _endpos_s_ in
     let _startpos = _startpos_s_ in
     (
-# 118 "parser.mly"
+# 124 "parser.mly"
              (if not(is_good s) then (raise  Error2) else {bexpr = EBlock(s); loc = (_startpos, _endpos)} )
-# 1049 "parser.ml"
+# 1054 "parser.ml"
      : (Ast.bexpr))
 
 let _menhir_action_47 =
@@ -1053,7 +1058,7 @@ let _menhir_action_47 =
     (
 # 56 "parser.mly"
     ( dl )
-# 1057 "parser.ml"
+# 1062 "parser.ml"
      : (Ast.file))
 
 let _menhir_action_48 =
@@ -1061,12 +1066,12 @@ let _menhir_action_48 =
     let pl = 
 # 241 "<standard.mly>"
     ( xs )
-# 1065 "parser.ml"
+# 1070 "parser.ml"
      in
     (
 # 66 "parser.mly"
    ( { formal = pl ; annot = Some(a) ; body = e } )
-# 1070 "parser.ml"
+# 1075 "parser.ml"
      : (Ast.funbody))
 
 let _menhir_action_49 =
@@ -1074,12 +1079,12 @@ let _menhir_action_49 =
     let pl = 
 # 241 "<standard.mly>"
     ( xs )
-# 1078 "parser.ml"
+# 1083 "parser.ml"
      in
     (
 # 69 "parser.mly"
    ( { formal = pl ; annot = None ; body = e } )
-# 1083 "parser.ml"
+# 1088 "parser.ml"
      : (Ast.funbody))
 
 let _menhir_action_50 =
@@ -1089,7 +1094,7 @@ let _menhir_action_50 =
     (
 # 87 "parser.mly"
                ( { typ = TAType(at); loc= (_startpos,_endpos) } )
-# 1093 "parser.ml"
+# 1098 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_51 =
@@ -1099,7 +1104,7 @@ let _menhir_action_51 =
     (
 # 88 "parser.mly"
                                       ( { typ = TFun(at, res); loc = (_startpos,_endpos) } )
-# 1103 "parser.ml"
+# 1108 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_52 =
@@ -1109,7 +1114,7 @@ let _menhir_action_52 =
     (
 # 89 "parser.mly"
                                                                                                             ( { typ = TMulFun(tl1::tl, res); loc= (_startpos,_endpos) } )
-# 1113 "parser.ml"
+# 1118 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_53 =
@@ -1119,7 +1124,7 @@ let _menhir_action_53 =
     (
 # 90 "parser.mly"
                                                       ( { typ = TMulFun([tl], res); loc = (_startpos,_endpos) } )
-# 1123 "parser.ml"
+# 1128 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_54 =
@@ -1129,7 +1134,7 @@ let _menhir_action_54 =
     (
 # 91 "parser.mly"
                                     ( { typ = TMulFun([], res) ; loc = (_startpos,_endpos) } )
-# 1133 "parser.ml"
+# 1138 "parser.ml"
      : (Ast.kokaType))
 
 let _menhir_action_55 =
@@ -1137,7 +1142,7 @@ let _menhir_action_55 =
     (
 # 216 "<standard.mly>"
     ( [] )
-# 1141 "parser.ml"
+# 1146 "parser.ml"
      : (unit list))
 
 let _menhir_action_56 =
@@ -1145,7 +1150,7 @@ let _menhir_action_56 =
     (
 # 219 "<standard.mly>"
     ( x :: xs )
-# 1149 "parser.ml"
+# 1154 "parser.ml"
      : (unit list))
 
 let _menhir_action_57 =
@@ -1153,7 +1158,7 @@ let _menhir_action_57 =
     (
 # 216 "<standard.mly>"
     ( [] )
-# 1157 "parser.ml"
+# 1162 "parser.ml"
      : (Ast.file))
 
 let _menhir_action_58 =
@@ -1161,12 +1166,12 @@ let _menhir_action_58 =
     let x = 
 # 55 "parser.mly"
                                                   (d)
-# 1165 "parser.ml"
+# 1170 "parser.ml"
      in
     (
 # 219 "<standard.mly>"
     ( x :: xs )
-# 1170 "parser.ml"
+# 1175 "parser.ml"
      : (Ast.file))
 
 let _menhir_action_59 =
@@ -1174,20 +1179,20 @@ let _menhir_action_59 =
     (
 # 216 "<standard.mly>"
     ( [] )
-# 1178 "parser.ml"
+# 1183 "parser.ml"
      : (Ast.stmt list))
 
 let _menhir_action_60 =
   fun s xs ->
     let x = 
-# 139 "parser.mly"
+# 145 "parser.mly"
                                                    (s)
-# 1186 "parser.ml"
+# 1191 "parser.ml"
      in
     (
 # 219 "<standard.mly>"
     ( x :: xs )
-# 1191 "parser.ml"
+# 1196 "parser.ml"
      : (Ast.stmt list))
 
 let _menhir_action_61 =
@@ -1195,7 +1200,7 @@ let _menhir_action_61 =
     (
 # 145 "<standard.mly>"
     ( [] )
-# 1199 "parser.ml"
+# 1204 "parser.ml"
      : (string list))
 
 let _menhir_action_62 =
@@ -1203,7 +1208,7 @@ let _menhir_action_62 =
     (
 # 148 "<standard.mly>"
     ( x )
-# 1207 "parser.ml"
+# 1212 "parser.ml"
      : (string list))
 
 let _menhir_action_63 =
@@ -1211,7 +1216,7 @@ let _menhir_action_63 =
     (
 # 145 "<standard.mly>"
     ( [] )
-# 1215 "parser.ml"
+# 1220 "parser.ml"
      : (Ast.bexpr list))
 
 let _menhir_action_64 =
@@ -1219,7 +1224,7 @@ let _menhir_action_64 =
     (
 # 148 "<standard.mly>"
     ( x )
-# 1223 "parser.ml"
+# 1228 "parser.ml"
      : (Ast.bexpr list))
 
 let _menhir_action_65 =
@@ -1227,7 +1232,7 @@ let _menhir_action_65 =
     (
 # 145 "<standard.mly>"
     ( [] )
-# 1231 "parser.ml"
+# 1236 "parser.ml"
      : (Ast.param list))
 
 let _menhir_action_66 =
@@ -1235,7 +1240,7 @@ let _menhir_action_66 =
     (
 # 148 "<standard.mly>"
     ( x )
-# 1239 "parser.ml"
+# 1244 "parser.ml"
      : (Ast.param list))
 
 let _menhir_action_67 =
@@ -1243,7 +1248,7 @@ let _menhir_action_67 =
     (
 # 228 "<standard.mly>"
     ( [ x ] )
-# 1247 "parser.ml"
+# 1252 "parser.ml"
      : (unit list))
 
 let _menhir_action_68 =
@@ -1251,7 +1256,7 @@ let _menhir_action_68 =
     (
 # 231 "<standard.mly>"
     ( x :: xs )
-# 1255 "parser.ml"
+# 1260 "parser.ml"
      : (unit list))
 
 let _menhir_action_69 =
@@ -1261,7 +1266,7 @@ let _menhir_action_69 =
     (
 # 73 "parser.mly"
                                       ( {param = (s, ty); loc= (_startpos,_endpos)} )
-# 1265 "parser.ml"
+# 1270 "parser.ml"
      : (Ast.param))
 
 let _menhir_action_70 =
@@ -1269,14 +1274,14 @@ let _menhir_action_70 =
     let lst = 
 # 241 "<standard.mly>"
     ( xs )
-# 1273 "parser.ml"
+# 1278 "parser.ml"
      in
     let _endpos = _endpos_t_ in
     let _startpos = _startpos__1_ in
     (
 # 82 "parser.mly"
     ( {res = (lst, t); loc= (_startpos,_endpos)} )
-# 1280 "parser.ml"
+# 1285 "parser.ml"
      : (Ast.result))
 
 let _menhir_action_71 =
@@ -1286,7 +1291,7 @@ let _menhir_action_71 =
     (
 # 83 "parser.mly"
                  ( { res = ([], t); loc = (_startpos,_endpos) } )
-# 1290 "parser.ml"
+# 1295 "parser.ml"
      : (Ast.result))
 
 let _menhir_action_72 =
@@ -1294,7 +1299,7 @@ let _menhir_action_72 =
     (
 # 250 "<standard.mly>"
     ( [ x ] )
-# 1298 "parser.ml"
+# 1303 "parser.ml"
      : (string list))
 
 let _menhir_action_73 =
@@ -1302,7 +1307,7 @@ let _menhir_action_73 =
     (
 # 253 "<standard.mly>"
     ( x :: xs )
-# 1306 "parser.ml"
+# 1311 "parser.ml"
      : (string list))
 
 let _menhir_action_74 =
@@ -1310,7 +1315,7 @@ let _menhir_action_74 =
     (
 # 250 "<standard.mly>"
     ( [ x ] )
-# 1314 "parser.ml"
+# 1319 "parser.ml"
      : (Ast.bexpr list))
 
 let _menhir_action_75 =
@@ -1318,7 +1323,7 @@ let _menhir_action_75 =
     (
 # 253 "<standard.mly>"
     ( x :: xs )
-# 1322 "parser.ml"
+# 1327 "parser.ml"
      : (Ast.bexpr list))
 
 let _menhir_action_76 =
@@ -1326,7 +1331,7 @@ let _menhir_action_76 =
     (
 # 250 "<standard.mly>"
     ( [ x ] )
-# 1330 "parser.ml"
+# 1335 "parser.ml"
      : (Ast.kokaType list))
 
 let _menhir_action_77 =
@@ -1334,7 +1339,7 @@ let _menhir_action_77 =
     (
 # 253 "<standard.mly>"
     ( x :: xs )
-# 1338 "parser.ml"
+# 1343 "parser.ml"
      : (Ast.kokaType list))
 
 let _menhir_action_78 =
@@ -1342,7 +1347,7 @@ let _menhir_action_78 =
     (
 # 250 "<standard.mly>"
     ( [ x ] )
-# 1346 "parser.ml"
+# 1351 "parser.ml"
      : (Ast.param list))
 
 let _menhir_action_79 =
@@ -1350,7 +1355,7 @@ let _menhir_action_79 =
     (
 # 253 "<standard.mly>"
     ( x :: xs )
-# 1354 "parser.ml"
+# 1359 "parser.ml"
      : (Ast.param list))
 
 let _menhir_action_80 =
@@ -1358,9 +1363,9 @@ let _menhir_action_80 =
     let _endpos = _endpos_b_ in
     let _startpos = _startpos_b_ in
     (
-# 143 "parser.mly"
+# 149 "parser.mly"
               ( { stmt = SBexpr(b); loc = (_startpos,_endpos) } )
-# 1364 "parser.ml"
+# 1369 "parser.ml"
      : (Ast.stmt))
 
 let _menhir_action_81 =
@@ -1368,9 +1373,9 @@ let _menhir_action_81 =
     let _endpos = _endpos_e_ in
     let _startpos = _startpos__1_ in
     (
-# 144 "parser.mly"
+# 150 "parser.mly"
                                ( { stmt = SDecl(s, e); loc = (_startpos,_endpos) } )
-# 1374 "parser.ml"
+# 1379 "parser.ml"
      : (Ast.stmt))
 
 let _menhir_action_82 =
@@ -1378,9 +1383,9 @@ let _menhir_action_82 =
     let _endpos = _endpos_e_ in
     let _startpos = _startpos__1_ in
     (
-# 145 "parser.mly"
+# 151 "parser.mly"
                                   ( { stmt = SVar(s,e); loc = (_startpos,_endpos) } )
-# 1384 "parser.ml"
+# 1389 "parser.ml"
      : (Ast.stmt))
 
 let _menhir_print_token : token -> string =
