@@ -59,8 +59,6 @@ and bexpr1 =
   | ATrue | AFalse | Int of int | String of string | Empty
   | Ident of ident
   | Eval of bexpr * (bexpr list)
-  | Fn of bexpr * funbody
-  | AtomBlock of bexpr * (stmt list)
   | Brac of bexpr list
 
 (* corps d'une fonction *)
