@@ -21,6 +21,10 @@ and effect=
   | Console
   | Full
   | NoEffect
+  | Evar of evar
+
+and evar =
+  { id : int; mutable effect : effect option}
 
 and full_type = 
   {typ: typ; effect : effect}
@@ -114,34 +118,47 @@ module V = struct
   let create = let r = ref 0 in fun () -> incr r; { id = !r; typ = None }
 end
 
+module Veff = struct
+  type t = evar
+  let compare v1 v2 = Stdlib.compare v1.id v2.id
+  let equal v1 v2 = v1.id = v2.id
+  let create = let r = ref 0 in fun () -> incr r; { id = !r; effect = None}
+end
+
 let rec head t = match t with
   | Tvar { typ = Some(t') } -> head t'
   | _ -> t
   open Format
 
-  let rec print_type fmt typ = match head typ with
-    | Tint -> fprintf fmt "int"
-    | Tbool -> fprintf fmt "bool"
-    | Tstring -> fprintf fmt "string"
-    | Tunit -> fprintf fmt "()"
-    | Tarrow (tl, ft) -> fprintf fmt "@([@[ %a @]) -> %a@]" print_type_list tl print_full_type ft
-    | Tlist(t) -> fprintf fmt "list<@[%a@]>" print_type t
-    | Tmaybe(t) -> fprintf fmt "maybe<@[%a@]>" print_type t
-    | Tvar(v) -> fprintf fmt "'%d" v.id
-  
-  and print_type_list fmt tl = match tl with
-    | [] -> fprintf fmt ""
-    | [typ] -> print_type fmt typ
-    | typ::tail -> fprintf fmt "%a, %a" print_type typ print_type_list tail
-  
-  and print_effect fmt eff = match eff with
-    | NoEffect -> fprintf fmt "<>"
-    | Div -> fprintf fmt "<Div>"
-    | Console -> fprintf fmt "<Console>"
-    | Full -> fprintf fmt "<Div, Console>"
-  
-  and print_full_type fmt ft =
-    fprintf fmt "@[%a@] / %a" print_type ft.typ print_effect ft.effect
+let rec head_effect eff = match eff with
+  | Evar { effect = Some(eff') } -> head_effect eff'
+  | _ -> eff
+
+let rec print_type fmt typ = match head typ with
+  | Tint -> fprintf fmt "int"
+  | Tbool -> fprintf fmt "bool"
+  | Tstring -> fprintf fmt "string"
+  | Tunit -> fprintf fmt "()"
+  | Tarrow (tl, ft) -> fprintf fmt "@([@[ %a @]) -> %a@]" print_type_list tl print_full_type ft
+  | Tlist(t) -> fprintf fmt "list<@[%a@]>" print_type t
+  | Tmaybe(t) -> fprintf fmt "maybe<@[%a@]>" print_type t
+  | Tvar(v) -> fprintf fmt "'%d" v.id
+
+and print_type_list fmt tl = match tl with
+  | [] -> fprintf fmt ""
+  | [typ] -> print_type fmt typ
+  | typ::tail -> fprintf fmt "%a, %a" print_type typ print_type_list tail
+
+and print_effect fmt eff = match head_effect eff with
+  | NoEffect -> fprintf fmt "<>"
+  | Div -> fprintf fmt "<Div>"
+  | Console -> fprintf fmt "<Console>"
+  | Full -> fprintf fmt "<Div, Console>"
+  | Evar(v) -> fprintf fmt "<%d>" v.id
+
+and print_full_type fmt ft =
+  fprintf fmt "@[%a@] / %a" print_type ft.typ print_effect ft.effect
+
 let  has_doublon lst = 
   let rec aux lst1 acc = 
     match  lst1 with
@@ -176,15 +193,16 @@ let rec occur v t = match head t with
   | Tlist(t') | Tmaybe(t') -> occur v t'
   | _ -> false
 
-let egal_effect e1 e2 = 
-  match e1, e2 with 
-    |NoEffect, NoEffect -> true
-    |Div, Div -> true
-    |Console, Console -> true
-    |Full, Full -> true
-    |_ -> false
+let rec occur_effect ( v : evar) ( eff : effect ) = match head_effect eff with
+  | Evar { id = n } when n = v.id -> true
+  | _ -> false
+    
+let full_type_of_type t = { typ = t; effect = NoEffect }
 
-    let full_type_of_type t = { typ = t; effect = NoEffect }
+let rec unify_effects (e1 : effect) (e2 : effect) = match head_effect e1, head_effect e2 with
+  | ea, eb when ea = eb -> ()
+  | Evar v, e | e, Evar v -> if occur_effect v e then unification_error_eff e1 e2 else v.effect <- Some(e)
+  | _ -> unification_error_eff e1 e2
 
 let rec unify_types (t1 : typ) (t2 : typ) = match head t1, head t2 with
   | ta, tb when ta = tb -> ()
@@ -200,8 +218,8 @@ let rec unify_types (t1 : typ) (t2 : typ) = match head t1, head t2 with
   | _ -> (unification_error t1 t2)
 
 let rec unify_full_types (t1 : full_type) (t2 : full_type) =
-  if t1.effect <> t2.effect then unification_error_eff t1.effect t2.effect
-  else match head t1.typ, head t2.typ with
+  unify_effects t1.effect t2.effect;
+  match head t1.typ, head t2.typ with
   | ta, tb when ta = tb -> ()
   | Tarrow(tl1, ft1), Tarrow(tl2, ft2) ->
       let rec loop l1 l2 = match l1, l2 with
@@ -275,16 +293,16 @@ let find s env =
   { typ = fst (aux t.typ Vmap.empty); effect = t.effect}
 
 (* Calcule le nouvel effet total après lui avoir rajouté un effet *)
-let add_effect effect add = match effect, add with
+let add_effect effect add = match head_effect effect, head_effect add with
   | Full, _ | _, Full -> Full
-  | e, NoEffect | NoEffect, e -> e
+  | e, NoEffect | NoEffect, e | e, Evar _ | Evar _, e -> e
   | e, f when e = f -> e
   | _ -> Full
 
 let effect_of_ident id = match id with
   | "div" -> Div
   | "console" -> Console
-  | _ ->raise (TypeError "effet inexistant" )
+  | _ -> raise (TypeError "effet inexistant" )
 
 (* type waiting_type = { mutable typ : full_type option } *)
 
@@ -320,18 +338,23 @@ and w_funbody env name (fb : funbody) =
         ft, tbody end
   | None -> 
       let return_type = V.create () in
-      let env= match name with
-      | Some(f) -> add f { typ = Tarrow(tl, { typ = Tvar(return_type); effect = NoEffect }); effect = NoEffect } env
+      let return_effect = Veff.create () in
+      let env = match name with
+      | Some(f) -> add f { typ = Tarrow(tl, { typ = Tvar(return_type); effect = Evar(return_effect) }); effect = NoEffect } env
       | None -> env
       in let tbody = w_bexpr env fb.body name return_type in
-      tbody.typ, tbody
+      try
+        printf "%a \n %a \n" print_effect (head_effect (Evar return_effect)) print_effect (tbody.typ.effect);
+        unify_effects (Evar return_effect) tbody.typ.effect;
+        tbody.typ, tbody
+      with UnificationEffectFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais effet\n")
     in { formal = formal' ; body = tbody ; typ = { typ = Tarrow(tl, ft); effect = NoEffect }}, tl, ft
 
 (* Renvoie le tbexpr correspondant à bexpr et vérifie que les éventuels return sont du bon type *)
 and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr with
   | EBlock sl -> 
       let tsl, _, ft = ( List.fold_left 
-        (fun (acc, env, ft) (stmt : stmt) -> 
+        (fun (acc, env, ( ft : full_type )) (stmt : stmt) -> 
           let (tstmt, env') = w_stmt env stmt fun_name return_type in
           (acc @ [tstmt], env', { typ = head tstmt.typ.typ; effect = add_effect ft.effect tstmt.typ.effect }))
         ([], env, { typ = Tunit; effect = NoEffect }) sl ) in
@@ -416,9 +439,10 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tbe2 = w_bexpr env be2 fun_name return_type in
       let tbe3 = w_bexpr env be3 fun_name return_type in
       try unify_types tbe1.typ.typ Tbool;
-      if head tbe3.typ.typ = Tunit then (          let t2 = head tbe2.typ.typ in
-      { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
-        ) else(
+      if head tbe3.typ.typ = Tunit then (          
+        let t2 = head tbe2.typ.typ in
+        { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
+        ) else (
         try
           unify_types tbe2.typ.typ tbe3.typ.typ;
           let t2 = head tbe2.typ.typ in
@@ -571,19 +595,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           let eff = add_effect tf.typ.effect (add_effect rt.effect (List.fold_left (fun acc (x : tbexpr) -> add_effect acc x.typ.effect) NoEffect targs)) in
           { bexpr = Eval(tf, targs); typ = { typ = rt.typ; effect = eff }; loc = bexpr.loc}
       end
-
-  | Fn(be, fb) ->
-      let real_be = match be.bexpr with
-      | Eval(be', args) -> 
-          { bexpr = Eval(be', args@[{ bexpr = Ast.EFn(fb); loc = bexpr.loc}]); loc = bexpr.loc } 
-      | _ -> { bexpr = Eval(be, [{ bexpr = Ast.EFn(fb); loc = bexpr.loc}]); loc = bexpr.loc }
-      in w_bexpr env real_be fun_name return_type
-
-  | AtomBlock(be, sl) ->
-      let real_be = match be.bexpr with
-      | Eval(be', args) -> { bexpr = Eval(be', args@[{ bexpr = EFn({ formal = []; annot = None; body = { bexpr = EBlock(sl); loc = bexpr.loc } }); loc = bexpr.loc }]); loc = bexpr.loc }
-      | _ -> { bexpr = Eval(be, [{ bexpr = EFn({ formal = []; annot = None; body = { bexpr = EBlock(sl); loc = bexpr.loc } }); loc = bexpr.loc }]); loc = bexpr.loc }
-      in w_bexpr env real_be fun_name return_type
 
   | Brac(bel) ->
       let tbel = List.map (fun x -> w_bexpr env x fun_name return_type) bel in
