@@ -1,7 +1,7 @@
 # Compilateur
 Compilateur de petit_koka
 
-## Lexeur-Parseu 
+## Lexeur-Parseur
 ### Choix de l'AST
 Nous avons décider de nous simplifier la vie dans la création de l'AST, et pour ce faire, nous avons un peu dérivé de la grammaire donnée. 
 En clair, dans l'ast, on ne distingue pas les atoms et les bexpr, et on ne distingue pas les type et les atypes. Ainsi, l'AST peut techniquement
@@ -13,3 +13,8 @@ Pour gerer l'indentation, il y a une une fonction tout en bas qui appele les lex
 
 ### Reconaissance de mot clef
 On a mis les mot clef dans une table de hashage, et quand on lit un ident on cherche a savoir si l'ident est dadans
+
+### Règlement des conlifts
+Pour regler les conflits nous avons utiliser des règles de précédence. Nousa avons de plus implémenter tout le sucre syntaxique. 
+### Commenaires annexe 
+Pour verifier que la dernière expression d'un bloc est ni val ni var une fonction est présente en haut du lexer. 
