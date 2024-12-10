@@ -1,5 +1,6 @@
-fun foo(f : () -> <div> ()) { }
+fun g ( f: () -> <div> unit)
+  f()
+
 
 fun main()
-  foo(main)
-  println(0)
+  default(True,False)

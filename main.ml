@@ -77,6 +77,6 @@ let () =
     Printf.printf "Erreur de syntaxe\n" ;
     exit 1)
     |Algow.TypeError(s) -> (Printf.printf "%s" s; exit 1)
-    |Algow.TypeErrorLoc(s, (loc,_)) -> (Printf.printf "TypeError on line: %d %s\n" loc.pos_lnum s; exit 1)
+    |Algow.TypeErrorLoc(s, (loc,_)) -> (Printf.printf "File : \"%s\", TypeError on line %d;\n%s" !ifile loc.pos_lnum s; exit 1)
     |Algow.UnificationFailure(_,_) -> exit 1
    
