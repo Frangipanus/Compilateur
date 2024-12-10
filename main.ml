@@ -74,8 +74,9 @@ let () =
 	eprintf "Erreur syntaxique@.";
 	exit 1
     |Error2 -> (localisation (Lexing.lexeme_start_p buf);
-    Printf.printf "Ratio\n" ;
+    Printf.printf "Erreur de syntaxe\n" ;
     exit 1)
     |Algow.TypeError(s) -> (Printf.printf "%s" s; exit 1)
+    |Algow.TypeErrorLoc(s, (loc,_)) -> (Printf.printf "TypeError on line: %d %s\n" loc.pos_lnum s; exit 1)
     |Algow.UnificationFailure(_,_) -> exit 1
    

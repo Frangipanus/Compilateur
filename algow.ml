@@ -1,5 +1,6 @@
 open Ast
 exception TypeError of string
+exception TypeErrorLoc of string * loc
 type ident = string
 
 type typ = 
@@ -343,14 +344,14 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tbe = w_bexpr env be fun_name return_type in
       begin match head tbe.typ.typ with
       | Tint -> { bexpr = ETild(tbe); loc = bexpr.loc; typ = tbe.typ }
-      | _ -> raise (TypeError "~ doit être utilisée sur un entier")
+      | _ -> raise (TypeErrorLoc ("~ doit être utilisée sur un entier", bexpr.loc))
       end
 
   | ENot be ->
       let tbe = w_bexpr env be fun_name return_type in
       begin match head tbe.typ.typ with
       | Tbool -> { bexpr = ENot(tbe); loc = bexpr.loc; typ = tbe.typ }
-      | _ -> raise (TypeError "! doit être utilisée sur un booléen")
+      | _ -> raise (TypeErrorLoc ("! doit être utilisée sur un booléen", bexpr.loc))
       end
 
   | EBinop(op, be1, be2) ->
@@ -362,22 +363,22 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           unify_types tbe1.typ.typ Tint;
           unify_types tbe2.typ.typ Tint;
           { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tint; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        with UnificationFailure(_,_) -> raise (TypeError "Opération entre deux objets du mauvais type") end
+        with UnificationFailure(_,_) -> raise (TypeErrorLoc ("Opération entre deux objets du mauvais type", bexpr.loc)) end
 
       | Lt | Lte | Gt | Gte -> begin 
         try
           unify_types tbe1.typ.typ Tint;
           unify_types tbe2.typ.typ Tint;
           { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
-        with UnificationFailure(_,_) -> raise (TypeError "Opération entre deux objets du mauvais type") end
+        with UnificationFailure(_,_) -> raise (TypeErrorLoc ("Opération entre deux objets du mauvais type", bexpr.loc)) end
 
       | Eq | Neq -> begin 
         (try
           unify_types tbe1.typ.typ tbe2.typ.typ
-        with UnificationFailure(_,_) -> raise (TypeError "Comparaison de deux éléments de types différents"));
+        with UnificationFailure(_,_) -> raise (TypeErrorLoc ("Comparaison de deux éléments de types différents", bexpr.loc)));
         let t1 = head tbe1.typ.typ in
         let t2 = head tbe2.typ.typ in
-        if t1 <> Tint && t1 <> Tbool && t1 <> Tstring then raise (TypeError "Impossible de comparer deux éléments de types autre que int, bool ou string.")
+        if t1 <> Tint && t1 <> Tbool && t1 <> Tstring then raise (TypeErrorLoc ("Impossible de comparer deux éléments de types autre que int, bool ou string.", bexpr.loc))
         else { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
         end 
       | And | Or -> begin 
@@ -458,7 +459,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
   | Empty -> { bexpr = Empty; typ = { typ = Tunit; effect = NoEffect }; loc = bexpr.loc }
 
   | Ident(id) -> begin
-      Printf.printf "id = %s\n" id;
       try 
         let t = find id env in
         
@@ -543,7 +543,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           end
 
       | Ident("while") ->
-        Printf.printf "hello world %d\n" (List.length args);
           begin match args with
           | [be1; be2] ->
               let tbe1 = w_bexpr env be1 fun_name return_type in
@@ -553,7 +552,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
                   { bexpr = While(tbe1, tbe2); typ = { typ = Tunit; effect = add_effect tbe1.typ.effect (add_effect eff1 (add_effect tbe2.typ.effect (add_effect eff2 Div))) }; loc = bexpr.loc }
               | _ -> raise (TypeError "While attends ...")
               end
-          | _ -> raise (Printf.printf "not here\n";TypeError "While attends ...")
+          | _ -> raise (TypeError "While attends ...")
           end
       | _ ->
           let tf = w_bexpr env f fun_name return_type in
