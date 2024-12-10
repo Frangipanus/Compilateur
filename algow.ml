@@ -12,7 +12,7 @@ type typ =
   | Tlist of typ 
   | Tmaybe of typ
   | Tvar of var
-
+ 
 and var = 
   {id: int; mutable typ : typ option} (*None si c'est une variables libre*)
   
