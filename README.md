@@ -8,13 +8,21 @@ En clair, dans l'ast, on ne distingue pas les atoms et les bexpr, et on ne disti
 contenir des choses non correctes pour la grammaire de Koka. Cependant, cela n'arrive jamais car le parser assure que tout ce qui sera construit
 respecte la grammaire. Ainsi, certains warning apparaissent disant que le matching n'est pas complet au niveau du typage (tout les cas atteignable)
 sont traité. 
+
 ### Indentation
-Pour gerer l'indentation, il y a une une fonction tout en bas qui appele les lexems,  mets leur tokens dans une pile et intercale des token si nécéssaire pour revoyer des tokens un par un au parser. Nous avons bien pensé a faire tous les caractère d'échappement. *
+Pour gerer l'indentation, il y a une une fonction tout en bas qui appele les lexemes, mets leur tokens dans une pile et intercale des token si nécéssaire pour revoyer des tokens un par un au parser. Nous avons bien pensé a faire tous les caractère d'échappement. *
 
 ### Reconaissance de mot clef
 On a mis les mot clef dans une table de hashage, et quand on lit un ident on cherche a savoir si l'ident est dadans
 
 ### Règlement des conlifts
-Pour regler les conflits nous avons utiliser des règles de précédence. Nousa avons de plus implémenter tout le sucre syntaxique. 
+Pour regler les conflits nous avons utiliser des règles de précédence. Nous avons de plus implémenté tout le sucre syntaxique. 
+
 ### Commenaires annexe 
-Pour verifier que la dernière expression d'un bloc est ni val ni var une fonction est présente en haut du lexer. 
+Pour verifier que la dernière expression d'un bloc est ni val ni var une fonction est présente en haut du parseur. 
+
+
+## Typeur
+Pour l'écriture du typeur, nous nous sommes basés sur le TD 6 : Algorithme W. On parcours récursivement l'arbre renvoyé par le parseur pour construire un nouvel arbre typé.
+En plus des variables de type, nous avons introduit des variables d'effet. Les variables de types sont utilisées dans deux contextes : une liste vide introduit une variables de type et le type de renvoie d'une fonction en est également une lorsque celui-ci doit-être inféré. Comme koka a un typage monomorphe, ces variables de types ne sont jamais généralisées.
+Les variables d'effet sont utilisées pour l'inférence de l'effet du type de renvoi d'une fonction.

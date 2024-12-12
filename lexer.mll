@@ -70,7 +70,7 @@ rule token  = parse
   | ":="  { [ASSIGN] }
   | '.'   { [DOT] }
   | '~'   { [TILD] }
-  |"%" {[MOD]}
+  | "%"   { [MOD] }
   | "!"   { [EXCLAM] }
   
   |"True" {[TRUE]}
