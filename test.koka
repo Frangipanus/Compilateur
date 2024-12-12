@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 fun f(n : int) 
   if n != 0 then
     println(f(n - 1))
@@ -7,3 +8,12 @@ fun f(n : int)
 fun main()
   f(42)
   
+=======
+fun fact(n: int) {
+  if n <= 1 then 1 else n * fact(n - 1)
+}
+
+fun main() {
+  for(1, 10) fn (n: int) { println(fact(n)) }
+}
+>>>>>>> e98ced556f8673301038013c251c3b140233b368
