@@ -1,6 +1,7 @@
-fun g ( f: () -> <div> unit)
-  f()
+fun fact(n: int) {
+  if n <= 1 then 1 else n * fact(n - 1)
+}
 
-
-fun main()
-  default(True,False)
+fun main() {
+  for(1, 10) fn (n: int) { println(fact(n)) }
+}
