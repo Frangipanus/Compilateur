@@ -1,19 +1,8 @@
-<<<<<<< HEAD
-fun f(n : int) 
-  if n != 0 then
-    println(f(n - 1))
-  else
-    return 42
+fun g(f: () -> <div> int)
+  f()
 
 fun main()
-  f(42)
+  g(main)
+  println("ratio")
+  return 43
   
-=======
-fun fact(n: int) {
-  if n <= 1 then 1 else n * fact(n - 1)
-}
-
-fun main() {
-  for(1, 10) fn (n: int) { println(fact(n)) }
-}
->>>>>>> e98ced556f8673301038013c251c3b140233b368

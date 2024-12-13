@@ -353,6 +353,7 @@ and w_funbody env name (fb : funbody) =
         in let return_type = V.create () in
         return_type.typ <- Some(ft.typ);
         let tbody = w_bexpr env fb.body name return_type in
+        printf "%a \n" print_full_type tbody.typ;
         (try unify_full_types tbody.typ ft with 
           | UnificationFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais type \n")
           | UnificationEffectFailure(_,_) -> raise (TypeError "La fonction a le mauvais effet \n")
@@ -367,8 +368,11 @@ and w_funbody env name (fb : funbody) =
       in let tbody = w_bexpr env fb.body name return_type in
       try
         unify_effects (Evar return_effect) tbody.typ.effect;
+        unify_types (Tvar return_type) tbody.typ.typ;
         tbody.typ, tbody
-      with UnificationEffectFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais effet\n")
+      with 
+      | UnificationFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais type\n")
+      | UnificationEffectFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais effet\n")
     in { formal = formal' ; body = tbody ; typ = { typ = Tarrow(tl, ft); effect = NoEffect }}, tl, ft
 
 (* Renvoie le tbexpr correspondant à bexpr et vérifie que les éventuels return sont du bon type *)
@@ -421,7 +425,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           unify_types tbe1.typ.typ tbe2.typ.typ
         with UnificationFailure(_,_) -> raise (TypeErrorLoc ("Comparaison de deux éléments de types différents \n", bexpr.loc)));
         let t1 = head tbe1.typ.typ in
-        let t2 = head tbe2.typ.typ in
         if t1 <> Tint && t1 <> Tbool && t1 <> Tstring then raise (TypeErrorLoc ("Impossible de comparer deux éléments de types autre que int, bool ou string. \n", bexpr.loc))
         else { bexpr = EBinop(op, tbe1, tbe2); loc = bexpr.loc; typ = { typ = Tbool; effect = add_effect tbe1.typ.effect tbe2.typ.effect } }
         end 
@@ -460,16 +463,11 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tbe2 = w_bexpr env be2 fun_name return_type in
       let tbe3 = w_bexpr env be3 fun_name return_type in
       try unify_types tbe1.typ.typ Tbool;
-      if head tbe3.typ.typ = Tunit then (          
-        let t2 = head tbe2.typ.typ in
-        { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
-        ) else (
         try
           unify_types tbe2.typ.typ tbe3.typ.typ;
           let t2 = head tbe2.typ.typ in
-          let t3 = head tbe3.typ.typ in
           { bexpr = EIf(tbe1, tbe2, tbe3); loc = bexpr.loc; typ = { typ = t2; effect = add_effect (add_effect tbe1.typ.effect tbe2.typ.effect) tbe3.typ.effect } }
-        with UnificationFailure(_,_) -> raise ( TypeErrorLoc ("Les résultats des deux cas de 'If' doivent être du même type \n", bexpr.loc)))
+        with UnificationFailure(_,_) -> raise ( TypeErrorLoc ("Les résultats des deux cas de 'If' doivent être du même type \n", bexpr.loc))
       with UnificationFailure(_,_) -> raise (TypeErrorLoc ("'If' attends un booléen \n", be1.loc));
       
     end
@@ -478,7 +476,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       let tfb, tl, ft = w_funbody env None fb in
       if (has_doublon (List.map (fun x ->  x.name) (tfb.formal))) then raise (TypeErrorLoc ("Cette fonction a deux paramètres avec le même nom \n", bexpr.loc))
   else
-      { bexpr = EFn(tfb); typ = { typ = Tarrow(tl, ft); effect = NoEffect }; loc = bexpr.loc } (*POURQUOI effect?*)
+      { bexpr = EFn(tfb); typ = { typ = Tarrow(tl, ft); effect = NoEffect }; loc = bexpr.loc } 
 
   | EReturn(be) ->
       let tbe = w_bexpr env be fun_name return_type in
@@ -486,10 +484,10 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       begin match return_type.typ with
       | None -> 
           return_type.typ <- Some(tbe.typ.typ);
-          { bexpr = EReturn(tbe); typ = tbe.typ; loc = bexpr.loc }
+          { bexpr = EReturn(tbe); typ = { typ = Tvar(V.create ()); effect = tbe.typ.effect }; loc = bexpr.loc }
 
       | Some(t) -> 
-          try unify_types t tbe.typ.typ; { bexpr = EReturn(tbe); typ = tbe.typ; loc = bexpr.loc }
+          try unify_types t tbe.typ.typ; { bexpr = EReturn(tbe); typ = { typ = Tvar(V.create ()); effect = tbe.typ.effect }; loc = bexpr.loc }
           with UnificationFailure(_,_) -> raise (TypeErrorLoc ("Mauvais type retourné \n", bexpr.loc))
       end
 
@@ -527,36 +525,39 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
       | Ident("default") ->
           begin match args with
           | [be1; be2] ->
-              let tbe1 = w_bexpr env be1 fun_name return_type in
+              begin let tbe1 = w_bexpr env be1 fun_name return_type in
               let tbe2 = w_bexpr env be2 fun_name return_type in
               try
                 (*printf "%a \n %a \n" print_full_type tbe1.typ print_full_type tbe2.typ;*)
                 unify_types tbe1.typ.typ (Tmaybe tbe2.typ.typ);
                 { bexpr = Default(tbe1, tbe2); typ = { typ = tbe2.typ.typ; effect = add_effect tbe1.typ.effect tbe2.typ.effect }; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeErrorLoc ("Arguments incompatibles \n", bexpr.loc))
+              end
           | _ -> raise (TypeErrorLoc ("Mauvais nombre d'arguments pour defaul \nt", bexpr.loc))
           end
 
       | Ident("head") ->
           begin match args with
           | [be] ->
-              let tbe = w_bexpr env be fun_name return_type in
+              begin let tbe = w_bexpr env be fun_name return_type in
               try
                 let var = V.create () in
                 unify_types tbe.typ.typ (Tlist (Tvar(var)));
                 { bexpr = Head(tbe); typ = { typ = Tmaybe (head (Tvar var)); effect = tbe.typ.effect }; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeErrorLoc ("head prend une liste en argumen \nt", bexpr.loc))
+              end
           | _ -> raise (TypeErrorLoc ("Mauvais nombre d'arguments pour head \n", bexpr.loc))
           end
 
       | Ident("tail") ->
           begin match args with
           | [be] ->
-              let tbe = w_bexpr env be fun_name return_type in
+              begin let tbe = w_bexpr env be fun_name return_type in
               try
                 unify_types tbe.typ.typ (Tlist (Tvar(V.create ())));
                 { bexpr = Tail(tbe); typ = tbe.typ; loc = bexpr.loc }
               with UnificationFailure(_,_) -> raise (TypeErrorLoc ("tail prend une liste en argument \n", bexpr.loc))
+              end
           | _ -> raise (TypeErrorLoc ("Mauvais nombre d'arguments pour tail \n", bexpr.loc))
           end
 
@@ -593,11 +594,16 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
               let tbe1 = w_bexpr env be1 fun_name return_type in
               let tbe2 = w_bexpr env be2 fun_name return_type in
               begin match head tbe1.typ.typ, head tbe2.typ.typ with
-              | Tarrow([], { typ = Tbool; effect = eff1 }), Tarrow([], { typ = Tunit; effect = eff2}) ->
-                  { bexpr = While(tbe1, tbe2); typ = { typ = Tunit; effect = add_effect tbe1.typ.effect (add_effect eff1 (add_effect tbe2.typ.effect (add_effect eff2 Div))) }; loc = bexpr.loc }
-              | _ -> raise (TypeErrorLoc ("While attends ... \n", bexpr.loc))
+              | Tarrow([], { typ = tb; effect = eff1 }), Tarrow([], { typ = tu; effect = eff2}) ->  
+                  begin try
+                    unify_types tb Tbool;
+                    unify_types tu Tunit;
+                    { bexpr = While(tbe1, tbe2); typ = { typ = Tunit; effect = add_effect tbe1.typ.effect (add_effect eff1 (add_effect tbe2.typ.effect (add_effect eff2 Div))) }; loc = bexpr.loc }
+                  with UnificationFailure(_, _) -> raise (TypeErrorLoc ("While attends en premier argument une fonction () -> bool et en second argument une fonction () -> unit \n", bexpr.loc))
+                  end
+              | _ -> raise (TypeErrorLoc ("While attends en premier argument une fonction () -> bool et en second argument une fonction () -> unit \n", bexpr.loc))
               end
-          | _ -> raise (TypeErrorLoc ("While attends ... \n", bexpr.loc))
+          | _ -> raise (TypeErrorLoc ("While attends deux arguments \n", bexpr.loc))
           end
       | _ ->
           let tf = w_bexpr env f fun_name return_type in
