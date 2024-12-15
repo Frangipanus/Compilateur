@@ -26,3 +26,13 @@ Pour verifier que la dernière expression d'un bloc est ni val ni var une foncti
 Pour l'écriture du typeur, nous nous sommes basés sur le TD 6 : Algorithme W. On parcours récursivement l'arbre renvoyé par le parseur pour construire un nouvel arbre typé.
 En plus des variables de type, nous avons introduit des variables d'effet. Les variables de types sont utilisées dans deux contextes : une liste vide introduit une variables de type et le type de renvoie d'une fonction en est également une lorsque celui-ci doit-être inféré. Comme koka a un typage monomorphe, ces variables de types ne sont jamais généralisées.
 Les variables d'effet sont utilisées pour l'inférence de l'effet du type de renvoi d'une fonction.
+
+
+## Utilisation du compilateur 
+
+Taper 
+```console
+make main.exe
+```
+pour créer un executable. Ce dernier prend ensuite un fichier en .koka et un argument --parse-only ou --type-only pour ne faire que la phase d'analyse 
+ou que la phase de typage. 
