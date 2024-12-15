@@ -32,7 +32,10 @@ Les variables d'effet sont utilisées pour l'inférence de l'effet du type de re
 
 Taper 
 ```console
-make main.exe
+make
 ```
-pour créer un executable. Ce dernier prend ensuite un fichier en .koka et un argument --parse-only ou --type-only pour ne faire que la phase d'analyse 
-ou que la phase de typage. 
+pour créer un executable nommé kokac. Ce dernier prend ensuite un fichier en .koka et un argument --parse-only ou --type-only pour ne faire que la phase d'analyse 
+ou que la phase de typage. Exemple
+```console
+./kokac.exe --type-only test.koka
+```

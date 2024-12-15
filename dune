@@ -5,6 +5,6 @@
  (flags  --dump -v )
  (infer true))
 (executable
- (name main)
+ (name kokac)
  (promote (until-clean))
  (flags ()))
