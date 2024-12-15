@@ -39,3 +39,7 @@ ou que la phase de typage. Exemple
 ```console
 ./kokac.exe --type-only test.koka
 ```
+
+## Sur les warning 
+Un des warning vient du fait qu'on utilise pas encore p2 qui est le typed-ast. 
+L'autre viens d'un matching non complet mais c'est voulu et controlé en amont. 

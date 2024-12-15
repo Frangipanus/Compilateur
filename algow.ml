@@ -254,7 +254,7 @@ type schema = { vars : Vset.t; typ : full_type }
 module Smap = Map.Make(String)
 
 type env = { bindings : schema Smap.t; fvars : Vset.t; muta : ident list }
-
+ 
 let empty = { bindings = Smap.empty; fvars = Vset.empty; muta = [] }
 
 let add s (t : full_type) env =
