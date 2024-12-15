@@ -1,11 +1,9 @@
 
 all: main.exe
-	dune exec  ./main.exe --type-only  test.koka 
-tests: main.exe
-	for f in syntax/good/*.koka; do dune exec ./main.exe $$f; done
+	dune build kokac.exe
 
 main.exe:
-	dune build main.exe 
+	dune build kokac.exe 
 
 explain:
 	menhir --base /tmp/parser --dump --explain parser.mly
