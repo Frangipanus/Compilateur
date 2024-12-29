@@ -133,7 +133,7 @@ let rec closure_exp (env:local_env) (fcpur : int) (e : tbexpr) =
   |Default(e1, e2) -> let e1, fcmax = closure_exp env fcpur e1 in 
                       let e2, fbax = closure_exp env fcpur e2
                       in Default(e1,e2), max fcmax fbax
-  |Head(e) -> Head(fst (closure_exp env fcpur e)), fcpur
+  |Head(e) -> Head(fst (closure_exp env fcpur e)), snd (closure_exp env fcpur e)
   |Tail(e) -> Tail(fst (closure_exp env fcpur e)), fcpur
   |For(e1,e2,e3) -> let e1, f1 = closure_exp env fcpur e1 in 
                     let e2, f2 = closure_exp env fcpur e2 in 
@@ -146,18 +146,18 @@ let rec closure_exp (env:local_env) (fcpur : int) (e : tbexpr) =
                    let e2, fm2 =  closure_exp env fcpur e2
                   in While(e1, e2), max fm1 fm2
   |EBlock(lst) -> failwith "not yet"
-  |ETild(e) -> ETild(fst(closure_exp env fcpur e)), fcpur
-  |ENot(e)-> ENot(fst(closure_exp env fcpur e)), fcpur
+  |ETild(e) -> ETild(fst(closure_exp env fcpur e)), snd (closure_exp env fcpur e)
+  |ENot(e)-> ENot(fst(closure_exp env fcpur e)), snd (closure_exp env fcpur e)
   |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp env fcpur e1 in 
                        let e2, fm2 =  closure_exp env fcpur e2 in 
                        EBinop(o, e1, e2), max fm1 fm2
-  |EAsign(id, e) -> failwith "not yet" 
+  |EAsign(id, e) -> EAsign(id, fst (closure_exp env fcpur e)), snd (closure_exp env fcpur e) 
   |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp env fcpur e1 in 
                        let e2, f2 =  closure_exp env fcpur e2 in 
                        let e3, f3 =closure_exp env fcpur e3 in 
                        EIf(e1,e2,e3), max (max f1 f2) f3)
   |EFn(t) -> failwith "not yet"
-  |EReturn(e)-> EReturn(fst(closure_exp env fcpur e)), fcpur)
+  |EReturn(e)-> EReturn(fst(closure_exp env fcpur e)), snd (closure_exp env fcpur e))
 in 
   
   {bexpr = b; loc = e.loc; typ = e.typ}, fcpur
