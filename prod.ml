@@ -1,4 +1,5 @@
 open Algow
+open Ast
 open Format
 open X86_64
 
@@ -10,6 +11,85 @@ module V = struct
   let create = ""
 end
 module VSet = Set.Make(V)
+
+module Smap = Map.Make(String)
+
+type local_env = ident Smap.t
+  
+
+type pparam = {
+  name : ident;
+  typ : typ;
+  loc : loc
+}
+
+  
+(* statement *)
+and pstmt = {
+  stmt  : pstmt1;
+  loc   : loc;
+  typ   : full_type;
+}
+
+and pstmt1 =
+  | SBexpr of pbexpr
+  | SDecl of ident * pbexpr
+  | SVar of ident * pbexpr
+  
+(* expression *)
+and pbexpr = {
+  bexpr : pbexpr1;
+  loc   : loc;
+  typ   : full_type
+}
+
+and pbexpr1 = 
+  | EBlock of tstmt list
+  | ETild of pbexpr
+  | ENot of pbexpr
+  | EBinop of binop * pbexpr * pbexpr
+  | EAsign of ident * pbexpr
+  | EIf of pbexpr * pbexpr * pbexpr 
+  | EFn of tfunbody 
+  | EReturn of pbexpr
+  | ATrue
+  | AFalse
+  | Int of int
+  | String of string 
+  | Empty 
+  | Evar of vars
+  | Eval of pbexpr * (pbexpr list)
+  | List of pbexpr list
+  | Println of pbexpr
+  | Default of pbexpr * pbexpr
+  | Head of pbexpr
+  | Tail of pbexpr
+  | For of pbexpr * pbexpr * pbexpr
+  | Repeat of pbexpr * pbexpr
+  | While of pbexpr * pbexpr
+  
+(* corps d'une fonction *)
+and pfunbody = {
+  formal : pparam list; (* arguments *)
+  body   : pbexpr;
+  typ    : full_type;
+}
+  
+(* declaration de fonctions *)
+and pdecl = {
+  name : string;
+  body : pfunbody;
+}
+  
+(* fichier *)
+and pfile = pdecl list
+and vars = 
+  |Vlocal of int 
+  |Vclos of int 
+  |Varg of int 
+
+
+
 
 let rec freevars (exp : tbexpr) = 
   match  exp.bexpr with
@@ -37,6 +117,50 @@ and freevars3 (t : tdecl) =
   freevars4 t.body
 and freevars4 (t:tfunbody) = 
   (let acc = freevars t.body in let names = VSet.of_list (List.map (fun (x:tparam) -> x.name) t.formal) in VSet.diff acc names  )
+
+
+let rec closure_exp (env:local_env) (fcpur : int) (e : tbexpr) = 
+  let b, fcpur = (match e.bexpr with 
+  |ATrue -> ATrue, fcpur
+  |AFalse -> AFalse, fcpur
+  |Int(n) -> Int(n), fcpur
+  |String(s) -> String(s), fcpur
+  |Empty -> Empty, fcpur
+  |Ident(id) -> failwith "not yemapt"
+  |Eval(e, lst) -> failwith "not yet"
+  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in List(ls), fmax
+  |Println(e) -> let e1, fcpur = closure_exp env fcpur e in Println(e1), fcpur
+  |Default(e1, e2) -> let e1, fcmax = closure_exp env fcpur e1 in 
+                      let e2, fbax = closure_exp env fcpur e2
+                      in Default(e1,e2), max fcmax fbax
+  |Head(e) -> Head(fst (closure_exp env fcpur e)), fcpur
+  |Tail(e) -> Tail(fst (closure_exp env fcpur e)), fcpur
+  |For(e1,e2,e3) -> let e1, f1 = closure_exp env fcpur e1 in 
+                    let e2, f2 = closure_exp env fcpur e2 in 
+                    let e3, f3 = closure_exp env fcpur e3 in 
+                    For(e1,e2,e3), (max f1 (max f2 f3))
+  |Repeat(e1, e2) -> let e1, f1 = closure_exp env fcpur e1 in 
+                     let e2,f2 = closure_exp env fcpur e2 
+                    in Repeat(e1,e2), f2
+  |While(e1,e2) -> let e1, fm1 =  closure_exp env fcpur e1 in 
+                   let e2, fm2 =  closure_exp env fcpur e2
+                  in While(e1, e2), max fm1 fm2
+  |EBlock(lst) -> failwith "not yet"
+  |ETild(e) -> ETild(fst(closure_exp env fcpur e)), fcpur
+  |ENot(e)-> ENot(fst(closure_exp env fcpur e)), fcpur
+  |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp env fcpur e1 in 
+                       let e2, fm2 =  closure_exp env fcpur e2 in 
+                       EBinop(o, e1, e2), max fm1 fm2
+  |EAsign(id, e) -> failwith "not yet" 
+  |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp env fcpur e1 in 
+                       let e2, f2 =  closure_exp env fcpur e2 in 
+                       let e3, f3 =closure_exp env fcpur e3 in 
+                       EIf(e1,e2,e3), max (max f1 f2) f3)
+  |EFn(t) -> failwith "not yet"
+  |EReturn(e)-> EReturn(fst(closure_exp env fcpur e)), fcpur)
+in 
+  
+  {bexpr = b; loc = e.loc; typ = e.typ}, fcpur
 
 let compile (f : tfile) = 
   let ofile = "test.s" in
