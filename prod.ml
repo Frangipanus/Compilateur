@@ -127,7 +127,9 @@ let rec closure_exp (env:local_env) (fcpur : int) (e : tbexpr) =
   |String(s) -> String(s), fcpur
   |Empty -> Empty, fcpur
   |Ident(id) -> failwith "not yemapt"
-  |Eval(e, lst) -> failwith "not yet"
+  |Eval(e, lst) -> let e1, f1 = closure_exp env fcpur e in 
+                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in
+                    Eval(e1, ls), max fmax f1
   |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in List(ls), fmax
   |Println(e) -> let e1, fcpur = closure_exp env fcpur e in Println(e1), fcpur
   |Default(e1, e2) -> let e1, fcmax = closure_exp env fcpur e1 in 
