@@ -15,7 +15,7 @@ let rec freevars (exp : tbexpr) =
   match  exp.bexpr with
   | ATrue |AFalse |String(_) |Empty -> VSet.empty
   | Ident(s) -> VSet.singleton s
-  |EFn(t) -> (let acc = freevars t.body in let names = VSet.of_list (List.map (fun (x:tparam) -> x.name) t.formal) in VSet.diff acc names  )
+  |EFn(t) -> freevars4 t
   | Head(t)|Tail(t)|Println(t) -> freevars t 
   |Default(e1,e2) -> VSet.union (freevars e1) (freevars e2)
   |For(e1,e2,e3) |EIf(e1,e2,e3)-> VSet.union (freevars e1) (VSet.union (freevars e2) (freevars e3))
@@ -33,7 +33,10 @@ and freevars2 (t : tstmt) = match  t.stmt with
 | SBexpr(t) -> freevars t 
 | SDecl(id, t)|SVar(id, t) -> VSet.diff (freevars t) (VSet.singleton id)
 
-
+and freevars3 (t : tdecl) = 
+  freevars4 t.body
+and freevars4 (t:tfunbody) = 
+  (let acc = freevars t.body in let names = VSet.of_list (List.map (fun (x:tparam) -> x.name) t.formal) in VSet.diff acc names  )
 
 let compile (f : tfile) = 
   let ofile = "test.s" in
