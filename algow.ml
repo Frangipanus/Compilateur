@@ -72,8 +72,6 @@ and tbexpr1 =
   | Empty 
   | Ident of ident
   | Eval of tbexpr * (tbexpr list)
-  | Fn of tbexpr * tfunbody
-  | AtomBlock of tbexpr * (tstmt list)
   | List of tbexpr list
   | Println of tbexpr
   | Default of tbexpr * tbexpr

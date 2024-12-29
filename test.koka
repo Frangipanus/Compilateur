@@ -1,8 +1,2 @@
-fun g(f: () -> <div> int)
-  f()
-
 fun main()
-  g(main)
-  println("ratio")
-  return 43
-  
+  println("Hello World")
