@@ -3,6 +3,8 @@ open Ast
 open Format
 open X86_64
 
+let nb_anno = ref 0
+
 let nb_string = ref 0  
 module V = struct
   type t = string
@@ -14,14 +16,8 @@ module VSet = Set.Make(V)
 
 module Smap = Map.Make(String)
 
-type local_env = ident Smap.t
-  
+type local_env = int Smap.t
 
-type pparam = {
-  name : ident;
-  typ : typ;
-  loc : loc
-}
 
   
 (* statement *)
@@ -44,7 +40,7 @@ and pbexpr = {
 }
 
 and pbexpr1 = 
-  | EBlock of tstmt list
+  | EBlock of pstmt list
   | ETild of pbexpr
   | ENot of pbexpr
   | EBinop of binop * pbexpr * pbexpr
@@ -67,12 +63,14 @@ and pbexpr1 =
   | For of pbexpr * pbexpr * pbexpr
   | Repeat of pbexpr * pbexpr
   | While of pbexpr * pbexpr
+  |EClos of ident * ident list
   
 (* corps d'une fonction *)
 and pfunbody = {
-  formal : pparam list; (* arguments *)
+  formal : tparam list; (* arguments *)
   body   : pbexpr;
   typ    : full_type;
+  clot  : ident list;
 }
   
 (* declaration de fonctions *)
@@ -87,6 +85,7 @@ and vars =
   |Vlocal of int 
   |Vclos of int 
   |Varg of int 
+  |Vglob of ident
 
 
 
@@ -119,51 +118,87 @@ and freevars4 (t:tfunbody) =
   (let acc = freevars t.body in let names = VSet.of_list (List.map (fun (x:tparam) -> x.name) t.formal) in VSet.diff acc names  )
 
 
-let rec closure_exp (env:local_env) (fcpur : int) (e : tbexpr) = 
+let rec closure_exp (acomp: tdecl list ref)  clot (param:local_env) (env:local_env) (fcpur : int) (e : tbexpr) = 
   let b, fcpur = (match e.bexpr with 
   |ATrue -> ATrue, fcpur
   |AFalse -> AFalse, fcpur
   |Int(n) -> Int(n), fcpur
   |String(s) -> String(s), fcpur
   |Empty -> Empty, fcpur
-  |Ident(id) -> failwith "not yemapt"
-  |Eval(e, lst) -> let e1, f1 = closure_exp env fcpur e in 
-                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in
+  |Ident(id) -> (if Smap.mem id env then (Evar(Vlocal(Smap.find id env)), fcpur)
+                  else( if Smap.mem id param then (Evar(Varg(Smap.find id param)), fcpur)
+                  else( if (Smap.mem id clot) then (Evar(Vclos(Smap.find id clot)), fcpur) 
+                  else failwith "Variable non définie")))
+  |Eval(e, lst) -> let e1, f1 = closure_exp acomp  clot param env fcpur e in 
+                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
-  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in List(ls), fmax
-  |Println(e) -> let e1, fcpur = closure_exp env fcpur e in Println(e1), fcpur
-  |Default(e1, e2) -> let e1, fcmax = closure_exp env fcpur e1 in 
-                      let e2, fbax = closure_exp env fcpur e2
+  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in List(ls), fmax
+  |Println(e) -> let e1, fcpur = closure_exp acomp  clot param env fcpur e in Println(e1), fcpur
+  |Default(e1, e2) -> let e1, fcmax = closure_exp acomp  clot param env fcpur e1 in 
+                      let e2, fbax = closure_exp acomp  clot param env fcpur e2
                       in Default(e1,e2), max fcmax fbax
-  |Head(e) -> Head(fst (closure_exp env fcpur e)), snd (closure_exp env fcpur e)
-  |Tail(e) -> Tail(fst (closure_exp env fcpur e)), fcpur
-  |For(e1,e2,e3) -> let e1, f1 = closure_exp env fcpur e1 in 
-                    let e2, f2 = closure_exp env fcpur e2 in 
-                    let e3, f3 = closure_exp env fcpur e3 in 
+  |Head(e) -> Head(fst (closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e)
+  |Tail(e) -> Tail(fst (closure_exp acomp  clot param env fcpur e)), fcpur
+  |For(e1,e2,e3) -> let e1, f1 = closure_exp acomp  clot param env fcpur e1 in 
+                    let e2, f2 = closure_exp acomp  clot param env fcpur e2 in 
+                    let e3, f3 = closure_exp acomp  clot param env fcpur e3 in 
                     For(e1,e2,e3), (max f1 (max f2 f3))
-  |Repeat(e1, e2) -> let e1, f1 = closure_exp env fcpur e1 in 
-                     let e2,f2 = closure_exp env fcpur e2 
+  |Repeat(e1, e2) -> let e1, f1 = closure_exp acomp  clot param env fcpur e1 in 
+                     let e2,f2 = closure_exp acomp  clot param env fcpur e2 
                     in Repeat(e1,e2), f2
-  |While(e1,e2) -> let e1, fm1 =  closure_exp env fcpur e1 in 
-                   let e2, fm2 =  closure_exp env fcpur e2
+  |While(e1,e2) -> let e1, fm1 =  closure_exp acomp  clot param env fcpur e1 in 
+                   let e2, fm2 =  closure_exp acomp  clot param env fcpur e2
                   in While(e1, e2), max fm1 fm2
-  |EBlock(lst) -> failwith "not yet"
-  |ETild(e) -> ETild(fst(closure_exp env fcpur e)), snd (closure_exp env fcpur e)
-  |ENot(e)-> ENot(fst(closure_exp env fcpur e)), snd (closure_exp env fcpur e)
-  |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp env fcpur e1 in 
-                       let e2, fm2 =  closure_exp env fcpur e2 in 
+  |EBlock(lst) ->let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tstmt) ->let e, fmax' =  closure_stmt acomp   clot param env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in EBlock(ls), fmax
+  |ETild(e) -> ETild(fst(closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e)
+  |ENot(e)-> ENot(fst(closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e)
+  |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp acomp  clot param env fcpur e1 in 
+                       let e2, fm2 =  closure_exp acomp  clot param env fcpur e2 in 
                        EBinop(o, e1, e2), max fm1 fm2
-  |EAsign(id, e) -> EAsign(id, fst (closure_exp env fcpur e)), snd (closure_exp env fcpur e) 
-  |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp env fcpur e1 in 
-                       let e2, f2 =  closure_exp env fcpur e2 in 
-                       let e3, f3 =closure_exp env fcpur e3 in 
+  |EAsign(id, e) -> EAsign(id, fst (closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e) 
+  |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp acomp  clot param env fcpur e1 in 
+                       let e2, f2 =  closure_exp acomp  clot param env fcpur e2 in 
+                       let e3, f3 =closure_exp acomp  clot param env fcpur e3 in 
                        EIf(e1,e2,e3), max (max f1 f2) f3)
-  |EFn(t) -> failwith "not yet"
-  |EReturn(e)-> EReturn(fst(closure_exp env fcpur e)), snd (closure_exp env fcpur e))
+  |EFn(t) -> begin 
+                let name = "fun_"^(string_of_int (!nb_anno)) in 
+                nb_anno := !nb_anno + 1;
+                acomp := ({name = name; body = t})::(!acomp);
+                let free = freevars4 t in 
+                let var_lst =  (VSet.elements free) in 
+                EClos(name, var_lst), fcpur
+             end
+  |EReturn(e)-> EReturn(fst(closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e))
 in 
   
   {bexpr = b; loc = e.loc; typ = e.typ}, fcpur
 
+and closure_stmt acomp   clot param env fcpur (s : tstmt) : pstmt*int = match s.stmt with 
+  |SBexpr(t) -> let e1, fcpur = closure_exp acomp  clot param env fcpur t in {stmt = SBexpr(e1); loc = s.loc; typ = s.typ}, fcpur
+  |SDecl(id, t) |SVar(id, t) -> let e1, fcpur = closure_exp acomp  clot param (Smap.add id (fcpur+8) env ) (fcpur + 8 ) t in 
+                    {stmt = SDecl(id, e1); loc = s.loc; typ = s.typ}, fcpur
+  
+and closure_funbody (acomp: tdecl list ref)   clot param env fcpur (f : tfunbody) = 
+  let free= freevars4 f in 
+  let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
+  {formal = f.formal; body = fst (closure_exp acomp  (list_to_smap (VSet.elements free)) (list_to_smap par_lst) Smap.empty 0 f.body); typ = f.typ; clot = VSet.elements free }
+
+  
+and list_to_smap lst : local_env= 
+  let acc = ref 0 in 
+  List.fold_left (fun elem id -> acc := !acc + 1; Smap.add id (!acc-1) elem) (Smap.empty) lst
+
+and cloture_delc (acomp : tdecl list ref) (d : tdecl) = 
+  {name = d.name; body = closure_funbody acomp   Smap.empty Smap.empty Smap.empty 0 d.body}
+
+and clotur_tfile (f : tdecl list) : pdecl list = 
+  let acomp = ref f in 
+  let res = ref [] in 
+  while List.length (!acomp) > 0 do 
+    res := (!res)@[cloture_delc acomp (List.hd (!acomp))];
+  done;
+  !res
+ 
 let compile (f : tfile) = 
   let ofile = "test.s" in
   let p =
