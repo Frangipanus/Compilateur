@@ -98,6 +98,7 @@ and read_string = parse
   | "\\\\" {"\\"^(read_string lexbuf)}
   | "\\\""  {"\""^(read_string lexbuf)}
   |  '"' as s { "" }
+  | "\\n" {"\n"^(read_string lexbuf)}
   | "\\t" {"\t"^(read_string lexbuf)} 
   | "\n" {raise (Lexing_error("Les string sont sur une seule ligne"))}
   | _ as c { (String.make 1 c) ^(read_string lexbuf)}

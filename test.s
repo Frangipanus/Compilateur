@@ -1,7 +1,12 @@
 	.text
 	.globl	main
 main:
-	movq %rsp, %rbp
+	movq $.string_0, %rax
+	movq %rax, %rdi
+	call print_string
+	movq $.string_1, %rax
+	movq %rax, %rdi
+	call print_string
 	movq $0, %rax
 	ret
 print_int:
@@ -52,6 +57,16 @@ my_malloc:
 	movq %r14, %rbp
 	movq %r15, %rsp
 	ret
+print_string:
+	movq %rbp, %r14
+	movq %rsp, %r15
+	movq %rsp, %rbp
+	movq %rdi, %rsi
+	movq $.Sprint_string, %rdi
+	call printf
+	movq %r14, %rbp
+	movq %r15, %rsp
+	ret
 	.data
 .Sprint_int:
 	.string "%d\n"
@@ -61,3 +76,7 @@ my_malloc:
 	.string "Faux"
 .Sprint_string:
 	.string "%s"
+.string_0:
+	.string "Hello World\n"
+.string_1:
+	.string "still here hehe"

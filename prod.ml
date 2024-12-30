@@ -4,7 +4,8 @@ open Format
 open X86_64
 
 let nb_anno = ref 0
-
+let nb_str = ref 0
+let variables_str = Hashtbl.create 17
 let nb_string = ref 0  
 module V = struct
   type t = string
@@ -130,9 +131,9 @@ let rec closure_exp (acomp: tdecl list ref)  clot (param:local_env) (env:local_e
                   else( if (Smap.mem id clot) then (Evar(Vclos(Smap.find id clot)), fcpur) 
                   else failwith "Variable non définie")))
   |Eval(e, lst) -> let e1, f1 = closure_exp acomp  clot param env fcpur e in 
-                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in
+                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
-  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in List(ls), fmax
+  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in List(ls), fmax
   |Println(e) -> let e1, fcpur = closure_exp acomp  clot param env fcpur e in Println(e1), fcpur
   |Default(e1, e2) -> let e1, fcmax = closure_exp acomp  clot param env fcpur e1 in 
                       let e2, fbax = closure_exp acomp  clot param env fcpur e2
@@ -149,7 +150,7 @@ let rec closure_exp (acomp: tdecl list ref)  clot (param:local_env) (env:local_e
   |While(e1,e2) -> let e1, fm1 =  closure_exp acomp  clot param env fcpur e1 in 
                    let e2, fm2 =  closure_exp acomp  clot param env fcpur e2
                   in While(e1, e2), max fm1 fm2
-  |EBlock(lst) ->let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tstmt) ->let e, fmax' =  closure_stmt acomp   clot param env fcpur exp in (e::lst1, max fmax fmax')) ([], fcpur) lst in EBlock(ls), fmax
+  |EBlock(lst) ->let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tstmt) ->let e, fmax' =  closure_stmt acomp   clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in EBlock(ls), fmax
   |ETild(e) -> ETild(fst(closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e)
   |ENot(e)-> ENot(fst(closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e)
   |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp acomp  clot param env fcpur e1 in 
@@ -194,19 +195,41 @@ and cloture_delc (acomp : tdecl list ref) (d : tdecl) =
 and clotur_tfile (f : tdecl list) : pdecl list = 
   let acomp = ref f in 
   let res = ref [] in 
-  while List.length (!acomp) > 0 do 
+  let nb_comp = ref 0 in 
+  while List.length (!acomp) > !nb_comp do 
+    Printf.printf "here %d\n" (List.length (!acomp));
     res := (!res)@[cloture_delc acomp (List.hd (!acomp))];
+    nb_comp := !nb_comp + 1
   done;
   !res
  
-let compile (f : tfile) = 
+
+
+
+
+let rec compile_expr  (e : pbexpr) = match e.bexpr with 
+  |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem )  nop lst
+  |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax)
+  |Println(b) -> (let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_string")
+  |_ -> failwith "not yet y guy"
+
+and compile_stmt  (s : pstmt) : text = match s.stmt with 
+  |SBexpr(e) -> compile_expr  e
+  |_ -> failwith "not yet"
+
+let compile_delc  (d : pdecl) = 
+  Printf.printf "heelo there y friend\n";
+  compile_expr  (d.body.body)
+
+let compile (f : pfile) = 
   let ofile = "test.s" in
+  let acc = List.fold_left ( fun acc x -> acc ++ compile_delc  x) (nop) f in 
+  Printf.printf "%d\n" (Hashtbl.length variables_str);
   let p =
     { text =
         globl "main" ++ label "main" ++
-        movq !%rsp !%rbp ++
-        movq (imm 0) !%rax ++ (* exit *)
-        ret ++
+        acc ++ movq (imm 0) !%rax 
+        ++ ret ++
         label "print_int" ++
         movq !%rdi !%rsi ++
         movq (ilab ".Sprint_int") !%rdi ++
@@ -255,10 +278,21 @@ let compile (f : tfile) =
         call "malloc" ++ 
         movq !%r14 !%rbp ++ 
         movq !%r15 !%rsp ++ 
+        ret ++ 
+        label "print_string" ++
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
+        movq !%rdi !%rsi ++
+        movq (lab "$.Sprint_string") !%rdi ++ 
+        call "printf" ++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++ 
         ret 
         ;
       data =
-          (label ".Sprint_int" ++ string "%d\n" ++ label ".Sprint_vrai" ++ string "True" ++ label ".Sprint_faux" ++ string "Faux" ++ label ".Sprint_string" ++ string "%s" )
+      (label ".Sprint_int" ++ string "%d\n" ++ label ".Sprint_vrai" ++ string "True" ++ label ".Sprint_faux" ++ string "Faux" ++ label ".Sprint_string" ++ string "%s" ) ++
+           Hashtbl.fold (Printf.printf "hereeee\n";fun x y elem -> elem ++ label (".string_"^(string_of_int y)) ++ string x) variables_str nop
     }
   in
   let f = open_out ofile in
