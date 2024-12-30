@@ -1,48 +1,38 @@
 	.text
 	.globl	main
 main:
-	movq $64, %rdi
-	call my_malloc
-	movq $print_int, 0(%rax)
-	movq 0(%rax), %rbx
-	movq %rax, %rbx
-	movq $42, 0(%rbx)
-	call my_malloc
-	movq $64, 0(%rax)
-	movq $128, 8(%rax)
-	movq %rax, 8(%rbx)
-	movq 8(%rbx), %rcx
-	movq 8(%rcx), %rdi
-	movq $1, %rax
-	
-	call print_int
-	
-	
+	movq $0, %rdi
+	call print_bool
 	ret
 
 
 print_int:
 	movq %rdi, %rsi
 	movq $.Sprint_int, %rdi
-	movq $0, %rax
+	andq $-16, %rsp # alignement de la pile
 	call printf
 	movq $0, %rax
-
 	ret
 print_bool:
-    andq %rdi, %rdi
+
+	movq %rsp, %rdx
+	
+	andq %rdi, %rdi
+	 # alignement de la pile	*    call printf 
     jnz ptrue 
     movq %rdi, %rsi
     movq $.Sprint_faux, %rdi 
-    movq $0, %rax 
-    call printf 
+	call printf 
+	movq %rdx, %rsp
     ret
 ptrue:
+
     movq %rdi, %rsi
     movq $.Sprint_vrai, %rdi 
     movq $0, %rax 
     call printf 
 	movq $0, %rax 
+
     ret
 print_string:
     movq %rdi, %rsi
@@ -50,6 +40,7 @@ print_string:
 	movq $0, %rax
 	call printf
 	movq $0, %rax 
+
 	ret
 head: 
 	movq 0(%rdi), %rax 

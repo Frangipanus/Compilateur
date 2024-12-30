@@ -210,8 +210,51 @@ let compile (f : tfile) =
         label "print_int" ++
         movq !%rdi !%rsi ++
         movq (ilab ".Sprint_int") !%rdi ++
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        andq (imm (-16)) !%rsp++
         movq (imm 0) !%rax ++
         call "printf" ++
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++
+        ret 
+        ++ 
+        label "print_bool" ++ 
+        andq !%rdi !%rdi ++ 
+        jnz "ptrue" ++ 
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
+        andq (imm (-16)) !%rsp ++ 
+        movq (ilab ".Sprint_faux") !%rdi ++
+        call "printf" ++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++
+        ret ++ 
+        label "ptrue" ++ 
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
+        andq (imm (-16)) !%rsp ++ 
+        movq (ilab ".Sprint_vrai") !%rdi ++  
+        movq (imm 0) !%rax ++ 
+        call "printf" ++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++
+        ret ++ 
+        label "head" ++ 
+        movq (ind ~ofs:0 rbp) !%rax ++ 
+        ret ++ 
+        movq (ind ~ofs:8 rbp) !%rax ++ 
+        ret ++ 
+        label "my_malloc" ++ 
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
+        andq (imm (-16)) !%rsp ++ 
+        call "malloc" ++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++ 
         ret 
         ;
       data =
