@@ -1,6 +1,5 @@
 fun main()
-  var x := 8
-  println(x)
-  x := 9
-  x := 2*x
-  println(x)
+  for (1, 10) fn(i: int)
+    println(i)
+
+

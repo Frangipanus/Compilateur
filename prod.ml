@@ -5,6 +5,7 @@ open X86_64
 
 let nb_anno = ref 0
 let nb_str = ref 0
+let option_if = ref 0
 let variables_str = Hashtbl.create 17
 let nb_string = ref 0  
 module V = struct
@@ -41,26 +42,26 @@ and pbexpr = {
 }
 
 and pbexpr1 = 
-  | EBlock of pstmt list
-  | ETild of pbexpr
-  | ENot of pbexpr
-  | EBinop of binop * pbexpr * pbexpr
-  | EAsign of int * pbexpr
-  | EIf of pbexpr * pbexpr * pbexpr 
+  | EBlock of pstmt list (*ok*)
+  | ETild of pbexpr (*OK*)
+  | ENot of pbexpr(*OK*)
+  | EBinop of binop * pbexpr * pbexpr(*OK*)
+  | EAsign of int * pbexpr(*OK*)
+  | EIf of pbexpr * pbexpr * pbexpr (*OK*)
   | EFn of tfunbody 
   | EReturn of pbexpr
-  | ATrue
-  | AFalse
-  | Int of int
-  | String of string 
-  | Empty 
+  | ATrue(*OK*)
+  | AFalse(*OK*)
+  | Int of int(*OK*)
+  | String of string (*OK*)
+  | Empty (*OK*)
   | Evar of vars
   | Eval of pbexpr * (pbexpr list)
   | List of pbexpr list
-  | Println of pbexpr
+  | Println of pbexpr(*OK*)
   | Default of pbexpr * pbexpr
-  | Head of pbexpr
-  | Tail of pbexpr
+  | Head of pbexpr(*OK*)
+  | Tail of pbexpr(*OK*)
   | For of pbexpr * pbexpr * pbexpr
   | Repeat of pbexpr * pbexpr
   | While of pbexpr * pbexpr
@@ -131,7 +132,7 @@ let rec closure_exp (acomp: tdecl list ref)  clot (param:local_env) (env:local_e
                   else( if Smap.mem id param then (Evar(Varg(Smap.find id param)), fcpur)
                   else( if (Smap.mem id clot) then (Evar(Vclos(Smap.find id clot)), fcpur) 
                   else failwith "Note Yet")))
-  |Eval(e, lst) -> Printf.printf "hereHELLO";let e1, f1 = closure_exp acomp  clot param env fcpur e in 
+  |Eval(e, lst) -> let e1, f1 = closure_exp acomp  clot param env fcpur e in 
                     let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
   |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in List(ls), fmax
@@ -165,7 +166,7 @@ let rec closure_exp (acomp: tdecl list ref)  clot (param:local_env) (env:local_e
   |EFn(t) -> begin 
                 let name = "fun_"^(string_of_int (!nb_anno)) in 
                 nb_anno := !nb_anno + 1;
-                acomp := ({name = name; body = t})::(!acomp);
+                acomp := (!acomp)@[({name = name; body = t})];
                 let free = freevars4 t in 
                 let var_lst =  (VSet.elements free) in 
                 EClos(name, var_lst), fcpur
@@ -193,14 +194,17 @@ and list_to_smap lst : local_env=
   List.fold_left (fun elem id -> acc := !acc + 1; Smap.add id (!acc-1) elem) (Smap.empty) lst
 
 and cloture_delc (acomp : tdecl list ref) (d : tdecl) = 
+
   {name = d.name; body = fst( closure_funbody acomp   Smap.empty Smap.empty Smap.empty 0 d.body); size = snd ( closure_funbody acomp   Smap.empty Smap.empty Smap.empty 0 d.body) }
 
 and clotur_tfile (f : tdecl list) : pdecl list = 
+
   let acomp = ref f in 
   let res = ref [] in 
   let nb_comp = ref 0 in 
   while List.length (!acomp) > !nb_comp do 
     res := (!res)@[cloture_delc acomp (List.nth (!acomp)(!nb_comp) )];
+    Printf.printf "herre%d %d %s\n" (!nb_comp) (List.length (!acomp)) ((List.nth (!acomp)(!nb_comp) ).name);
 
     nb_comp := !nb_comp + 1
   done;
@@ -243,6 +247,13 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
               | Vlocal(n) -> pushq (ind ~ofs:(-n) rbp)
               |_ -> failwith "not yet")
   |EAsign(pos, e) -> compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq (imm 0)
+  |EIf(e1,e2,e3) -> (option_if := !option_if + 1;
+                    let e1 = compile_expr e1 in 
+                    let e2 = compile_expr e2 in 
+                    let e3 = compile_expr e3 in 
+                    e1 ++ popq rax ++ andq !%rax !%rax++jz ("option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ jmp ("fin_option_if_"^(string_of_int (!option_if)))++ label ("option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ label ("fin_option_if_"^(string_of_int (!option_if))) ++ pushq (imm 0))
+  |Head(e) -> compile_expr e ++ popq rax ++ call "head" ++ pushq !%rax 
+  |Tail(e) -> compile_expr e ++ popq rax ++ call "tail" ++ pushq !%rax 
   |_ -> failwith "not yet y guy"
 
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
@@ -255,6 +266,7 @@ Printf.printf "hey\n";
   label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size)) !%rsp ++compile_expr  (d.body.body) ++ popq rax ++ popq rbp ++ addq (imm (d.size)) !%rsp
 
 let compile str (f : pfile) = 
+  Printf.printf "herre\n";
   let ofile = str in
   let acc = List.fold_left ( fun acc x -> acc ++ compile_delc  x) (nop) f in 
   let p =
@@ -296,9 +308,9 @@ let compile str (f : pfile) =
         popq rbp++ 
         ret ++ 
         label "head" ++ 
-        movq (ind ~ofs:0 rbp) !%rax ++ 
+        movq (ind ~ofs:0 rax) !%rax ++ 
         ret ++ 
-        movq (ind ~ofs:8 rbp) !%rax ++ 
+        movq (ind ~ofs:8 rax) !%rax ++ 
         ret ++ 
         label "my_malloc" ++ 
         pushq !%rbp ++ 

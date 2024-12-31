@@ -63,7 +63,10 @@ let () =
     let p2 = Algow.w p in 
     if !type_only then (Printf.printf "here\n";exit 0);
     Printf.printf "%d\n" (List.length p2);
+    Printf.printf "herre\n";
+
     let p3 = clotur_tfile p2 in 
+
     compile ofile p3
   with
     | Lexer.Lexing_error c ->
