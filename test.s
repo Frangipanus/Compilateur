@@ -2,20 +2,201 @@
 	.globl	main
 main:
 	movq $1, %rax
+	pushq %rax
+	popq %rax
 	movq %rax, %rdi
 	call print_bool
+	pushq $0
+	popq %rax
 	movq $.string_0, %rax
+	pushq %rax
+	popq %rax
 	movq %rax, %rdi
 	call print_string
-	movq $42, %rax
-	notq %rax
+	pushq $0
+	popq %rax
+	pushq $42
+	popq %rax
 	movq %rax, %rdi
 	call print_int
-	movq $1, %rax
-	notb %al
-	andq $1, %rax
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $10
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	sete %al
+	pushq %rax
+	popq %rax
 	movq %rax, %rdi
 	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $11
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	sete %al
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $11
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	setne %al
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $10
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	setne %al
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $11
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	setl %al
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $10
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	setl %al
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $9
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	movq $0, %rax
+	setl %al
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_bool
+	pushq $0
+	popq %rax
+	pushq $10
+	pushq $11
+	popq %rax
+	popq %rbx
+	addq %rax, %rbx
+	pushq %rbx
+	popq %rax
+	movq %rax, %rdi
+	call print_int
+	pushq $0
+	popq %rax
+	pushq $42
+	pushq $2
+	popq %rax
+	popq %rbx
+	imulq %rax, %rbx
+	pushq %rbx
+	popq %rax
+	movq %rax, %rdi
+	call print_int
+	pushq $0
+	popq %rax
+	pushq $1
+	pushq $2
+	pushq $3
+	popq %rax
+	popq %rbx
+	imulq %rax, %rbx
+	pushq %rbx
+	popq %rax
+	popq %rbx
+	addq %rax, %rbx
+	pushq %rbx
+	popq %rax
+	movq %rax, %rdi
+	call print_int
+	pushq $0
+	popq %rax
+	pushq $8
+	pushq $2
+	popq %rax
+	popq %rbx
+	movq %rax, %rcx
+	movq %rbx, %rax
+	movq %rcx, %rbx
+	movq $0, %rdx
+	idivq %rbx
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_int
+	pushq $0
+	popq %rax
+	pushq $8
+	pushq $3
+	popq %rax
+	popq %rbx
+	movq %rax, %rcx
+	movq %rbx, %rax
+	movq %rcx, %rbx
+	movq $0, %rdx
+	idivq %rbx
+	pushq %rax
+	popq %rax
+	movq %rax, %rdi
+	call print_int
+	pushq $0
+	popq %rax
+	pushq $8
+	pushq $3
+	popq %rax
+	popq %rbx
+	movq %rax, %rcx
+	movq %rbx, %rax
+	movq %rcx, %rbx
+	movq $0, %rdx
+	idivq %rbx
+	pushq %rdx
+	popq %rax
+	movq %rax, %rdi
+	call print_int
+	pushq $0
+	popq %rax
+	pushq %rax
+	popq %rax
 	movq $0, %rax
 	ret
 print_int:

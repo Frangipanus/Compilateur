@@ -75,7 +75,7 @@ rule token  = parse
   
   |"True" {[TRUE]}
   | "False" {[FALSE]}
-  | integer as s {Printf.printf "helloeeeeee\n"; [INT(int_of_string s)] }
+  | integer as s { [INT(int_of_string s)] }
   |'\n' {Lexing.new_line lexbuf; token lexbuf}
   | ' ' { token lexbuf }
   | '\t' {token lexbuf}

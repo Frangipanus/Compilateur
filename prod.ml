@@ -197,7 +197,6 @@ and clotur_tfile (f : tdecl list) : pdecl list =
   let res = ref [] in 
   let nb_comp = ref 0 in 
   while List.length (!acomp) > !nb_comp do 
-    Printf.printf "here %d\n" (List.length (!acomp));
     res := (!res)@[cloture_delc acomp (List.hd (!acomp))];
     nb_comp := !nb_comp + 1
   done;
@@ -209,14 +208,32 @@ and clotur_tfile (f : tdecl list) : pdecl list =
 
 let rec compile_expr  (e : pbexpr) = match e.bexpr with 
   |Empty -> nop
-  |ENot(b) -> compile_expr b ++ notb !%al ++ andq (imm 1) !%rax
-  |ETild(b) -> compile_expr b ++ notq !%rax
-  |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem )  nop lst
-  |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax)
-  |Int(n) -> movq (imm n) !%rax
-  |Println(b) -> (if b.typ.typ = Tstring then let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_string" else (if b.typ.typ = Tint then let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_int" else (if b.typ.typ = Tbool then  let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_bool" else (nop))))
-  |ATrue -> movq (imm 1) !%rax 
-  |AFalse -> movq (imm 0) !%rax 
+  |ENot(b) -> compile_expr b ++ popq rax ++ notb !%al ++ andq (imm 1) !%rax ++ pushq !%rax
+  |ETild(b) -> compile_expr b ++ popq rax ++notq !%rax ++ pushq !%rax
+  |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem ++ popq rax )  nop lst ++ pushq !%rax
+  |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax ++ pushq !%rax)
+  |Int(n) -> pushq (imm n) 
+  |Println(b) -> (if b.typ.typ = Tstring then let t =(compile_expr  b) in t ++ popq rax ++movq !%rax !%rdi ++ call "print_string" else (if b.typ.typ = Tint then let t =(compile_expr  b) in t ++ popq rax ++ movq !%rax !%rdi ++ call "print_int" else (if b.typ.typ = Tbool then  let t =(compile_expr  b) in t ++ popq rax ++ movq !%rax !%rdi ++ call "print_bool" else (nop)))) ++ pushq (imm 0)
+  |ATrue -> movq (imm 1) !%rax ++ pushq !%rax
+  |AFalse -> movq (imm 0) !%rax ++ pushq !%rax
+  |EBinop(op, e1, e2) -> (let e1 = compile_expr e1 in 
+                         let e2 = compile_expr e2 in 
+                         e1 ++ e2 ++ popq rax  ++ popq rbx ++ 
+                         match op with 
+                          |Eq-> (cmpq !%rax !%rbx ++ movq (imm 0) !%rax ++ sete !%al ++ pushq !%rax)
+                          |Neq -> (cmpq !%rax !%rbx ++ movq (imm 0) !%rax ++ setne !%al ++ pushq !%rax)
+                          |Lt ->(cmpq !%rax !%rbx ++ movq (imm 0) !%rax ++ setl !%al ++ pushq !%rax)
+                          |Lte -> (cmpq !%rax !%rbx ++ movq (imm 0) !%rax ++ setle !%al ++ pushq !%rax)
+                          |Gt -> (cmpq !%rax !%rbx ++ movq (imm 0) !%rax ++ setg !%al ++ pushq !%rax)
+                          |Gte -> (cmpq !%rax !%rbx ++ movq (imm 0) !%rax ++ setge !%al ++ pushq !%rax)
+                          |Add -> (addq !%rax !%rbx ++ pushq !%rbx)
+                          |Sub -> (subq !%rax !%rbx ++ pushq !%rbx)
+                          |Mul -> (imulq !%rax !%rbx ++ pushq !%rbx)
+                          |Div -> (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ (idivq (!%rbx))   ++ (pushq !%rax ))
+                          |Mod -> (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ (idivq (!%rbx))   ++ (pushq !%rdx ))
+                          |And -> (andq !%rbx !%rax ++ pushq !%rax)
+                          |Or -> (orq !%rbx !%rax ++ pushq !%rax)
+                          |Concat -> failwith "not yet")
   |_ -> failwith "not yet y guy"
 
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
@@ -224,7 +241,6 @@ and compile_stmt  (s : pstmt) : text = match s.stmt with
   |_ -> failwith "not yet"
 
 let compile_delc  (d : pdecl) = 
-  Printf.printf "heelo there y friend\n";
   compile_expr  (d.body.body)
 
 let compile (f : pfile) = 
@@ -233,7 +249,7 @@ let compile (f : pfile) =
   let p =
     { text =
         globl "main" ++ label "main" ++
-        acc ++ movq (imm 0) !%rax 
+        acc ++ popq rax ++ movq (imm 0) !%rax 
         ++ ret ++
         label "print_int" ++
         movq !%rdi !%rsi ++
@@ -297,7 +313,7 @@ let compile (f : pfile) =
         ;
       data =
       (label ".Sprint_int" ++ string "%d\n" ++ label ".Sprint_vrai" ++ string "True\n" ++ label ".Sprint_faux" ++ string "False\n" ++ label ".Sprint_string" ++ string "%s\n" ) ++
-           Hashtbl.fold (Printf.printf "hereeee\n";fun x y elem -> elem ++ label (".string_"^(string_of_int y)) ++ string x) variables_str nop
+           Hashtbl.fold (fun x y elem -> elem ++ label (".string_"^(string_of_int y)) ++ string x) variables_str nop
     }
   in
   let f = open_out ofile in
