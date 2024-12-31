@@ -208,9 +208,15 @@ and clotur_tfile (f : tdecl list) : pdecl list =
 
 
 let rec compile_expr  (e : pbexpr) = match e.bexpr with 
+  |Empty -> nop
+  |ENot(b) -> compile_expr b ++ notb !%al ++ andq (imm 1) !%rax
+  |ETild(b) -> compile_expr b ++ notq !%rax
   |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem )  nop lst
   |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax)
-  |Println(b) -> (let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_string")
+  |Int(n) -> movq (imm n) !%rax
+  |Println(b) -> (if b.typ.typ = Tstring then let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_string" else (if b.typ.typ = Tint then let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_int" else (if b.typ.typ = Tbool then  let t =(compile_expr  b) in t ++ movq !%rax !%rdi ++ call "print_bool" else (nop))))
+  |ATrue -> movq (imm 1) !%rax 
+  |AFalse -> movq (imm 0) !%rax 
   |_ -> failwith "not yet y guy"
 
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
@@ -224,7 +230,6 @@ let compile_delc  (d : pdecl) =
 let compile (f : pfile) = 
   let ofile = "test.s" in
   let acc = List.fold_left ( fun acc x -> acc ++ compile_delc  x) (nop) f in 
-  Printf.printf "%d\n" (Hashtbl.length variables_str);
   let p =
     { text =
         globl "main" ++ label "main" ++
@@ -291,7 +296,7 @@ let compile (f : pfile) =
         ret 
         ;
       data =
-      (label ".Sprint_int" ++ string "%d\n" ++ label ".Sprint_vrai" ++ string "True" ++ label ".Sprint_faux" ++ string "Faux" ++ label ".Sprint_string" ++ string "%s" ) ++
+      (label ".Sprint_int" ++ string "%d\n" ++ label ".Sprint_vrai" ++ string "True\n" ++ label ".Sprint_faux" ++ string "False\n" ++ label ".Sprint_string" ++ string "%s\n" ) ++
            Hashtbl.fold (Printf.printf "hereeee\n";fun x y elem -> elem ++ label (".string_"^(string_of_int y)) ++ string x) variables_str nop
     }
   in

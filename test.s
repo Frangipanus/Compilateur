@@ -1,12 +1,21 @@
 	.text
 	.globl	main
 main:
+	movq $1, %rax
+	movq %rax, %rdi
+	call print_bool
 	movq $.string_0, %rax
 	movq %rax, %rdi
 	call print_string
-	movq $.string_1, %rax
+	movq $42, %rax
+	notq %rax
 	movq %rax, %rdi
-	call print_string
+	call print_int
+	movq $1, %rax
+	notb %al
+	andq $1, %rax
+	movq %rax, %rdi
+	call print_bool
 	movq $0, %rax
 	ret
 print_int:
@@ -71,12 +80,10 @@ print_string:
 .Sprint_int:
 	.string "%d\n"
 .Sprint_vrai:
-	.string "True"
+	.string "True\n"
 .Sprint_faux:
-	.string "Faux"
+	.string "False\n"
 .Sprint_string:
-	.string "%s"
+	.string "%s\n"
 .string_0:
-	.string "Hello World\n"
-.string_1:
-	.string "still here hehe"
+	.string "Hello World"

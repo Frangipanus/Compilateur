@@ -1,3 +1,6 @@
 fun main()
-  println("Hello World\n")
-  println("still here hehe\n")
+  println(True)
+  println("Hello World")
+  println(~42)
+  println(!True)
+  
