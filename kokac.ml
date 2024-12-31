@@ -34,6 +34,7 @@ let () =
   
   (* On vérifie que le nom du fichier source a bien été indiqué *)
   if !ifile="" then begin eprintf "Aucun fichier à compiler\n@?"; exit 1 end;
+  let ofile = Filename.chop_suffix !ifile ".exp" ^ "s" in 
 
   (* Ce fichier doit avoir l'extension .logo *)
   if not (Filename.check_suffix !ifile ".koka") then begin
@@ -63,7 +64,7 @@ let () =
     if !type_only then (Printf.printf "here\n";exit 0);
     Printf.printf "%d\n" (List.length p2);
     let p3 = clotur_tfile p2 in 
-    compile p3
+    compile ofile p3
   with
     | Lexer.Lexing_error c ->
 	(* Erreur lexicale. On récupère sa position absolue et

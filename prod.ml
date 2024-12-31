@@ -243,8 +243,8 @@ and compile_stmt  (s : pstmt) : text = match s.stmt with
 let compile_delc  (d : pdecl) = 
   compile_expr  (d.body.body)
 
-let compile (f : pfile) = 
-  let ofile = "test.s" in
+let compile str (f : pfile) = 
+  let ofile = str in
   let acc = List.fold_left ( fun acc x -> acc ++ compile_delc  x) (nop) f in 
   let p =
     { text =
