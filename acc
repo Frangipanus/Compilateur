@@ -45,7 +45,7 @@ and pbexpr1 =
   | ETild of pbexpr
   | ENot of pbexpr
   | EBinop of binop * pbexpr * pbexpr
-  | EAsign of int * pbexpr
+  | EAsign of ident * pbexpr
   | EIf of pbexpr * pbexpr * pbexpr 
   | EFn of tfunbody 
   | EReturn of pbexpr
@@ -157,7 +157,7 @@ let rec closure_exp (acomp: tdecl list ref)  clot (param:local_env) (env:local_e
   |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp acomp  clot param env fcpur e1 in 
                        let e2, fm2 =  closure_exp acomp  clot param env fcpur e2 in 
                        EBinop(o, e1, e2), max fm1 fm2
-  |EAsign(id, e) -> EAsign(Smap.find id env, fst (closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e) 
+  |EAsign(id, e) -> EAsign(id, fst (closure_exp acomp  clot param env fcpur e)), snd (closure_exp acomp  clot param env fcpur e) 
   |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp acomp  clot param env fcpur e1 in 
                        let e2, f2 =  closure_exp acomp  clot param env fcpur e2 in 
                        let e3, f3 =closure_exp acomp  clot param env fcpur e3 in 
@@ -177,10 +177,10 @@ in
 
 and closure_stmt acomp   clot param env fcpur (s : tstmt)  = match s.stmt with 
   |SBexpr(t) -> let e1, fcpur = closure_exp acomp  clot param env fcpur t in {stmt = SBexpr(e1); loc = s.loc; typ = s.typ}, fcpur, env
-  |SDecl(id, t) -> Printf.printf "id = %d\n" fcpur;let e1, fcpur2 = closure_exp acomp  clot param (Smap.add id (fcpur) env ) (fcpur + 8 ) t in 
-                    {stmt = SDecl(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env )
-  |SVar(id, t) ->Printf.printf "id = %d\n" fcpur; let e1, fcpur2 = closure_exp acomp  clot param (Smap.add id (fcpur) env ) (fcpur + 8 ) t in 
-                    {stmt = SVar(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env )
+  |SDecl(id, t) -> Printf.printf "id = %d\n" fcpur;let e1, fcpur2 = closure_exp acomp  clot param (Smap.add id (fcpur+8) env ) (fcpur + 8 ) t in 
+                    {stmt = SDecl(fcpur+8, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur+8) env )
+  |SVar(id, t) -> let e1, fcpur2 = closure_exp acomp  clot param (Smap.add id (fcpur+8) env ) (fcpur + 8 ) t in 
+                    {stmt = SVar(fcpur+8, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur+8) env )
   
 and closure_funbody (acomp: tdecl list ref)   clot param env fcpur (f : tfunbody) = 
   let free= freevars4 f in 
@@ -242,7 +242,6 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |Evar(v) -> (match  v with
               | Vlocal(n) -> pushq (ind ~ofs:(-n) rbp)
               |_ -> failwith "not yet")
-  |EAsign(pos, e) -> compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq (imm 0)
   |_ -> failwith "not yet y guy"
 
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
@@ -264,36 +263,39 @@ let compile str (f : pfile) =
         acc  ++ movq (imm 0) !%rax 
         ++ ret ++
         label "print_int" ++
-        pushq !%rbp ++ 
-        movq !%rsp !%rbp ++
-        andq (imm (-16)) !%rsp ++  
-        movq !%rdi !%rsi ++    
-        movq (ilab ".Sprint_int") !%rdi ++    
+        movq !%rdi !%rsi ++
+        movq (ilab ".Sprint_int") !%rdi ++
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        andq (imm (-16)) !%rsp++
+        movq (imm 0) !%rax ++
         call "printf" ++
-        movq !%rbp !%rsp ++ 
-        popq rbp++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++
         ret 
         ++ 
         label "print_bool" ++ 
         andq !%rdi !%rdi ++ 
         jnz "ptrue" ++ 
-        pushq !%rbp ++ 
-        movq !%rsp !%rbp ++
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
         andq (imm (-16)) !%rsp ++ 
         movq (ilab ".Sprint_faux") !%rdi ++
         call "printf" ++ 
-        movq !%rbp !%rsp ++ 
-        popq rbp++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++
         ret ++ 
         label "ptrue" ++ 
-        pushq !%rbp ++ 
-        movq !%rsp !%rbp ++
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
         andq (imm (-16)) !%rsp ++ 
         movq (ilab ".Sprint_vrai") !%rdi ++  
         movq (imm 0) !%rax ++ 
         call "printf" ++ 
-        movq !%rbp !%rsp ++ 
-        popq rbp++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++
         ret ++ 
         label "head" ++ 
         movq (ind ~ofs:0 rbp) !%rax ++ 
@@ -301,22 +303,23 @@ let compile str (f : pfile) =
         movq (ind ~ofs:8 rbp) !%rax ++ 
         ret ++ 
         label "my_malloc" ++ 
-        pushq !%rbp ++ 
-        movq !%rsp !%rbp ++
-        andq (imm (-16)) !%rsp ++  
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
+        andq (imm (-16)) !%rsp ++ 
         call "malloc" ++ 
-        movq !%rbp !%rsp ++ 
-        popq rbp++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++ 
         ret ++ 
         label "print_string" ++
-        pushq !%rbp ++ 
-        movq !%rsp !%rbp ++
-        andq (imm (-16)) !%rsp ++  
+        movq !%rbp !%r14 ++ 
+        movq !%rsp !%r15 ++ 
+        movq !%rsp !%rbp ++ 
         movq !%rdi !%rsi ++
         movq (lab "$.Sprint_string") !%rdi ++ 
         call "printf" ++ 
-        movq !%rbp !%rsp ++ 
-        popq rbp++ 
+        movq !%r14 !%rbp ++ 
+        movq !%r15 !%rsp ++ 
         ret 
         ;
       data =

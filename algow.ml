@@ -604,6 +604,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           | _ -> raise (TypeErrorLoc ("While attends deux arguments \n", bexpr.loc))
           end
       | _ ->
+          Printf.printf "hereHOOOOOO\n";
           let tf = w_bexpr env f fun_name return_type in
           let targs = List.map (fun arg -> w_bexpr env arg fun_name return_type) args in
           let tl, rt = match head tf.typ.typ with

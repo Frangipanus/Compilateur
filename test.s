@@ -1,64 +1,78 @@
 	.text
 	.globl	main
+	movq %rsp, %rbp
 main:
-	movq $.string_0, %rax
+	pushq %rbp
+	movq %rsp, %rbp
+	addq $-8, %rsp
+	pushq $8
+	popq %rax
+	movq %rax, 0(%rbp)
 	pushq %rax
+	popq %rax
+	pushq 0(%rbp)
 	popq %rax
 	movq %rax, %rdi
-	call print_string
+	call print_int
 	pushq $0
 	popq %rax
-	movq $1, %rax
-	pushq %rax
+	pushq $9
 	popq %rax
-	pushq %rax
-	movq $.string_1, %rax
-	pushq %rax
+	movq %rax, 0(%rbp)
+	pushq $0
+	popq %rax
+	pushq $2
+	pushq 0(%rbp)
+	popq %rax
+	popq %rbx
+	imulq %rax, %rbx
+	pushq %rbx
+	popq %rax
+	movq %rax, 0(%rbp)
+	pushq $0
+	popq %rax
+	pushq 0(%rbp)
 	popq %rax
 	movq %rax, %rdi
-	call print_string
+	call print_int
 	pushq $0
 	popq %rax
-	movq $1, %rax
 	pushq %rax
 	popq %rax
-	pushq %rax
-	popq %rax
+	popq %rbp
+	addq $8, %rsp
 	movq $0, %rax
 	ret
 print_int:
+	pushq %rbp
+	movq %rsp, %rbp
+	andq $-16, %rsp
 	movq %rdi, %rsi
 	movq $.Sprint_int, %rdi
-	movq %rbp, %r14
-	movq %rsp, %r15
-	andq $-16, %rsp
-	movq $0, %rax
 	call printf
-	movq %r14, %rbp
-	movq %r15, %rsp
+	movq %rbp, %rsp
+	popq %rbp
 	ret
 print_bool:
 	andq %rdi, %rdi
 	jnz ptrue
-	movq %rbp, %r14
-	movq %rsp, %r15
+	pushq %rbp
 	movq %rsp, %rbp
 	andq $-16, %rsp
 	movq $.Sprint_faux, %rdi
 	call printf
-	movq %r14, %rbp
-	movq %r15, %rsp
+	movq %rbp, %rsp
+	popq %rbp
 	ret
 ptrue:
-	movq %rbp, %r14
-	movq %rsp, %r15
+	pushq %rbp
 	movq %rsp, %rbp
 	andq $-16, %rsp
 	movq $.Sprint_vrai, %rdi
 	movq $0, %rax
 	call printf
-	movq %r14, %rbp
-	movq %r15, %rsp
+	movq %rbp, %rsp
+	popq %rbp
 	ret
 head:
 	movq 0(%rbp), %rax
@@ -66,23 +80,22 @@ head:
 	movq 8(%rbp), %rax
 	ret
 my_malloc:
-	movq %rbp, %r14
-	movq %rsp, %r15
+	pushq %rbp
 	movq %rsp, %rbp
 	andq $-16, %rsp
 	call malloc
-	movq %r14, %rbp
-	movq %r15, %rsp
+	movq %rbp, %rsp
+	popq %rbp
 	ret
 print_string:
-	movq %rbp, %r14
-	movq %rsp, %r15
+	pushq %rbp
 	movq %rsp, %rbp
+	andq $-16, %rsp
 	movq %rdi, %rsi
 	movq $.Sprint_string, %rdi
 	call printf
-	movq %r14, %rbp
-	movq %r15, %rsp
+	movq %rbp, %rsp
+	popq %rbp
 	ret
 	.data
 .Sprint_int:
@@ -93,7 +106,3 @@ print_string:
 	.string "False\n"
 .Sprint_string:
 	.string "%s\n"
-.string_1:
-	.string "bad"
-.string_0:
-	.string "bad"

@@ -23,6 +23,7 @@ ajout:
 	ocamlc -c ast.ml
 	ocamlc -c parser.ml 
 	ocamlc -c lexer.ml
+	ocamlc -c algow.ml 
 
 .PHONY: all clean explain main.exe
 
