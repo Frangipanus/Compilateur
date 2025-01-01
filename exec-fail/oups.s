@@ -5,23 +5,13 @@ main:
 	pushq %rbp
 	movq %rsp, %rbp
 	addq $0, %rsp
-	movq $.string_0, %rax
-	pushq %rax
-	movq $.string_1, %rax
-	pushq %rax
-	popq %rsi
-	popq %rdi
-	call strcat
-	pushq %rax
-	popq %rax
-	movq %rax, %rdi
-	call print_string
 	pushq $0
 	popq %rax
 	pushq %rax
 	popq %rax
 	popq %rbp
 	addq $0, %rsp
+	ret
 	movq $0, %rax
 	ret
 print_int:
@@ -88,7 +78,5 @@ print_string:
 	.string "False\n"
 .Sprint_string:
 	.string "%s\n"
-.string_1:
-	.string " World!"
-.string_0:
-	.string "Hello"
+fun_main:
+	.string "main"

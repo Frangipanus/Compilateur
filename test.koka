@@ -1,2 +1,9 @@
 fun main()
-  println("Hello" ++ " World!")
+  var i := 10
+  if True then 
+    var i := i + 8
+    i 
+  else 
+    var i := i - 8
+    i 
+  println(i)
