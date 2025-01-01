@@ -1,9 +1,3 @@
 fun main()
-  var i := 10
-  if True then 
-    var i := i + 8
-    i 
-  else 
-    var i := i - 8
-    i 
-  println(i)
+  for (1, 5) fn(i: int)
+    println(i)

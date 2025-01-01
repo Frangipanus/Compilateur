@@ -342,14 +342,15 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       popq rdi ++ popq rsi ++ 
                       popq r15 ++ subq (imm 1) !%r15 ++ jmp ("debut_"^(string_of_int (!nb_boulces))) 
                       ++ label ("fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
-  |EClos(id, vlst) ->let i = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
+  |EClos(id, vlst) ->let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
                      ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
                                                       |Vlocal(n) |Vglob(n) -> movq (ind ~ofs:(-n) rbp) !%rbx ++ 
                                                                               movq !%rbx (ind ~ofs:(8*(!i)) rax) 
                                                       |Vclos(n) -> Printf.printf" clos%d\n   " n; movq (ind ~ofs:(n) rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
                                                       |Varg(n) ->  Printf.printf" %d\n   " n; movq (ind ~ofs:(n) rdi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
-                                                      |Vfunc(id) ->  movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) ++pushq !%rax
-  
+                                                      |Vfunc(id) ->  movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
+                                         
+                      ++pushq !%rax
   |Eval(e1,e2) -> let i = ref (-8) in       
                   let e1 = compile_expr e1 in 
                   e1 ++ popq r14 ++ pushq !%rsi ++ pushq !%rdi ++ movq (imm (8*(List.length e2))) !%rdi  ++ call "my_malloc" ++ movq !%rax !%rdi ++ movq !%r14 !%rsi ++ 
@@ -359,13 +360,18 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                                     ++ popq r15 (*rdi*) ++popq r14 (*rsi*) ++ pushq !%rsi ++ pushq !%rdi ++ movq !%r14 !%rsi 
                                                     ++ movq !%r15 !%rdi
                                                      ++ movq !%rax (ind ~ofs:(!i) rdi) ) (nop) e2)++call_star (lab "(%rsi)") ++ popq rdi ++ popq rsi++ pushq !%rax
-  | For(e1,e2,e3) -> (let e1 = compile_expr e1 in 
+  | For(e1,e2,e3) -> (nb_boulces := !nb_boulces + 1;
+                      let e1 = compile_expr e1 in 
                       let e2 = compile_expr e2 in 
                       let e3 = compile_expr e3 in 
-                      e1 ++ e2 ++ e3 ++ popq rdx ++ popq rbx ++ popq rcx  ++
+                      e1 ++ e2 ++ e3 ++ popq rdx (*fonc*) ++ popq rbx ++ popq rcx  ++
                       pushq !%rsi ++ pushq !%rdi ++ pushq !%rcx ++ pushq !%rbx ++ pushq !%rdx ++
-                      movq (imm 8) !%rdi ++ movq !%rax !%rsi ++ popq rdx ++ popq rcx ++ popq rbx ++ 
-                      movq !%rcx !%r15 ++  nop)
+                      movq (imm 8) !%rdi ++ call "my_malloc" ++movq !%rax !%rdi++ popq rsi ++ popq rbx ++ popq rdx ++ 
+                      movq !%rdx !%r15++ label ("debut_for_"^(string_of_int !nb_boulces)) ++  
+                      movq (!%r15) (ind ~ofs:(0) rdi) ++ pushq !%r15 ++  pushq !%rbx ++ 
+                      call_star (lab ("(%rsi)")) ++popq rbx++popq r15 ++
+                      addq (imm 1) !%r15 ++ cmpq !%r15 !%rbx ++ jns ("debut_for_"^(string_of_int !nb_boulces))
+                       ++ label ("finboucle_"^(string_of_int !nb_boulces)) ++ popq rdi ++ popq rsi++ pushq (imm 0) )
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
   |SBexpr(e) -> compile_expr  e
   |SDecl(pos, e) -> compile_expr e ++ popq rax ++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq !%rax
