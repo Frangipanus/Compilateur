@@ -516,7 +516,8 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
               let tbe = w_bexpr env be fun_name return_type in
               if List.mem (head tbe.typ.typ) [Tunit; Tbool; Tint; Tstring] then
                 { bexpr = Println(tbe); typ = { typ = Tunit; effect = add_effect Console tbe.typ.effect }; loc = bexpr.loc }
-              else raise (TypeErrorLoc ("Argument du mauvais type pour println \n", bexpr.loc))
+              else (  printf "%a \n" print_full_type tbe.typ ;
+              raise (TypeErrorLoc ("Argument du mauvais type pour println \n", bexpr.loc)))
           | _ -> raise   (TypeErrorLoc   ("Mauvais nombre d'arguments pour println \n", bexpr.loc))
           end
 
@@ -574,6 +575,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           end
 
       | Ident("repeat") ->
+        Printf.printf "here and staying repeat\n";
           begin match args with
           | [be1; be2] ->
               let tbe1 = w_bexpr env be1 fun_name return_type in
@@ -587,6 +589,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           end
 
       | Ident("while") ->
+
           begin match args with
           | [be1; be2] ->
               let tbe1 = w_bexpr env be1 fun_name return_type in
@@ -604,7 +607,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           | _ -> raise (TypeErrorLoc ("While attends deux arguments \n", bexpr.loc))
           end
       | _ ->
-          Printf.printf "hereHOOOOOO\n";
           let tf = w_bexpr env f fun_name return_type in
           let targs = List.map (fun arg -> w_bexpr env arg fun_name return_type) args in
           let tl, rt = match head tf.typ.typ with

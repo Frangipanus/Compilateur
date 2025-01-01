@@ -24,6 +24,8 @@ ajout:
 	ocamlc -c parser.ml 
 	ocamlc -c lexer.ml
 	ocamlc -c algow.ml 
+	ocamlc -c x86_64.ml
+	ocamlc -c prod.ml
 
 .PHONY: all clean explain main.exe
 
