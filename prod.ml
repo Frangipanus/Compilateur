@@ -248,7 +248,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax ++ pushq !%rax)
   |Int(n) -> pushq (imm n) 
   |Println(b) -> (if head b.typ.typ = Tstring then let t =(compile_expr  b) in t ++ popq rax ++ pushq !%rdi ++ pushq !%rsi  ++movq !%rax !%rdi ++ call "print_string" ++ popq rsi ++ popq rdi  else (if head b.typ.typ = Tint then let t =(compile_expr  b) in t ++ popq rax++pushq !%rdi ++ pushq !%rsi  ++ movq !%rax !%rdi ++ call "print_int" ++ popq rsi ++popq rdi else (if head b.typ.typ = Tbool then  let t =(compile_expr  b) in t ++ popq rax ++pushq !%rdi ++ pushq !%rsi  ++ movq !%rax !%rdi ++ call "print_bool" ++ popq rsi ++popq rdi
-                  else (nop)))) ++ pushq (imm 0)
+                  else (let t = (compile_expr b) in t)))) ++ pushq (imm 0)
   |ATrue -> movq (imm 1) !%rax ++ pushq !%rax
   |AFalse -> movq (imm 0) !%rax ++ pushq !%rax
   |EBinop(op, e, e2) -> (concat_lst := !concat_lst + 1;let e1 = compile_expr e in 
@@ -358,7 +358,8 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                                       |Vfunc(id) ->  acc ++movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
                                          
                       ++pushq !%rax
-  |Eval(e1,e2) -> let i = ref (-8) in       
+  |Eval(e1,e2) -> 
+                  let i = ref (-8) in       
                   let e1 = compile_expr e1 in 
                   e1 ++ popq r14 ++ pushq !%rsi ++ pushq !%rdi ++ movq (imm (8*(List.length e2))) !%rdi  ++ call "my_malloc" ++ movq !%rax !%rdi ++ movq !%r14 !%rsi ++ 
                   (List.fold_left (fun acc elem -> i := !i + 8;let accu = compile_expr elem in 

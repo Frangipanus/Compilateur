@@ -5,6 +5,25 @@ main:
 	pushq %rbp
 	movq %rsp, %rbp
 	addq $-8, %rsp
+	pushq %rsi
+	pushq %rdi
+	movq $8, %rdi
+	call my_malloc
+	movq $main, 0(%rax)
+	popq %rdi
+	popq %rsi
+	pushq %rax
+	popq %r14
+	pushq %rsi
+	pushq %rdi
+	movq $0, %rdi
+	call my_malloc
+	movq %rax, %rdi
+	movq %r14, %rsi
+	call *(%rsi)
+	popq %rdi
+	popq %rsi
+	pushq %rax
 	pushq $0
 	popq %rax
 	pushq %rax
