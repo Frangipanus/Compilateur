@@ -351,7 +351,6 @@ and w_funbody env name (fb : funbody) =
         in let return_type = V.create () in
         return_type.typ <- Some(ft.typ);
         let tbody = w_bexpr env fb.body name return_type in
-        printf "%a \n" print_full_type tbody.typ;
         (try unify_full_types tbody.typ ft with 
           | UnificationFailure(_,_) -> raise (TypeError "La fonction renvoie le mauvais type \n")
           | UnificationEffectFailure(_,_) -> raise (TypeError "La fonction a le mauvais effet \n")
@@ -516,7 +515,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
               let tbe = w_bexpr env be fun_name return_type in
               if List.mem (head tbe.typ.typ) [Tunit; Tbool; Tint; Tstring] then
                 { bexpr = Println(tbe); typ = { typ = Tunit; effect = add_effect Console tbe.typ.effect }; loc = bexpr.loc }
-              else (  printf "%a \n" print_full_type tbe.typ ;
+              else (  
               raise (TypeErrorLoc ("Argument du mauvais type pour println \n", bexpr.loc)))
           | _ -> raise   (TypeErrorLoc   ("Mauvais nombre d'arguments pour println \n", bexpr.loc))
           end
@@ -575,7 +574,6 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
           end
 
       | Ident("repeat") ->
-        Printf.printf "here and staying repeat\n";
           begin match args with
           | [be1; be2] ->
               let tbe1 = w_bexpr env be1 fun_name return_type in

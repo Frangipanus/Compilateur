@@ -4,13 +4,14 @@
 main:
 	pushq %rbp
 	movq %rsp, %rbp
-	addq $0, %rsp
+	addq $-8, %rsp
 	pushq $0
 	popq %rax
 	pushq %rax
+finfonc1:
 	popq %rax
+	addq $8, %rsp
 	popq %rbp
-	addq $0, %rsp
 	ret
 	movq $0, %rax
 	ret

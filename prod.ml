@@ -12,6 +12,8 @@ let concat_lst = ref 0
 let default_nb = ref 0 
 let nb_boulces = ref 0
 let lst_func = Hashtbl.create 17
+let division = ref 0
+let fin_fonc = ref 0 
 module V = struct
   type t = string
   let compare v1 v2 = Stdlib.compare v1 v2
@@ -113,11 +115,12 @@ let rec freevars (exp : tbexpr) =
   |EBinop(_, e1,e2) -> VSet.union (freevars e1) (freevars e2)
   |ENot(t) -> freevars t 
   |ETild(t) -> freevars t 
-  |EBlock(lst) -> List.fold_left (fun acc x -> VSet.union acc (freevars2 x) ) (VSet.empty) lst
+  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.union acc1 oui,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
+                                    VSet.diff bon mauvais
   |Int(_) -> VSet.empty
 and freevars2 (t : tstmt) = match  t.stmt with
-| SBexpr(t) -> freevars t 
-| SDecl(id, t)|SVar(id, t) -> VSet.diff (freevars t) (VSet.singleton id)
+| SBexpr(t) -> freevars t , VSet.empty
+| SDecl(id, t)|SVar(id, t) -> (VSet.diff (freevars t) (VSet.singleton id)), VSet.singleton id
 
 and freevars3 (t : tdecl) = 
   freevars4 t.body
@@ -126,7 +129,7 @@ and freevars4 (t:tfunbody) =
 
 
 let rec closure_exp glob (acomp: tdecl list ref)  clot (param:local_env) (env:local_env) (fcpur : int) (e : tbexpr) = 
-  let b, fcpur = (match e.bexpr with 
+let b, fcpur = (match e.bexpr with 
   |ATrue -> ATrue, fcpur
   |AFalse -> AFalse, fcpur
   |Int(n) -> Int(n), fcpur
@@ -154,10 +157,10 @@ let rec closure_exp glob (acomp: tdecl list ref)  clot (param:local_env) (env:lo
                     For(e1,e2,e3), (max f1 (max f2 f3))
   |Repeat(e1, e2) -> (
                     let e1, f1 = closure_exp glob acomp  clot param env fcpur e1 in 
-                     let e2,f2 = closure_exp glob acomp  clot param (Smap.empty) fcpur e2 
+                     let e2,f2 = closure_exp glob acomp  clot param (env) fcpur e2 
                     in Repeat(e1,e2), f2)
   |While(e1,e2) ->(let e1, fm1 =  closure_exp glob acomp  clot param env fcpur e1 in 
-                   let e2, fm2 =  closure_exp glob acomp  clot param (Smap.empty) fcpur e2
+                   let e2, fm2 =  closure_exp glob acomp  clot param (env) fcpur e2
                   in While(e1, e2), max fm1 fm2)
   |EBlock(lst) -> let glob = (Smap.fold (fun key elem acc ->Smap.add key elem acc) (env) glob) in let ls, fmax , _, _= List.fold_left (fun (lst1, fmax, nv, glob) (exp : tstmt) ->let e, fmax, nv, glob =  closure_stmt glob  acomp   clot param nv fmax exp in (lst1@[e], fmax, nv, glob)) ([], fcpur, env, glob) lst in EBlock(ls), fmax
   |ETild(e) -> let acc = closure_exp glob acomp  clot param env fcpur e in  ETild(fst(acc)), snd acc
@@ -187,7 +190,7 @@ let rec closure_exp glob (acomp: tdecl list ref)  clot (param:local_env) (env:lo
                 else( if Smap.mem id glob then ((Vglob(Smap.find id glob))) 
               else(if Smap.mem id param then ((Varg(8*(Smap.find id param))))
                 else( if (Smap.mem id clot) then ((Vclos(8*(Smap.find id clot)))) 
-                else (failwith "Note Yet")))))) var_lst in 
+                else (Printf.printf "%s\n" id;failwith "Note Yet sry")))))) var_lst in 
                 EClos(name, var_lst2), fcpur
              end
   |EReturn(e)->let acc =(closure_exp glob acomp  clot param env fcpur e) in  EReturn(fst acc), snd acc)
@@ -207,7 +210,7 @@ and closure_funbody glob  (acomp: tdecl list ref)   clot param env fcpur (f : tf
   let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
   let s1 = (list_to_smap (VSet.elements free)) in 
   let s2 = list_to_smap par_lst in 
-  let acc = (closure_exp glob acomp  s1 s2 Smap.empty 0 f.body) in
+  let acc = (closure_exp glob acomp  s1 s2 Smap.empty 8 f.body) in
   {formal = f.formal; body = fst acc; typ = f.typ; clot = VSet.elements free }, snd  (acc)
 
   
@@ -216,9 +219,10 @@ and list_to_smap lst : local_env=
    let accu = List.fold_left (fun elem id -> acc := !acc + 1; Smap.add id (!acc-1) elem) (Smap.empty) lst
 in  accu
 and cloture_delc (acomp : tdecl list ref) (d : tdecl) =
+
   Hashtbl.add lst_func d.name d.name;
   let glob = Smap.empty in 
-  let acc = ( closure_funbody glob  acomp   Smap.empty Smap.empty Smap.empty 0 d.body) in
+  let acc = ( closure_funbody glob  acomp   Smap.empty Smap.empty Smap.empty 8 d.body) in
   {name = d.name; body = fst acc; size = snd acc }
 
 and clotur_tfile (f : tdecl list) : pdecl list = 
@@ -239,7 +243,7 @@ and clotur_tfile (f : tdecl list) : pdecl list =
 let rec compile_expr  (e : pbexpr) = match e.bexpr with 
   |Empty -> nop
   |ENot(b) -> compile_expr b ++ popq rax ++ notb !%al ++ andq (imm 1) !%rax ++ pushq !%rax
-  |ETild(b) -> compile_expr b ++ popq rax ++notq !%rax ++ pushq !%rax
+  |ETild(b) -> division := !division + 1; compile_expr b ++ popq rax ++ andq !%rax !%rax ++ jz ("pasnon_"^(string_of_int !division))  ++negq !%rax ++ label ("pasnon_"^(string_of_int !division)) ++ pushq !%rax
   |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem ++ popq rax )  nop lst ++ pushq !%rax
   |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax ++ pushq !%rax)
   |Int(n) -> pushq (imm n) 
@@ -261,8 +265,9 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                           |Add ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (addq !%rax !%rbx ++ pushq !%rbx)
                           |Sub ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (subq !%rax !%rbx ++ pushq !%rbx)
                           |Mul ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (imulq !%rax !%rbx ++ pushq !%rbx)
-                          |Div ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ (idivq (!%rbx))   ++ (pushq !%rax ))
-                          |Mod ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ (idivq (!%rbx))   ++ (pushq !%rdx ))
+                          |Div ->  division := !division + 1;e1 ++ e2 ++ popq rax  ++ popq rbx ++ movq (imm 0) (!%rdx) ++
+                                       (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ cqto ++  andq !%rbx !%rbx ++ jz (("fin_div_nulle"^(string_of_int !division)) ) ++ (idivq (!%rbx)) ++ movq !%rax !%r14 ++ testq !%rdx !%rdx ++ jz  ("findiv_"^(string_of_int !division)) ++ movq (imm 0) !%r15++ cmpq !%rdx !%r15 ++ je  ("findiv_"^(string_of_int !division)) ++ cmpq !%r14 !%r15 ++ jle ("findiv_"^(string_of_int !division))  ++ subq (imm 1) !%r14 ++ movq !%r14 !%rax ++jmp ("findiv_"^(string_of_int !division))++label ("fin_div_nulle"^(string_of_int !division))++movq (imm 0) !%rax++ label ("findiv_"^(string_of_int !division))  ++ (pushq !%rax ))
+                          |Mod -> division := !division + 1; e1 ++ e2 ++ popq rax  ++ popq rbx ++  (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++ andq !%rbx !%rbx ++ jz ("fin_div_nulle"^(string_of_int !division))++ movq !%rax !%r13++ (movq (imm 0) (!%rdx)) ++ cqto++ (idivq (!%rbx))++ movq (imm 0) !%r15 ++ movq !%rdx !%r14++cmpq !%r14 !%r15 ++ jle (("findiv_"^(string_of_int !division))) ++ cmpq !%rbx !%r15 ++ jle ("pasdemois_"^(string_of_int !division))++ negq !%rbx ++ label (("pasdemois_"^(string_of_int !division)))++addq !%rbx !%r14 ++ movq !%r14 !%rdx  ++jmp ("findiv_"^(string_of_int !division))  ++ label ("fin_div_nulle"^(string_of_int !division)) ++ movq !%rax !%rdx  ++ label ("findiv_"^(string_of_int !division))++ (pushq !%rdx ))
                           |And ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (andq !%rbx !%rax ++ pushq !%rax)
                           |Or ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (orq !%rbx !%rax ++ pushq !%rax)
                           |Concat -> (concat_lst := !concat_lst + 1;match head e.typ.typ with 
@@ -302,7 +307,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                     option_if := !option_if + 1;
                     let e3 = compile_expr e3 in 
                     option_if := !option_if + 1;
-                    e1 ++ popq rax ++ andq !%rax !%rax++jz ("option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ jmp ("fin_option_if_"^(string_of_int (!option_if)))++ label ("option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ label ("fin_option_if_"^(string_of_int (!option_if))) ++ pushq (imm 0))
+                    e1 ++ popq rax ++ andq !%rax !%rax++jz ("option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ pushq !%rbx++ jmp ("fin_option_if_"^(string_of_int (!option_if)))++ label ("option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ pushq !%rcx ++ label ("fin_option_if_"^(string_of_int (!option_if))))
   |Head(e) -> compile_expr e ++ popq rax ++ call "head" ++ pushq !%rax 
   |Tail(e) -> compile_expr e ++ popq rax ++ call "tail" ++ pushq !%rax
   |Lists(lst) -> let acc = (List.fold_right (fun elem acc -> acc ++ popq rbx ++ pushq !%rdi ++movq (imm 16) !%rdi ++ call "my_malloc"++popq rdi ++movq !%rbx (ind ~ofs:8 rax ) ++ compile_expr elem ++ popq rcx ++ movq !%rcx (ind ~ofs:(0) rax) ++ pushq !%rax) lst (pushq (imm 0))) in 
@@ -313,7 +318,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                      e1 ++ popq rax ++ andq !%rax !%rax ++ jnz ("default_nb_"^(string_of_int !default_nb))
                      ++ e2  ++ popq rax ++ label ("default_nb_"^(string_of_int !default_nb)) ++ pushq !%rax) 
 
-  |EReturn(e) -> let e = compile_expr e in e ++ popq rax ++ pushq !%rax
+  |EReturn(e) -> let e = compile_expr e in e ++ popq rax ++ pushq !%rax ++ jmp ("finfonc"^(string_of_int !fin_fonc))
   |While(e1,e2) -> failwith "not yet"(*nb_boulces := !nb_boulces + 1;
                     let e1 = compile_expr e1 in 
                     let e2 = compile_expr e2 in 
@@ -343,12 +348,12 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       popq r15 ++ subq (imm 1) !%r15 ++ jmp ("debut_"^(string_of_int (!nb_boulces))) 
                       ++ label ("fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
   |EClos(id, vlst) ->let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
-                     ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
-                                                      |Vlocal(n) |Vglob(n) -> movq (ind ~ofs:(-n) rbp) !%rbx ++ 
+                     ( List.fold_left (fun acc (elem: vars) -> Printf.printf "heey %s\n" id;i:= !i + 1; match elem with 
+                                                      |Vlocal(n) |Vglob(n) -> acc ++ movq (ind ~ofs:(-n) rbp) !%rbx ++ 
                                                                               movq !%rbx (ind ~ofs:(8*(!i)) rax) 
-                                                      |Vclos(n) ->  movq (ind ~ofs:(n) rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
-                                                      |Varg(n) ->   movq (ind ~ofs:(n) rdi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
-                                                      |Vfunc(id) ->  movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
+                                                      |Vclos(n) -> acc ++ movq (ind ~ofs:(n) rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
+                                                      |Varg(n) ->   acc ++ movq (ind ~ofs:(n) rdi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
+                                                      |Vfunc(id) ->  acc ++movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
                                          
                       ++pushq !%rax
   |Eval(e1,e2) -> let i = ref (-8) in       
@@ -378,7 +383,8 @@ and compile_stmt  (s : pstmt) : text = match s.stmt with
   |SVar(pos, e) -> compile_expr e ++ popq rax ++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq !%rax
 
 let compile_delc  (d : pdecl) = 
-  label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size)) !%rsp ++compile_expr  (d.body.body) ++ popq rax ++ popq rbp ++ addq (imm (d.size)) !%rsp ++ ret
+  fin_fonc := !fin_fonc + 1;
+  label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size)) !%rsp ++compile_expr  (d.body.body) ++label ("finfonc"^(string_of_int !fin_fonc))++ popq rax++ addq (imm (d.size)) !%rsp  ++ popq rbp ++ ret
 
 let compile str (f : pfile) = 
   let ofile = str in

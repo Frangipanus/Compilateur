@@ -1,5 +1,18 @@
-fun foo(x: int)
-  repeat(2, fn () { println(x) })
+fun fib(n: int)
+  var x := 0
+  var y := 1
+  repeat(n)
+    val y0 = y
+    y := x+y
+    x := y0
+  x
 
 fun main()
-  for(1, 5, foo)
+  var x := 0
+  var y := 1
+  repeat(5)
+    val y0 = y
+    y := x+y
+    x := y0
+    println(x)
+  x
