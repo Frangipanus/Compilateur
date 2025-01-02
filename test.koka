@@ -1,8 +1,12 @@
+fun fact(n: int) {
+  var n := n
+  var res := 1
+  while {n > 1}
+    res := res * n
+    n := n - 1
+  return res
+}
 
-// noeud de Landin
-
-fun main()
-  var f := fn (x: int) { x }
-  f := (fn (x: int) { if x <= 1 then x else f(x - 2) + f(x - 1) })
-  println(f(10))
-
+fun main() {
+  for(1, 10) fn (n: int) { println(fact(n)) }
+}

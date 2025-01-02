@@ -200,9 +200,9 @@ in
 and closure_stmt glob  acomp   clot param env fcpur (s : tstmt)  = 
   match s.stmt with 
   |SBexpr(t) -> let e1, fcpur = closure_exp glob acomp  clot param env fcpur t in {stmt = SBexpr(e1); loc = s.loc; typ = s.typ}, fcpur, env, glob
-  |SDecl(id, t) ->let e1, fcpur2 = closure_exp glob acomp  clot param (Smap.add id (fcpur) env ) (fcpur + 8 ) t in 
+  |SDecl(id, t) ->let e1, fcpur2 = closure_exp glob acomp  clot param ( env ) (fcpur + 8 ) t in 
                     {stmt = SDecl(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env ), glob
-  |SVar(id, t) -> let e1, fcpur2 = closure_exp glob acomp  clot param (Smap.add id (fcpur) env ) (fcpur + 8 ) t in 
+  |SVar(id, t) -> let e1, fcpur2 = closure_exp glob acomp  clot param ( env ) (fcpur + 8 ) t in 
                     {stmt = SVar(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env ), glob
   
 and closure_funbody glob  (acomp: tdecl list ref)   clot param env fcpur (f : tfunbody) = 
@@ -318,7 +318,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                      ++ e2  ++ popq rax ++ label ("default_nb_"^(string_of_int !default_nb)) ++ pushq !%rax) 
 
   |EReturn(e) -> let e = compile_expr e in e ++ popq rax ++ pushq !%rax ++ jmp ("finfonc"^(string_of_int !fin_fonc))
-  |While(e1,e2) -> failwith "not yet"(*nb_boulces := !nb_boulces + 1;
+  |While(e1,e2) -> nb_boulces := !nb_boulces + 1;
                     let e1 = compile_expr e1 in 
                     let e2 = compile_expr e2 in 
                     label ("debut_boucles_"^(string_of_int !nb_boulces)) ++ 
@@ -333,7 +333,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                     pushq !%rsi ++ 
                     movq !%rax !%rsi ++ 
                     call_star (lab ("(%rsi)")) ++ popq rsi ++ popq rdi
-                     ++ jmp  ("debut_boucles_"^(string_of_int !nb_boulces))++label ("boulces_nb_"^(string_of_int (!nb_boulces))) ++ pushq !%rax *)
+                     ++ jmp  ("debut_boucles_"^(string_of_int !nb_boulces))++label ("boulces_nb_"^(string_of_int (!nb_boulces))) ++ pushq !%rax 
   |Repeat(e1,e2) -> (nb_boulces := !nb_boulces + 1; 
                       let e1 = compile_expr e1 in 
                       let e2 = compile_expr e2 in
