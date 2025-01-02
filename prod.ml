@@ -329,7 +329,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |Evar(v) -> (match  v with
               | Vlocal(n) -> pushq (ind ~ofs:(-n) rbp)
               |Vglob(n) -> pushq (ind ~ofs:(-n) rbp)
-              |Vclos(n) -> movq  (ind ~ofs:(n) rsi) !%rbx ++ movq (ind rbx) !%rax ++ pushq !%rax
+              |Vclos(n) ->  movq  (ind ~ofs:(n) rsi) !%rbx ++ movq (ind ~ofs:(0) rbx) !%rax ++ pushq !%rax
               |Varg(n) -> pushq (ind ~ofs:(n) rdi)
               |Vfunc(id) -> pushq !%rsi ++ pushq !%rdi ++ movq (imm 8) !%rdi ++ call "my_malloc" ++ movq (ilab (id)) (ind ~ofs:(0) rax)  ++ popq rdi ++ popq rsi ++ pushq !%rax
               )
@@ -392,7 +392,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                                                                 subq (imm n) !%rbx ++  
                                                     
                                                                               movq !%rbx (ind ~ofs:(8*(!i)) rax) 
-                                                      |Vclos(n) -> acc ++movq (ind ~ofs:n rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
+                                                      |Vclos(n) -> Printf.printf "here%d\n" n; acc ++movq (ind ~ofs:n rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
                                                       |Varg(n) ->   acc ++movq !%rdi !%rbx ++addq (imm n) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
                                                       |Vfunc(id) ->  acc ++movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
                                          
@@ -483,8 +483,13 @@ let compile str (f : pfile) =
         label "nothing"++
         movq (imm 0) !%rax++ ret ++ 
         label "tail" ++
+        andq !%rax !%rax ++ 
+        jz "dommage" ++ 
         movq (ind ~ofs:8 rax) !%rax ++ 
         ret ++ 
+        label "dommage" ++ 
+        movq (imm 0) !%rax ++
+        ret ++
         label "my_malloc" ++ 
         pushq !%rbp ++ 
         movq !%rsp !%rbp ++

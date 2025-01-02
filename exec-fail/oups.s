@@ -83,7 +83,12 @@ nothing:
 	movq $0, %rax
 	ret
 tail:
+	andq %rax, %rax
+	jz dommage
 	movq 8(%rax), %rax
+	ret
+dommage:
+	movq $0, %rax
 	ret
 my_malloc:
 	pushq %rbp
