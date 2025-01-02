@@ -140,7 +140,7 @@ let b, fcpur = (match e.bexpr with
               else (if Smap.mem id env then (Evar(Vlocal(Smap.find id env)), fcpur)
                   else( if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
                 else(if Smap.mem id param then (Evar(Varg(8*(Smap.find id param))), fcpur)
-                  else( if (Smap.mem id clot) then( (Evar(Vclos(8*(Smap.find id clot + 1))), fcpur) )
+                  else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in (Evar(Vclos(aze)), fcpur) )
                   else (  (failwith "Note Yet Man"))))))
   |Eval(e, lst) -> let e1, f1 = closure_exp glob acomp  clot param env fcpur e in 
                     let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp glob acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
@@ -173,7 +173,7 @@ let b, fcpur = (match e.bexpr with
                     let accu = (if Smap.mem id env then ((Vlocal(Smap.find id env)))
                     else( if Smap.mem id glob then ((Vglob(Smap.find id glob))) 
                   else(if Smap.mem id param then ((Varg(8*(Smap.find id param))))
-                    else( if (Smap.mem id clot) then( ((Vclos(8*(Smap.find id clot + 1)))) )
+                    else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in ((Vclos(aze))) )
                     else ( if Hashtbl.mem lst_func id then ((Vfunc(id))) 
                   else (failwith "Note Yet Man")))))) in 
                            EAsign(accu, fst acc), snd acc
@@ -183,6 +183,7 @@ let b, fcpur = (match e.bexpr with
                        EIf(e1,e2,e3), max (max f1 f2) f3)
   |EFn(t) -> begin 
                 let name = "fun_"^(string_of_int (!nb_anno)) in 
+                Hashtbl.replace lst_func name name;
                 nb_anno := !nb_anno + 1;
                 acomp := (!acomp)@[({name = name; body = t})];
                 let free = freevars4 t in 
@@ -190,7 +191,7 @@ let b, fcpur = (match e.bexpr with
                 let var_lst2 = List.map (fun id -> (if Smap.mem id env then ((Vlocal(Smap.find id env)))
                 else( if Smap.mem id glob then ((Vglob(Smap.find id glob))) 
               else(if Smap.mem id param then ((Varg(8*(Smap.find id param))))
-                else( if (Smap.mem id clot) then ((Vclos(8*(Smap.find id clot)))) 
+                else( if (Smap.mem id clot) then ((Vclos(8*(Smap.find id clot + 1)))) 
                 else (failwith "Note Yet sry")))))) var_lst in 
                 EClos(name, var_lst2), fcpur
              end
@@ -210,6 +211,7 @@ and closure_funbody glob  (acomp: tdecl list ref)   clot param env fcpur (f : tf
   let free= freevars4 f in 
   let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
   let s1 = (list_to_smap (VSet.elements free)) in 
+
   let s2 = list_to_smap par_lst in 
   let acc = (closure_exp glob acomp  s1 s2 Smap.empty 8 f.body) in
   {formal = f.formal; body = fst acc; typ = f.typ; clot = VSet.elements free }, snd  (acc)
@@ -386,13 +388,13 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       popq rdi ++ popq rsi ++ 
                       popq r15 ++ subq (imm 1) !%r15 ++ jmp ("debut_"^(string_of_int (!nb_boulces))) 
                       ++ label ("fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
-  |EClos(id, vlst) ->let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
+  |EClos(id, vlst) -> let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
                      ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
                                                       |Vlocal(n) |Vglob(n) -> acc ++ movq !%rbp !%rbx ++ 
                                                                                 subq (imm n) !%rbx ++  
                                                     
                                                                               movq !%rbx (ind ~ofs:(8*(!i)) rax) 
-                                                      |Vclos(n) -> Printf.printf "here%d\n" n; acc ++movq (ind ~ofs:n rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
+                                                      |Vclos(n) ->  acc ++movq (ind ~ofs:n rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
                                                       |Varg(n) ->   acc ++movq !%rdi !%rbx ++addq (imm n) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
                                                       |Vfunc(id) ->  acc ++movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
                                          
@@ -426,7 +428,7 @@ and compile_stmt  (s : pstmt) : text = match s.stmt with
 
 let compile_delc  (d : pdecl) = 
   fin_fonc := !fin_fonc + 1;
-  label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size)) !%rsp ++compile_expr  (d.body.body) ++label ("finfonc"^(string_of_int !fin_fonc))++ popq rax++ addq (imm (d.size)) !%rsp  ++ popq rbp ++ ret
+  label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size-8)) !%rsp ++compile_expr  (d.body.body) ++label ("finfonc"^(string_of_int !fin_fonc))++ popq rax++ addq (imm (d.size+8)) !%rsp  ++ popq rbp ++ ret
 
 let compile str (f : pfile) = 
   let ofile = str in
@@ -511,9 +513,7 @@ let compile str (f : pfile) =
         ;
       data =
       (label ".Sprint_int" ++ string "%d\n" ++ label ".Sprint_vrai" ++ string "True\n" ++ label ".Sprint_faux" ++ string "False\n" ++ label ".Sprint_string" ++ string "%s\n" ) ++
-           Hashtbl.fold (fun x y elem -> elem ++ label (".string_"^(string_of_int y)) ++ string x) variables_str nop ++ 
-           Hashtbl.fold (fun x y elem -> elem ++ label ("fun_"^x) ++ string x) lst_func nop
-    }
+           Hashtbl.fold (fun x y elem -> elem ++ label (".string_"^(string_of_int y)) ++ string x) variables_str nop }
   in
   let f = open_out ofile in
   let fmt = formatter_of_out_channel f in

@@ -4,7 +4,7 @@
 main:
 	pushq %rbp
 	movq %rsp, %rbp
-	addq $-8, %rsp
+	addq $-16, %rsp
 	pushq %rsi
 	pushq %rdi
 	movq $8, %rdi
@@ -29,7 +29,7 @@ main:
 	pushq %rax
 finfonc1:
 	popq %rax
-	addq $8, %rsp
+	addq $16, %rsp
 	popq %rbp
 	ret
 	movq $0, %rax
@@ -117,5 +117,3 @@ print_string:
 	.string "False\n"
 .Sprint_string:
 	.string "%s\n"
-fun_main:
-	.string "main"
