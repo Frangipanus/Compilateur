@@ -416,7 +416,8 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       e1 ++ e2 ++ e3 ++ popq rdx (*fonc*) ++ popq rbx ++ popq rcx  ++
                       pushq !%rsi ++ pushq !%rdi ++ pushq !%rcx ++ pushq !%rbx ++ pushq !%rdx ++
                       movq (imm 8) !%rdi ++ call "my_malloc" ++movq !%rax !%rdi++ popq rsi ++ popq rbx ++ popq rdx ++ 
-                      movq !%rdx !%r15++ label ("debut_for_"^(string_of_int !nb_boulces)) ++  
+                      movq !%rdx !%r15++ cmpq !%r15 !%rbx ++
+                      jl ("finboucle_"^(string_of_int !nb_boulces))++label ("debut_for_"^(string_of_int !nb_boulces)) ++  
                       movq (!%r15) (ind ~ofs:(0) rdi) ++ pushq !%r15 ++  pushq !%rbx ++ 
                       call_star (lab ("(%rsi)")) ++popq rbx++popq r15 ++
                       addq (imm 1) !%r15 ++ cmpq !%r15 !%rbx ++ jns ("debut_for_"^(string_of_int !nb_boulces))
