@@ -190,7 +190,7 @@ let b, fcpur = (match e.bexpr with
                 else( if Smap.mem id glob then ((Vglob(Smap.find id glob))) 
               else(if Smap.mem id param then ((Varg(8*(Smap.find id param))))
                 else( if (Smap.mem id clot) then ((Vclos(8*(Smap.find id clot)))) 
-                else (Printf.printf "%s\n" id;failwith "Note Yet sry")))))) var_lst in 
+                else (failwith "Note Yet sry")))))) var_lst in 
                 EClos(name, var_lst2), fcpur
              end
   |EReturn(e)->let acc =(closure_exp glob acomp  clot param env fcpur e) in  EReturn(fst acc), snd acc)
@@ -290,13 +290,13 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |Evar(v) -> (match  v with
               | Vlocal(n) -> pushq (ind ~ofs:(-n) rbp)
               |Vglob(n) -> pushq (ind ~ofs:(-n) rbp)
-              |Vclos(n) -> pushq (ind ~ofs:(n) rsi)
+              |Vclos(n) -> movq  (ind ~ofs:(n) rsi) !%rbx ++ movq (ind rbx) !%rax ++ pushq !%rax
               |Varg(n) -> pushq (ind ~ofs:(n) rdi)
               |Vfunc(id) -> pushq !%rsi ++ pushq !%rdi ++ movq (imm 8) !%rdi ++ call "my_malloc" ++ movq (ilab (id)) (ind ~ofs:(0) rax)  ++ popq rdi ++ popq rsi ++ pushq !%rax
               )
   |EAsign(pos, e) -> (match pos with 
                   |Vlocal(n) |Vglob(n) -> (compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(-n) rbp) ++ pushq (imm 0))
-                  |Vclos(n) -> compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(n) rsi) ++ pushq (imm 0)
+                  |Vclos(n) -> compile_expr e ++ popq rax++movq (ind ~ofs:(n) rsi) !%rbx ++movq !%rax (ind rbx) ++ pushq (imm 0)
                   |Varg(n) ->  compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(n) rdi) ++ pushq (imm 0)
                   |_ -> failwith "pas possible")
                   
@@ -348,11 +348,13 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       popq r15 ++ subq (imm 1) !%r15 ++ jmp ("debut_"^(string_of_int (!nb_boulces))) 
                       ++ label ("fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
   |EClos(id, vlst) ->let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
-                     ( List.fold_left (fun acc (elem: vars) -> Printf.printf "heey %s\n" id;i:= !i + 1; match elem with 
-                                                      |Vlocal(n) |Vglob(n) -> acc ++ movq (ind ~ofs:(-n) rbp) !%rbx ++ 
+                     ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
+                                                      |Vlocal(n) |Vglob(n) -> acc ++ movq !%rbp !%rbx ++ 
+                                                                                subq (imm n) !%rbx ++  
+                                                    
                                                                               movq !%rbx (ind ~ofs:(8*(!i)) rax) 
-                                                      |Vclos(n) -> acc ++ movq (ind ~ofs:(n) rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
-                                                      |Varg(n) ->   acc ++ movq (ind ~ofs:(n) rdi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
+                                                      |Vclos(n) -> acc ++movq (ind ~ofs:n rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
+                                                      |Varg(n) ->   acc ++movq !%rdi !%rbx ++addq (imm n) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
                                                       |Vfunc(id) ->  acc ++movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
                                          
                       ++pushq !%rax
