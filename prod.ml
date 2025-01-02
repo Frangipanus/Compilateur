@@ -109,7 +109,7 @@ let rec freevars (exp : tbexpr) =
   |For(e1,e2,e3) |EIf(e1,e2,e3)-> VSet.union (freevars e1) (VSet.union (freevars e2) (freevars e3))
   |Repeat(e1, e2)|While(e1,e2) -> VSet.union (freevars e1) (freevars e2)
   |List(lst) -> List.fold_left (fun acc x -> VSet.union acc (freevars x)) VSet.empty lst
-  |Eval(e1, lst) -> VSet.union (VSet.empty) (List.fold_left (fun acc x -> VSet.union acc (freevars x)) VSet.empty lst)
+  |Eval(e1, lst) -> VSet.union (freevars e1) (List.fold_left (fun acc x -> VSet.union acc (freevars x)) VSet.empty lst)
   |EReturn(t) -> freevars t
   |EAsign(id, t) -> VSet.union (freevars t) (VSet.singleton id)
   |EBinop(_, e1,e2) -> VSet.union (freevars e1) (freevars e2)
@@ -219,7 +219,6 @@ and list_to_smap lst : local_env=
    let accu = List.fold_left (fun elem id -> acc := !acc + 1; Smap.add id (!acc-1) elem) (Smap.empty) lst
 in  accu
 and cloture_delc (acomp : tdecl list ref) (d : tdecl) =
-
   Hashtbl.add lst_func d.name d.name;
   let glob = Smap.empty in 
   let acc = ( closure_funbody glob  acomp   Smap.empty Smap.empty Smap.empty 8 d.body) in
