@@ -66,7 +66,21 @@ ptrue:
 	popq %rbp
 	ret
 head:
+	andq %rax, %rax
+	jz nothing
+	pushq %rsi
+	pushq %rdi
 	movq 0(%rax), %rax
+	pushq %rax
+	movq $8, %rdi
+	call my_malloc
+	popq %rcx
+	movq %rcx, 0(%rax)
+	popq %rdi
+	popq %rsi
+	ret
+nothing:
+	movq $0, %rax
 	ret
 tail:
 	movq 8(%rax), %rax

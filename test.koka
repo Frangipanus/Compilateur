@@ -1,28 +1,36 @@
-fun digit(n: int)
-  if   n==0 then "0"
-  elif n==1 then "1"
-  elif n==2 then "2"
-  elif n==3 then "3"
-  elif n==4 then "4"
-  elif n==5 then "5"
-  elif n==6 then "6"
-  elif n==7 then "7"
-  elif n==8 then "8"
-  else           "9"
 
-fun pos(n: int) {
+fun make_list(n: int, v: int)
+  if n == 0 then [] else [v] ++ make_list(n - 1, v)
+
+fun set(l: list<int>, i: int, v: int)
+  if i == 0 then [v] ++ tail(l)
+  else [default(head(l), 42)] ++ set(tail(l), i - 1, v)
+
+fun get(l: list<int>, i: int)
+  if i == 0 then default(head(l), 42) else get(tail(l), i - 1)
+
+fun print_row(r: list<int>, i: int)
   var s := ""
-  var a := n
-  while {a > 0} { s := digit(a % 10) ++ s; a := a / 10 }
-  return s
-}
+  for (0, i) fn(j: int)
+    if get(r, j) != 0 then
+      s := s ++ "*"
+    else
+      s := s ++ "."
+  println(s)
 
-fun itoa(n: int) {
-  if n == 0 return "0"
-  if n < 0  return "-" ++ pos(~ n)
-  return pos(n)
-}
+fun compute_row(r : list<int>, i: int)
+  var r := set(r, i, 0)
+  var j := i
+  while {j>0}
+    r := set(r, j, (get(r, j) + get(r, j - 1)) % 7)
+    j := j - 1
+  set(r, 0, 1)
 
-fun main() {
-  for(-5, 5) fn (n: int) { println(itoa(n*89)) }
-}
+fun pascal(n: int)
+  var r := make_list(n+1, 0)
+  for (0, n - 1) fn(i: int)
+    r := compute_row(r, i)
+    print_row(r, i)
+
+fun main()
+  pascal(42)

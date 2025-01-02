@@ -349,13 +349,13 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                     e1 ++ popq rax ++ andq !%rax !%rax++jz ("option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ pushq !%rbx++ jmp ("fin_option_if_"^(string_of_int (!option_if)))++ label ("option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ pushq !%rcx ++ label ("fin_option_if_"^(string_of_int (!option_if))))
   |Head(e) -> compile_expr e ++ popq rax ++ call "head" ++ pushq !%rax 
   |Tail(e) -> compile_expr e ++ popq rax ++ call "tail" ++ pushq !%rax
-  |Lists(lst) -> let acc = (List.fold_right (fun elem acc -> acc ++ popq rbx ++ pushq !%rdi ++movq (imm 16) !%rdi ++ call "my_malloc"++popq rdi ++movq !%rbx (ind ~ofs:8 rax ) ++ compile_expr elem ++ popq rcx ++ movq !%rcx (ind ~ofs:(0) rax) ++ pushq !%rax) lst (pushq (imm 0))) in 
+  |Lists(lst) -> let acc = (List.fold_right (fun elem acc -> acc ++ popq rbx ++ pushq !%rbx ++ pushq !%rdi ++pushq !%rsi ++movq (imm 16) !%rdi ++ call "my_malloc"++ popq rsi ++popq rdi ++ popq rbx ++movq !%rbx (ind ~ofs:8 rax ) ++ pushq !%rax ++compile_expr elem ++ popq rcx ++ popq rax ++ movq !%rcx (ind ~ofs:(0) rax) ++ pushq !%rax) lst (pushq (imm 0))) in 
                 acc
   |Default(e1,e2) -> (default_nb := !default_nb + 1;
                      let e1 = compile_expr e1 in 
                      let e2 = compile_expr e2 in 
                      e1 ++ popq rax ++ andq !%rax !%rax ++ jnz ("default_nb_"^(string_of_int !default_nb))
-                     ++ e2  ++ popq rax ++ label ("default_nb_"^(string_of_int !default_nb)) ++ pushq !%rax) 
+                     ++ e2  ++ popq rax ++ jmp ("default_fin"^(string_of_int !default_nb))++ label ("default_nb_"^(string_of_int !default_nb)) ++movq (ind ~ofs:(0) rax) !%rax ++ label ("default_fin"^(string_of_int !default_nb))++ pushq !%rax) 
 
   |EReturn(e) -> let e = compile_expr e in e ++ popq rax ++ pushq !%rax ++ jmp ("finfonc"^(string_of_int !fin_fonc))
   |While(e1,e2) -> nb_boulces := !nb_boulces + 1;
@@ -470,9 +470,19 @@ let compile str (f : pfile) =
         popq rbp++ 
         ret ++ 
         label "head" ++ 
+        andq !%rax !%rax ++ 
+        jz "nothing" ++
+        pushq !%rsi ++ pushq !%rdi ++
         movq (ind ~ofs:0 rax) !%rax ++ 
+        pushq !%rax ++  
+        movq (imm 8) !%rdi ++ 
+        call "my_malloc" ++ 
+        popq rcx ++ movq !%rcx (ind ~ofs:(0) rax) ++ 
+        popq rdi ++ popq rsi ++
         ret ++ 
-        label "tail" ++ 
+        label "nothing"++
+        movq (imm 0) !%rax++ ret ++ 
+        label "tail" ++
         movq (ind ~ofs:8 rax) !%rax ++ 
         ret ++ 
         label "my_malloc" ++ 
