@@ -1,12 +1,9 @@
-fun fact(n: int) {
-  var n := n
-  var res := 1
-  while {n > 1}
-    res := res * n
-    n := n - 1
-  return res
-}
 
-fun main() {
-  for(1, 10) fn (n: int) { println(fact(n)) }
-}
+fun bad(b: bool)
+  println("bad")
+  True
+
+fun main()
+  println(if 1>0 || bad(0 < 1) then "ok" else "oups")
+  println(if 1<0 && bad(0 < 1) then "oups" else "ok")
+

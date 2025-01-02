@@ -14,6 +14,7 @@ let nb_boulces = ref 0
 let lst_func = Hashtbl.create 17
 let division = ref 0
 let fin_fonc = ref 0 
+let lazy_koka = ref 0
 module V = struct
   type t = string
   let compare v1 v2 = Stdlib.compare v1 v2
@@ -267,8 +268,8 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                           |Div ->  division := !division + 1;e1 ++ e2 ++ popq rax  ++ popq rbx ++ movq (imm 0) (!%rdx) ++
                                        (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ cqto ++  andq !%rbx !%rbx ++ jz (("fin_div_nulle"^(string_of_int !division)) ) ++ (idivq (!%rbx)) ++ movq !%rax !%r14 ++ testq !%rdx !%rdx ++ jz  ("findiv_"^(string_of_int !division)) ++ movq (imm 0) !%r15++ cmpq !%rdx !%r15 ++ je  ("findiv_"^(string_of_int !division)) ++ cmpq !%r14 !%r15 ++ jle ("findiv_"^(string_of_int !division))  ++ subq (imm 1) !%r14 ++ movq !%r14 !%rax ++jmp ("findiv_"^(string_of_int !division))++label ("fin_div_nulle"^(string_of_int !division))++movq (imm 0) !%rax++ label ("findiv_"^(string_of_int !division))  ++ (pushq !%rax ))
                           |Mod -> division := !division + 1; e1 ++ e2 ++ popq rax  ++ popq rbx ++  (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++ andq !%rbx !%rbx ++ jz ("fin_div_nulle"^(string_of_int !division))++ movq !%rax !%r13++ (movq (imm 0) (!%rdx)) ++ cqto++ (idivq (!%rbx))++ movq (imm 0) !%r15 ++ movq !%rdx !%r14++cmpq !%r14 !%r15 ++ jle (("findiv_"^(string_of_int !division))) ++ cmpq !%rbx !%r15 ++ jle ("pasdemois_"^(string_of_int !division))++ negq !%rbx ++ label (("pasdemois_"^(string_of_int !division)))++addq !%rbx !%r14 ++ movq !%r14 !%rdx  ++jmp ("findiv_"^(string_of_int !division))  ++ label ("fin_div_nulle"^(string_of_int !division)) ++ movq !%rax !%rdx  ++ label ("findiv_"^(string_of_int !division))++ (pushq !%rdx ))
-                          |And ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (andq !%rbx !%rax ++ pushq !%rax)
-                          |Or ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (orq !%rbx !%rax ++ pushq !%rax)
+                          |And -> lazy_koka := !lazy_koka + 1; e1 ++popq rax ++andq !%rax !%rax  ++ jz ("lazy_faux"^(string_of_int !lazy_koka)) ++movq (imm 0) !%rbx  ++e2 ++ popq rax  ++ popq rbx ++  (andq !%rbx !%rax ++ pushq !%rax)++ jmp ("fin_lazy"^(string_of_int !lazy_koka))  ++ label ("lazy_faux"^(string_of_int !lazy_koka)) ++ pushq (imm 0) ++ label ("fin_lazy"^(string_of_int !lazy_koka)) 
+                          |Or -> lazy_koka := !lazy_koka + 1; e1 ++ popq rax ++ jnz ("lazy_true"^(string_of_int !lazy_koka)) ++ e2 ++ popq rax  ++ popq rbx ++  (orq !%rbx !%rax ++ pushq !%rax) ++jmp  ("fin_lazy"^(string_of_int !lazy_koka)) ++ label (("lazy_true"^(string_of_int !lazy_koka)) ) ++ pushq (imm 1) ++ label ("fin_lazy"^(string_of_int !lazy_koka))
                           |Concat -> (concat_lst := !concat_lst + 1;match head e.typ.typ with 
                                       |Tint -> failwith "impossible"
                                       |Tlist(_)-> 
