@@ -285,7 +285,46 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                         jnz (name) ++
                                         movq !%rbx (ind ~ofs:(8) rcx) ++ 
                                         pushq !%rax
-                                      |Tstring ->   e1  ++e2 ++popq r14 ++ popq r13 ++ pushq !%rdi ++pushq !%rsi ++ movq !%r14 !%rsi ++ movq !%r13 !%rdi ++ call "strcat" ++   popq rsi ++ popq rdi++ pushq !%rax
+                                      |Tstring ->    e2 ++
+                                       e1 ++ 
+                                      movq (imm 0) !%rdx ++
+                                      popq rbx ++
+                                      pushq !%rdi ++ pushq !%rsi ++
+                                      movq !%rbx !%rdi ++
+                                      (* mystrlen *)
+                                      pushq !%rbp ++
+                                      movq !%rsp !%rbp ++
+                                      andq (imm (-16)) !%rsp ++
+                                      call "strlen" ++
+                                      movq !%rbp !%rsp ++
+                                      popq rbp ++
+
+                                  
+                                      movq !%rax !%r12 ++
+                                      popq rsi  ++ popq rdi++
+                                      popq rax (*la j'ai sorti le truc de e2*)++ 
+                                      pushq !%rdi ++ pushq !%rsi ++
+                                      pushq !%rax ++ pushq !%rbx ++ movq !%rax !%rbx ++
+                                  
+                                      movq !%rbx !%rdi ++
+                                      pushq !%rbp ++
+                                      movq !%rsp !%rbp ++
+                                      andq (imm (-16)) !%rsp ++
+                                      call "strlen" ++
+                                      movq !%rbp !%rsp ++
+                                      popq rbp ++
+                                  
+                                      addq !%rax !%r12 ++
+                                      addq (imm 1) !%r12 ++
+                                      movq !%r12 !%rdi ++
+                                      call "my_malloc" ++
+                                      movq !%rax !%rdi ++
+                                      popq rsi ++
+                                      call "strcat" ++
+                                      movq !%rax !%rdi ++
+                                      popq rsi ++
+                                      call "strcat" ++popq rsi ++ popq rdi ++ 
+                                      pushq !%rax
                                      |_ -> failwith "Impossible"))
   |Evar(v) -> (match  v with
               | Vlocal(n) -> pushq (ind ~ofs:(-n) rbp)
