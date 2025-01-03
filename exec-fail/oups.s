@@ -8,7 +8,7 @@ main:
 	pushq %rsi
 	pushq %rdi
 	movq $8, %rdi
-	call my_malloc
+	call .my_malloc
 	movq $main, 0(%rax)
 	popq %rdi
 	popq %rsi
@@ -17,7 +17,7 @@ main:
 	pushq %rsi
 	pushq %rdi
 	movq $0, %rdi
-	call my_malloc
+	call .my_malloc
 	movq %rax, %rdi
 	movq %r14, %rsi
 	call *(%rsi)
@@ -34,7 +34,7 @@ main:
 	ret
 	movq $0, %rax
 	ret
-print_int:
+.print_int:
 	pushq %rbp
 	movq %rsp, %rbp
 	andq $-16, %rsp
@@ -44,7 +44,7 @@ print_int:
 	movq %rbp, %rsp
 	popq %rbp
 	ret
-print_bool:
+.print_bool:
 	andq %rdi, %rdi
 	jnz ptrue
 	pushq %rbp
@@ -73,7 +73,7 @@ head:
 	movq 0(%rax), %rax
 	pushq %rax
 	movq $8, %rdi
-	call my_malloc
+	call .my_malloc
 	popq %rcx
 	movq %rcx, 0(%rax)
 	popq %rdi
@@ -90,7 +90,7 @@ tail:
 dommage:
 	movq $0, %rax
 	ret
-my_malloc:
+.my_malloc:
 	pushq %rbp
 	movq %rsp, %rbp
 	andq $-16, %rsp
@@ -98,7 +98,7 @@ my_malloc:
 	movq %rbp, %rsp
 	popq %rbp
 	ret
-print_string:
+.print_string:
 	pushq %rbp
 	movq %rsp, %rbp
 	andq $-16, %rsp

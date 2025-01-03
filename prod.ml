@@ -250,7 +250,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem ++ popq rax )  nop lst ++ pushq !%rax
   |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax ++ pushq !%rax)
   |Int(n) -> pushq (imm n) 
-  |Println(b) -> (if head b.typ.typ = Tstring then let t =(compile_expr  b) in t ++ popq rax ++ pushq !%rdi ++ pushq !%rsi  ++movq !%rax !%rdi ++ call "print_string" ++ popq rsi ++ popq rdi  else (if head b.typ.typ = Tint then let t =(compile_expr  b) in t ++ popq rax++pushq !%rdi ++ pushq !%rsi  ++ movq !%rax !%rdi ++ call "print_int" ++ popq rsi ++popq rdi else (if head b.typ.typ = Tbool then  let t =(compile_expr  b) in t ++ popq rax ++pushq !%rdi ++ pushq !%rsi  ++ movq !%rax !%rdi ++ call "print_bool" ++ popq rsi ++popq rdi
+  |Println(b) -> (if head b.typ.typ = Tstring then let t =(compile_expr  b) in t ++ popq rax ++ pushq !%rdi ++ pushq !%rsi  ++movq !%rax !%rdi ++ call ".print_string" ++ popq rsi ++ popq rdi  else (if head b.typ.typ = Tint then let t =(compile_expr  b) in t ++ popq rax++pushq !%rdi ++ pushq !%rsi  ++ movq !%rax !%rdi ++ call ".print_int" ++ popq rsi ++popq rdi else (if head b.typ.typ = Tbool then  let t =(compile_expr  b) in t ++ popq rax ++pushq !%rdi ++ pushq !%rsi  ++ movq !%rax !%rdi ++ call ".print_bool" ++ popq rsi ++popq rdi
                   else (let t = (compile_expr b) in t)))) ++ pushq (imm 0)
   |ATrue -> movq (imm 1) !%rax ++ pushq !%rax
   |AFalse -> movq (imm 0) !%rax ++ pushq !%rax
@@ -320,7 +320,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                       addq !%rax !%r12 ++
                                       addq (imm 1) !%r12 ++
                                       movq !%r12 !%rdi ++
-                                      call "my_malloc" ++
+                                      call ".my_malloc" ++
                                       movq !%rax !%rdi ++
                                       popq rsi ++
                                       call "strcat" ++
@@ -334,7 +334,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
               |Vglob(n) -> pushq (ind ~ofs:(-n) rbp)
               |Vclos(n) ->  movq  (ind ~ofs:(n) rsi) !%rbx ++ movq (ind ~ofs:(0) rbx) !%rax ++ pushq !%rax
               |Varg(n) -> pushq (ind ~ofs:(n) rdi)
-              |Vfunc(id) -> pushq !%rsi ++ pushq !%rdi ++ movq (imm 8) !%rdi ++ call "my_malloc" ++ movq (ilab (id)) (ind ~ofs:(0) rax)  ++ popq rdi ++ popq rsi ++ pushq !%rax
+              |Vfunc(id) -> pushq !%rsi ++ pushq !%rdi ++ movq (imm 8) !%rdi ++ call ".my_malloc" ++ movq (ilab (id)) (ind ~ofs:(0) rax)  ++ popq rdi ++ popq rsi ++ pushq !%rax
               )
   |EAsign(pos, e) -> (match pos with 
                   |Vlocal(n) |Vglob(n) -> (compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(-n) rbp) ++ pushq (imm 0))
@@ -352,7 +352,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                     e1 ++ popq rax ++ andq !%rax !%rax++jz (".option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ pushq !%rbx++ jmp (".fin_option_if_"^(string_of_int (!option_if)))++ label (".option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ pushq !%rcx ++ label (".fin_option_if_"^(string_of_int (!option_if))))
   |Head(e) -> compile_expr e ++ popq rax ++ call "head" ++ pushq !%rax 
   |Tail(e) -> compile_expr e ++ popq rax ++ call "tail" ++ pushq !%rax
-  |Lists(lst) -> let acc = (List.fold_right (fun elem acc -> acc ++ popq rbx ++ pushq !%rbx ++ pushq !%rdi ++pushq !%rsi ++movq (imm 16) !%rdi ++ call "my_malloc"++ popq rsi ++popq rdi ++ popq rbx ++movq !%rbx (ind ~ofs:8 rax ) ++ pushq !%rax ++compile_expr elem ++ popq rcx ++ popq rax ++ movq !%rcx (ind ~ofs:(0) rax) ++ pushq !%rax) lst (pushq (imm 0))) in 
+  |Lists(lst) -> let acc = (List.fold_right (fun elem acc -> acc ++ popq rbx ++ pushq !%rbx ++ pushq !%rdi ++pushq !%rsi ++movq (imm 16) !%rdi ++ call ".my_malloc"++ popq rsi ++popq rdi ++ popq rbx ++movq !%rbx (ind ~ofs:8 rax ) ++ pushq !%rax ++compile_expr elem ++ popq rcx ++ popq rax ++ movq !%rcx (ind ~ofs:(0) rax) ++ pushq !%rax) lst (pushq (imm 0))) in 
                 acc
   |Default(e1,e2) -> (default_nb := !default_nb + 1;
                      let e1 = compile_expr e1 in 
@@ -389,7 +389,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       popq rdi ++ popq rsi ++ 
                       popq r15 ++ subq (imm 1) !%r15 ++ jmp (".debut_"^(string_of_int (!nb_boulces))) 
                       ++ label (".fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
-  |EClos(id, vlst) -> let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
+  |EClos(id, vlst) -> let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call ".my_malloc" ++ popq rsi ++ popq rdi++ 
                      ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
                                                       |Vlocal(n) |Vglob(n) -> acc ++ movq !%rbp !%rbx ++ 
                                                                                 subq (imm n) !%rbx ++  
@@ -403,7 +403,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |Eval(e1,e2) -> 
                   let i = ref (-8) in       
                   let e1 = compile_expr e1 in 
-                  e1 ++ popq r14 ++ pushq !%rsi ++ pushq !%rdi ++ movq (imm (8*(List.length e2))) !%rdi  ++ call "my_malloc" ++ movq !%rax !%rdi ++ movq !%r14 !%rsi ++ 
+                  e1 ++ popq r14 ++ pushq !%rsi ++ pushq !%rdi ++ movq (imm (8*(List.length e2))) !%rdi  ++ call ".my_malloc" ++ movq !%rax !%rdi ++ movq !%r14 !%rsi ++ 
                   (List.fold_left (fun acc elem -> i := !i + 8;let accu = compile_expr elem in 
                                                     acc ++ popq r15 (*rdi*) ++popq r14 (*rsi*) ++ pushq !%rsi ++ pushq!% rdi ++ movq !%r14 !%rsi 
                                                     ++ movq !%r15 !%rdi ++accu ++ popq rax
@@ -416,7 +416,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       let e3 = compile_expr e3 in 
                       e1 ++ e2 ++ e3 ++ popq rdx (*fonc*) ++ popq rbx ++ popq rcx  ++
                       pushq !%rsi ++ pushq !%rdi ++ pushq !%rcx ++ pushq !%rbx ++ pushq !%rdx ++
-                      movq (imm 8) !%rdi ++ call "my_malloc" ++movq !%rax !%rdi++ popq rsi ++ popq rbx ++ popq rdx ++ 
+                      movq (imm 8) !%rdi ++ call ".my_malloc" ++movq !%rax !%rdi++ popq rsi ++ popq rbx ++ popq rdx ++ 
                       movq !%rdx !%r15++ cmpq !%r15 !%rbx ++
                       jl (".finboucle_"^(string_of_int !nb_boulces))++label (".debut_for_"^(string_of_int !nb_boulces)) ++  
                       movq (!%r15) (ind ~ofs:(0) rdi) ++ pushq !%r15 ++  pushq !%rbx ++ 
@@ -441,7 +441,7 @@ let compile str (f : pfile) =
         movq !%rsp !%rbp ++ 
         acc  ++ movq (imm 0) !%rax 
         ++ ret ++
-        label "print_int" ++
+        label ".print_int" ++
         pushq !%rbp ++ 
         movq !%rsp !%rbp ++
         andq (imm (-16)) !%rsp ++  
@@ -452,7 +452,7 @@ let compile str (f : pfile) =
         popq rbp++ 
         ret 
         ++ 
-        label "print_bool" ++ 
+        label ".print_bool" ++ 
         andq !%rdi !%rdi ++ 
         jnz "ptrue" ++ 
         pushq !%rbp ++ 
@@ -480,7 +480,7 @@ let compile str (f : pfile) =
         movq (ind ~ofs:0 rax) !%rax ++ 
         pushq !%rax ++  
         movq (imm 8) !%rdi ++ 
-        call "my_malloc" ++ 
+        call ".my_malloc" ++ 
         popq rcx ++ movq !%rcx (ind ~ofs:(0) rax) ++ 
         popq rdi ++ popq rsi ++
         ret ++ 
@@ -494,7 +494,7 @@ let compile str (f : pfile) =
         label "dommage" ++ 
         movq (imm 0) !%rax ++
         ret ++
-        label "my_malloc" ++ 
+        label ".my_malloc" ++ 
         pushq !%rbp ++ 
         movq !%rsp !%rbp ++
         andq (imm (-16)) !%rsp ++  
@@ -502,7 +502,7 @@ let compile str (f : pfile) =
         movq !%rbp !%rsp ++ 
         popq rbp++ 
         ret ++ 
-        label "print_string" ++
+        label ".print_string" ++
         pushq !%rbp ++ 
         movq !%rsp !%rbp ++
         andq (imm (-16)) !%rsp ++  
