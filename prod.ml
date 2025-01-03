@@ -116,8 +116,8 @@ let rec freevars (exp : tbexpr) =
   |EBinop(_, e1,e2) -> VSet.union (freevars e1) (freevars e2)
   |ENot(t) -> freevars t 
   |ETild(t) -> freevars t 
-  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.union acc1 oui,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
-                                    VSet.diff bon mauvais
+  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.diff (VSet.union acc1 oui) non,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
+                                    bon 
   |Int(_) -> VSet.empty
 and freevars2 (t : tstmt) = match  t.stmt with
 | SBexpr(t) -> freevars t , VSet.empty
@@ -182,7 +182,7 @@ let b, fcpur = (match e.bexpr with
                        let e3, f3 =closure_exp glob acomp  clot param env fcpur e3 in 
                        EIf(e1,e2,e3), max (max f1 f2) f3)
   |EFn(t) -> begin 
-                let name = "fun_"^(string_of_int (!nb_anno)) in 
+                let name = ".fun_"^(string_of_int (!nb_anno)) in 
                 Hashtbl.replace lst_func name name;
                 nb_anno := !nb_anno + 1;
                 acomp := (!acomp)@[({name = name; body = t})];
@@ -192,7 +192,8 @@ let b, fcpur = (match e.bexpr with
                 else( if Smap.mem id glob then ((Vglob(Smap.find id glob))) 
               else(if Smap.mem id param then ((Varg(8*(Smap.find id param))))
                 else( if (Smap.mem id clot) then ((Vclos(8*(Smap.find id clot + 1)))) 
-                else (failwith "Note Yet sry")))))) var_lst in 
+                else ( if Hashtbl.mem lst_func id then (Vfunc(id))
+              else (failwith "Note Yet sry"))))))) var_lst in 
                 EClos(name, var_lst2), fcpur
              end
   |EReturn(e)->let acc =(closure_exp glob acomp  clot param env fcpur e) in  EReturn(fst acc), snd acc)
@@ -243,9 +244,9 @@ and clotur_tfile (f : tdecl list) : pdecl list =
 
 
 let rec compile_expr  (e : pbexpr) = match e.bexpr with 
-  |Empty -> nop
+  |Empty -> pushq (imm 0)
   |ENot(b) -> compile_expr b ++ popq rax ++ notb !%al ++ andq (imm 1) !%rax ++ pushq !%rax
-  |ETild(b) -> division := !division + 1; compile_expr b ++ popq rax ++ andq !%rax !%rax ++ jz ("pasnon_"^(string_of_int !division))  ++negq !%rax ++ label ("pasnon_"^(string_of_int !division)) ++ pushq !%rax
+  |ETild(b) -> division := !division + 1; compile_expr b ++ popq rax ++ andq !%rax !%rax ++ jz (".pasnon_"^(string_of_int !division))  ++negq !%rax ++ label (".pasnon_"^(string_of_int !division)) ++ pushq !%rax
   |EBlock(lst) -> List.fold_left (fun acc elem ->  acc ++ compile_stmt  elem ++ popq rax )  nop lst ++ pushq !%rax
   |String(str) -> (Hashtbl.add variables_str str (!nb_str); nb_str := !nb_str + 1; movq (lab ("$.string_"^(string_of_int (Hashtbl.find variables_str str)))) !%rax ++ pushq !%rax)
   |Int(n) -> pushq (imm n) 
@@ -268,10 +269,10 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                           |Sub ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (subq !%rax !%rbx ++ pushq !%rbx)
                           |Mul ->  e1 ++ e2 ++ popq rax  ++ popq rbx ++  (imulq !%rax !%rbx ++ pushq !%rbx)
                           |Div ->  division := !division + 1;e1 ++ e2 ++ popq rax  ++ popq rbx ++ movq (imm 0) (!%rdx) ++
-                                       (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ cqto ++  andq !%rbx !%rbx ++ jz (("fin_div_nulle"^(string_of_int !division)) ) ++ movq !%rax !%r14++ idivq !%rbx ++ movq (imm 0) !%r15 ++ cmpq !%rdx !%r15 ++ jl ("modulo_ok_"^(string_of_int !division)) ++ andq !%rdx !%rdx ++ jz ("findiv_"^(string_of_int !division)) ++movq !%rbx !%r13++ cmpq !%rbx !%r15  ++jl ("pas_de_moins"^(string_of_int !division)) ++negq !%rbx ++label ("pas_de_moins"^(string_of_int !division))++addq !%rbx !%rdx ++movq !%r13 !%rbx++ label (("modulo_ok_"^(string_of_int !division))) ++movq !%r14 !%rax++subq !%rdx !%rax++ movq (imm 0) !%rdx++cqto ++ idivq !%rbx++jmp ("findiv_"^(string_of_int !division))++label ("fin_div_nulle"^(string_of_int !division))++movq (imm 0) !%rax++ label ("findiv_"^(string_of_int !division))  ++ (pushq !%rax ))
-                          |Mod -> division := !division + 1; e1 ++ e2 ++ popq rax  ++ popq rbx ++  (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++ andq !%rbx !%rbx ++ jz ("fin_div_nulle"^(string_of_int !division))++ movq !%rax !%r13++ (movq (imm 0) (!%rdx)) ++ cqto++ (idivq (!%rbx))++ movq (imm 0) !%r15 ++ movq !%rdx !%r14++cmpq !%r14 !%r15 ++ jle (("findiv_"^(string_of_int !division))) ++ cmpq !%rbx !%r15 ++ jle ("pasdemois_"^(string_of_int !division))++ negq !%rbx ++ label (("pasdemois_"^(string_of_int !division)))++addq !%rbx !%r14 ++ movq !%r14 !%rdx  ++jmp ("findiv_"^(string_of_int !division))  ++ label ("fin_div_nulle"^(string_of_int !division)) ++ movq !%rax !%rdx  ++ label ("findiv_"^(string_of_int !division))++ (pushq !%rdx ))
-                          |And -> lazy_koka := !lazy_koka + 1; e1 ++popq rax ++andq !%rax !%rax  ++ jz ("lazy_faux"^(string_of_int !lazy_koka)) ++pushq !%rax ++e2 ++ popq rax  ++ popq rbx ++  (andq !%rbx !%rax ++ pushq !%rax)++ jmp ("fin_lazy"^(string_of_int !lazy_koka))  ++ label ("lazy_faux"^(string_of_int !lazy_koka)) ++ pushq (imm 0) ++ label ("fin_lazy"^(string_of_int !lazy_koka)) 
-                          |Or -> lazy_koka := !lazy_koka + 1; e1 ++ popq rax ++ jnz ("lazy_true"^(string_of_int !lazy_koka)) ++ e2 ++ popq rax  ++ popq rbx ++  (orq !%rbx !%rax ++ pushq !%rax) ++jmp  ("fin_lazy"^(string_of_int !lazy_koka)) ++ label (("lazy_true"^(string_of_int !lazy_koka)) ) ++ pushq (imm 1) ++ label ("fin_lazy"^(string_of_int !lazy_koka))
+                                       (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++(movq (imm 0) (!%rdx)) ++ cqto ++  andq !%rbx !%rbx ++ jz ((".fin_div_nulle"^(string_of_int !division)) ) ++ movq !%rax !%r14++ idivq !%rbx ++ movq (imm 0) !%r15 ++ cmpq !%rdx !%r15 ++ jl (".modulo_ok_"^(string_of_int !division)) ++ andq !%rdx !%rdx ++ jz (".findiv_"^(string_of_int !division)) ++movq !%rbx !%r13++ cmpq !%rbx !%r15  ++jl (".pas_de_moins"^(string_of_int !division)) ++negq !%rbx ++label (".pas_de_moins"^(string_of_int !division))++addq !%rbx !%rdx ++movq !%r13 !%rbx++ label ((".modulo_ok_"^(string_of_int !division))) ++movq !%r14 !%rax++subq !%rdx !%rax++ movq (imm 0) !%rdx++cqto ++ idivq !%rbx++jmp (".findiv_"^(string_of_int !division))++label (".fin_div_nulle"^(string_of_int !division))++movq (imm 0) !%rax++ label (".findiv_"^(string_of_int !division))  ++ (pushq !%rax ))
+                          |Mod -> division := !division + 1; e1 ++ e2 ++ popq rax  ++ popq rbx ++  (movq !%rax !%rcx ++ movq !%rbx !%rax ++ movq !%rcx !%rbx++ andq !%rbx !%rbx ++ jz (".fin_div_nulle"^(string_of_int !division))++ movq !%rax !%r13++ (movq (imm 0) (!%rdx)) ++ cqto++ (idivq (!%rbx))++ movq (imm 0) !%r15 ++ movq !%rdx !%r14++cmpq !%r14 !%r15 ++ jle ((".findiv_"^(string_of_int !division))) ++ cmpq !%rbx !%r15 ++ jle (".pasdemois_"^(string_of_int !division))++ negq !%rbx ++ label ((".pasdemois_"^(string_of_int !division)))++addq !%rbx !%r14 ++ movq !%r14 !%rdx  ++jmp (".findiv_"^(string_of_int !division))  ++ label (".fin_div_nulle"^(string_of_int !division)) ++ movq !%rax !%rdx  ++ label (".findiv_"^(string_of_int !division))++ (pushq !%rdx ))
+                          |And -> lazy_koka := !lazy_koka + 1; e1 ++popq rax ++andq !%rax !%rax  ++ jz (".lazy_faux"^(string_of_int !lazy_koka)) ++pushq !%rax ++e2 ++ popq rax  ++ popq rbx ++  (andq !%rbx !%rax ++ pushq !%rax)++ jmp (".fin_lazy"^(string_of_int !lazy_koka))  ++ label (".lazy_faux"^(string_of_int !lazy_koka)) ++ pushq (imm 0) ++ label (".fin_lazy"^(string_of_int !lazy_koka)) 
+                          |Or -> lazy_koka := !lazy_koka + 1; e1 ++ popq rax ++ jnz (".lazy_true"^(string_of_int !lazy_koka)) ++ e2 ++ popq rax  ++ popq rbx ++  (orq !%rbx !%rax ++ pushq !%rax) ++jmp  (".fin_lazy"^(string_of_int !lazy_koka)) ++ label ((".lazy_true"^(string_of_int !lazy_koka)) ) ++ pushq (imm 1) ++ label (".fin_lazy"^(string_of_int !lazy_koka))
                           |Concat -> (concat_lst := !concat_lst + 1;match head e.typ.typ with 
                                       |Tint -> failwith "impossible"
                                       |Tlist(_)-> 
@@ -348,7 +349,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                     option_if := !option_if + 1;
                     let e3 = compile_expr e3 in 
                     option_if := !option_if + 1;
-                    e1 ++ popq rax ++ andq !%rax !%rax++jz ("option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ pushq !%rbx++ jmp ("fin_option_if_"^(string_of_int (!option_if)))++ label ("option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ pushq !%rcx ++ label ("fin_option_if_"^(string_of_int (!option_if))))
+                    e1 ++ popq rax ++ andq !%rax !%rax++jz (".option_if_"^(string_of_int (!option_if)))++e2 ++ popq rbx ++ pushq !%rbx++ jmp (".fin_option_if_"^(string_of_int (!option_if)))++ label (".option_if_"^(string_of_int (!option_if)))++e3 ++ popq rcx ++ pushq !%rcx ++ label (".fin_option_if_"^(string_of_int (!option_if))))
   |Head(e) -> compile_expr e ++ popq rax ++ call "head" ++ pushq !%rax 
   |Tail(e) -> compile_expr e ++ popq rax ++ call "tail" ++ pushq !%rax
   |Lists(lst) -> let acc = (List.fold_right (fun elem acc -> acc ++ popq rbx ++ pushq !%rbx ++ pushq !%rdi ++pushq !%rsi ++movq (imm 16) !%rdi ++ call "my_malloc"++ popq rsi ++popq rdi ++ popq rbx ++movq !%rbx (ind ~ofs:8 rax ) ++ pushq !%rax ++compile_expr elem ++ popq rcx ++ popq rax ++ movq !%rcx (ind ~ofs:(0) rax) ++ pushq !%rax) lst (pushq (imm 0))) in 
@@ -356,38 +357,38 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
   |Default(e1,e2) -> (default_nb := !default_nb + 1;
                      let e1 = compile_expr e1 in 
                      let e2 = compile_expr e2 in 
-                     e1 ++ popq rax ++ andq !%rax !%rax ++ jnz ("default_nb_"^(string_of_int !default_nb))
-                     ++ e2  ++ popq rax ++ jmp ("default_fin"^(string_of_int !default_nb))++ label ("default_nb_"^(string_of_int !default_nb)) ++movq (ind ~ofs:(0) rax) !%rax ++ label ("default_fin"^(string_of_int !default_nb))++ pushq !%rax) 
+                     e1 ++ popq rax ++ andq !%rax !%rax ++ jnz (".default_nb_"^(string_of_int !default_nb))
+                     ++ e2  ++ popq rax ++ jmp (".default_fin"^(string_of_int !default_nb))++ label (".default_nb_"^(string_of_int !default_nb)) ++movq (ind ~ofs:(0) rax) !%rax ++ label (".default_fin"^(string_of_int !default_nb))++ pushq !%rax) 
 
-  |EReturn(e) -> let e = compile_expr e in e ++ popq rax ++ pushq !%rax ++ jmp ("finfonc"^(string_of_int !fin_fonc))
+  |EReturn(e) -> let e = compile_expr e in e ++ popq rax ++ pushq !%rax ++ jmp (".finfonc"^(string_of_int !fin_fonc))
   |While(e1,e2) -> nb_boulces := !nb_boulces + 1;
                     let e1 = compile_expr e1 in 
                     let e2 = compile_expr e2 in 
-                    label ("debut_boucles_"^(string_of_int !nb_boulces)) ++ 
+                    label (".debut_boucles_"^(string_of_int !nb_boulces)) ++ 
                     e1 ++popq rbx
                     ++ pushq !%rsi 
                     ++ pushq !%rdi ++ 
                     movq !%rbx !%rsi ++ 
                     call_star (lab ("(%rsi)")) ++ 
                     popq rdi ++ popq rsi ++ movq !%rax !%rbx
-                    ++ andq !%rbx !%rbx ++ jz  ("boulces_nb_"^(string_of_int (!nb_boulces))) ++ e2 ++ 
+                    ++ andq !%rbx !%rbx ++ jz  (".boulces_nb_"^(string_of_int (!nb_boulces))) ++ e2 ++ 
                     popq rax ++ pushq !%rdi ++
                     pushq !%rsi ++ 
                     movq !%rax !%rsi ++ 
                     call_star (lab ("(%rsi)")) ++ popq rsi ++ popq rdi
-                     ++ jmp  ("debut_boucles_"^(string_of_int !nb_boulces))++label ("boulces_nb_"^(string_of_int (!nb_boulces))) ++ pushq !%rax 
+                     ++ jmp  (".debut_boucles_"^(string_of_int !nb_boulces))++label (".boulces_nb_"^(string_of_int (!nb_boulces))) ++ pushq !%rax 
   |Repeat(e1,e2) -> (nb_boulces := !nb_boulces + 1; 
                       let e1 = compile_expr e1 in 
                       let e2 = compile_expr e2 in
-                      e1 ++ popq r15 ++ label ("debut_"^(string_of_int (!nb_boulces))) ++ andq !%r15 !%r15 
-                      ++ jz ("fin_"^(string_of_int (!nb_boulces))) ++ pushq !%r15 ++ 
+                      e1 ++ popq r15 ++ label (".debut_"^(string_of_int (!nb_boulces))) ++ andq !%r15 !%r15 
+                      ++ jz (".fin_"^(string_of_int (!nb_boulces))) ++ pushq !%r15 ++ 
                       e2 ++ popq rax ++     
                       pushq !%rsi  ++ pushq !%rdi ++ 
                       movq !%rax !%rsi ++
                       call_star (lab "(%rsi)") ++ 
                       popq rdi ++ popq rsi ++ 
-                      popq r15 ++ subq (imm 1) !%r15 ++ jmp ("debut_"^(string_of_int (!nb_boulces))) 
-                      ++ label ("fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
+                      popq r15 ++ subq (imm 1) !%r15 ++ jmp (".debut_"^(string_of_int (!nb_boulces))) 
+                      ++ label (".fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
   |EClos(id, vlst) -> let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call "my_malloc" ++ popq rsi ++ popq rdi++ 
                      ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
                                                       |Vlocal(n) |Vglob(n) -> acc ++ movq !%rbp !%rbx ++ 
@@ -417,11 +418,11 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       pushq !%rsi ++ pushq !%rdi ++ pushq !%rcx ++ pushq !%rbx ++ pushq !%rdx ++
                       movq (imm 8) !%rdi ++ call "my_malloc" ++movq !%rax !%rdi++ popq rsi ++ popq rbx ++ popq rdx ++ 
                       movq !%rdx !%r15++ cmpq !%r15 !%rbx ++
-                      jl ("finboucle_"^(string_of_int !nb_boulces))++label ("debut_for_"^(string_of_int !nb_boulces)) ++  
+                      jl (".finboucle_"^(string_of_int !nb_boulces))++label (".debut_for_"^(string_of_int !nb_boulces)) ++  
                       movq (!%r15) (ind ~ofs:(0) rdi) ++ pushq !%r15 ++  pushq !%rbx ++ 
                       call_star (lab ("(%rsi)")) ++popq rbx++popq r15 ++
-                      addq (imm 1) !%r15 ++ cmpq !%r15 !%rbx ++ jns ("debut_for_"^(string_of_int !nb_boulces))
-                       ++ label ("finboucle_"^(string_of_int !nb_boulces)) ++ popq rdi ++ popq rsi++ pushq (imm 0) )
+                      addq (imm 1) !%r15 ++ cmpq !%r15 !%rbx ++ jns (".debut_for_"^(string_of_int !nb_boulces))
+                       ++ label (".finboucle_"^(string_of_int !nb_boulces)) ++ popq rdi ++ popq rsi++ pushq (imm 0) )
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
   |SBexpr(e) -> compile_expr  e
   |SDecl(pos, e) -> compile_expr e ++ popq rax ++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq !%rax
@@ -429,7 +430,7 @@ and compile_stmt  (s : pstmt) : text = match s.stmt with
 
 let compile_delc  (d : pdecl) = 
   fin_fonc := !fin_fonc + 1;
-  label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size-8)) !%rsp ++compile_expr  (d.body.body) ++label ("finfonc"^(string_of_int !fin_fonc))++ popq rax++ addq (imm (d.size+8)) !%rsp  ++ popq rbp ++ ret
+  label d.name ++pushq !%rbp ++ movq !%rsp !% rbp++ addq (imm (-d.size-8)) !%rsp ++compile_expr  (d.body.body) ++label (".finfonc"^(string_of_int !fin_fonc))++ popq rax++ addq (imm (d.size+8)) !%rsp  ++ popq rbp ++ ret
 
 let compile str (f : pfile) = 
   let ofile = str in

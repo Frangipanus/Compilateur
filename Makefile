@@ -4,6 +4,10 @@ all: main.exe
 
 main.exe:
 	dune build kokac.exe 
+test:
+	dune build kokac.exe 
+	./test.sh -all ./kokac.exe
+	dune clean
 
 explain:
 	menhir --base /tmp/parser --dump --explain parser.mly

@@ -27,7 +27,7 @@ main:
 	pushq $0
 	popq %rax
 	pushq %rax
-finfonc1:
+.finfonc1:
 	popq %rax
 	addq $16, %rsp
 	popq %rbp
