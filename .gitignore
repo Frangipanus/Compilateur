@@ -9,9 +9,19 @@
 *.cmxa
 *.txt
 *.s
+*.pdf
+*.sh 
+*.s 
+*.koka
+*.s
+*.py
 # ocamlbuild working directory
 _build/
-
+exec/
+execfail/
+syntax/
+tests-02-jan/
+typing/
 # ocamlbuild targets
 *.byte
 *.native
