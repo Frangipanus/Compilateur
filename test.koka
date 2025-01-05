@@ -1,3 +1,3 @@
+fun test(x:int) (fn (y:int) y+x) 
 
-fun main ()
-  println(8)
+fun main() println(test(2)(3))
