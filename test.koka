@@ -1,3 +1,8 @@
 
 fun main ()
-  println(8)
+  var i := 8
+  var x := 4
+  while { x> 0} 
+    val i = 8 + i 
+    x := 0 
+  println(i)

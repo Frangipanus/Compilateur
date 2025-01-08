@@ -116,17 +116,18 @@ let rec freevars (exp : tbexpr) =
   |EBinop(_, e1,e2) -> VSet.union (freevars e1) (freevars e2)
   |ENot(t) -> freevars t 
   |ETild(t) -> freevars t 
-  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.diff (VSet.union acc1 oui) non,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
+  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.union (VSet.diff oui acc2) acc1,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
                                     bon 
   |Int(_) -> VSet.empty
 and freevars2 (t : tstmt) = match  t.stmt with
 | SBexpr(t) -> freevars t , VSet.empty
-| SDecl(id, t)|SVar(id, t) -> (VSet.diff (freevars t) (VSet.singleton id)), VSet.singleton id
+| SDecl(id, t)|SVar(id, t) -> ( (freevars t)), VSet.singleton id
 
 and freevars3 (t : tdecl) = 
   freevars4 t.body
 and freevars4 (t:tfunbody) = 
-  (let acc = freevars t.body in let names = VSet.of_list (List.map (fun (x:tparam) -> x.name) t.formal) in VSet.diff acc names  )
+  (let acc = freevars t.body in let names = VSet.of_list (List.map (fun (x:tparam) -> x.name) t.formal) in 
+  VSet.diff acc names  )
 
 
 let rec closure_exp glob (acomp: tdecl list ref)  clot (param:local_env) (env:local_env) (fcpur : int) (e : tbexpr) = 
