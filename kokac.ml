@@ -34,7 +34,7 @@ let () =
   
   (* On vérifie que le nom du fichier source a bien été indiqué *)
   if !ifile="" then begin eprintf "Aucun fichier à compiler\n@?"; exit 1 end;
-  let ofile = Filename.chop_suffix !ifile ".exp" ^ "s" in 
+  let ofile = Filename.chop_suffix !ifile ".koka" ^ ".s" in 
 
   (* Ce fichier doit avoir l'extension .logo *)
   if not (Filename.check_suffix !ifile ".koka") then begin
