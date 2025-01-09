@@ -34,8 +34,10 @@ let () =
   
   (* On vérifie que le nom du fichier source a bien été indiqué *)
   if !ifile="" then begin eprintf "Aucun fichier à compiler\n@?"; exit 1 end;
-  let ofile = Filename.chop_suffix !ifile ".koka" ^ ".s" in 
 
+  Printf.printf "%s\n" !ifile;
+  let ofile = Filename.chop_suffix !ifile ".koka" ^ ".s" in 
+  Printf.printf "%s\n" ofile;
   (* Ce fichier doit avoir l'extension .logo *)
   if not (Filename.check_suffix !ifile ".koka") then begin
     eprintf "Le fichier d'entrée doit avoir l'extension .koka\n@?";
@@ -54,9 +56,9 @@ let () =
     close_in f;
 
     (* On s'arrête ici si on ne veut faire que le parsing *)
-    if !parse_only then exit 0;
+    if !parse_only then (Printf.printf "Fin de la phase d'analyse syntaxique, réussie avec succès.\n";exit 0);
     let p2 = Algow.w p in 
-    if !type_only then (Printf.printf "here\n";exit 0);
+    if !type_only then (Printf.printf "Fin de la phase de typage, réussie avec succès.\n";exit 0);
 
     let p3 = clotur_tfile p2 in 
 

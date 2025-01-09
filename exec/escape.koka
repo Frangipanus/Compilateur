@@ -1,8 +1,0 @@
-
-fun main() {
-  println("\t");
-  println("\"");
-  println("\\");
-  println("\n");
-}
-

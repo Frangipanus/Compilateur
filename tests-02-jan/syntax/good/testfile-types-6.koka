@@ -1,3 +1,0 @@
-
-fun foo(f: (int,int) -> int) { 1 }
-fun main() { }

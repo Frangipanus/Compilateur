@@ -9,16 +9,32 @@
 *.cmxa
 *.txt
 *.s
+*.pdf
+*.sh 
+*.s 
+*.koka
+*.out
+*.s
+
+a.out
+*.exe
+*.sh
+*.gz
 # ocamlbuild working directory
 _build/
-
+exec/
+exec-fail/
+syntax/
+tests-02-jan/
+typing/
 # ocamlbuild targets
 *.byte
 *.native
-
+*.gitignore
 # oasis generated files
 setup.data
 setup.log
+
 
 # Merlin configuring file for Vim and Emacs
 .merlin

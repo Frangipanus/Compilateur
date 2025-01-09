@@ -103,7 +103,7 @@ and vars =
 let rec freevars (exp : tbexpr) = 
   match  exp.bexpr with
   | ATrue |AFalse |String(_) |Empty -> VSet.empty
-  | Ident(s) -> VSet.singleton s
+  | Ident(s) -> if Hashtbl.mem lst_func s then VSet.empty else VSet.singleton s
   |EFn(t) -> freevars4 t
   | Head(t)|Tail(t)|Println(t) -> freevars t 
   |Default(e1,e2) -> VSet.union (freevars e1) (freevars e2)
@@ -121,7 +121,7 @@ let rec freevars (exp : tbexpr) =
   |Int(_) -> VSet.empty
 and freevars2 (t : tstmt) = match  t.stmt with
 | SBexpr(t) -> freevars t , VSet.empty
-| SDecl(id, t)|SVar(id, t) -> ( (freevars t)), VSet.singleton id
+| SDecl(id, t)|SVar(id, t) ->  (freevars t), VSet.singleton id
 
 and freevars3 (t : tdecl) = 
   freevars4 t.body
@@ -135,14 +135,16 @@ let b, fcpur = (match e.bexpr with
   |ATrue -> ATrue, fcpur
   |AFalse -> AFalse, fcpur
   |Int(n) -> Int(n), fcpur
-  |String(s) -> String(s), fcpur
+  |String(s) -> String(s), fcpur    
   |Empty -> Empty, fcpur
-  |Ident(id) ->  if Hashtbl.mem lst_func id then ((Evar(Vfunc(id)), fcpur) )
-              else (if Smap.mem id env then (Evar(Vlocal(Smap.find id env)), fcpur)
-                  else( if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
+  |Ident(id) ->  if Smap.mem id env then ((Evar(Vlocal(Smap.find id env)), fcpur) )
+              else (
+                   if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
                 else(if Smap.mem id param then (Evar(Varg(8*(Smap.find id param))), fcpur)
                   else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in (Evar(Vclos(aze)), fcpur) )
-                  else (  (failwith "Note Yet Man"))))))
+                  else ( if Hashtbl.mem lst_func id then (Evar(Vfunc(id)), fcpur)
+                  else(failwith ("La variables: "^id^" est inconnue\n") )))))
+
   |Eval(e, lst) -> let e1, f1 = closure_exp glob acomp  clot param env fcpur e in 
                     let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp glob acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
@@ -213,7 +215,7 @@ and closure_funbody glob  (acomp: tdecl list ref)   clot param env fcpur (f : tf
   let free= freevars4 f in 
   let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
   let s1 = (list_to_smap (VSet.elements free)) in 
-
+  
   let s2 = list_to_smap par_lst in 
   let acc = (closure_exp glob acomp  s1 s2 Smap.empty 8 f.body) in
   {formal = f.formal; body = fst acc; typ = f.typ; clot = VSet.elements free }, snd  (acc)
@@ -301,9 +303,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                       andq (imm (-16)) !%rsp ++
                                       call "strlen" ++
                                       movq !%rbp !%rsp ++
-                                      popq rbp ++
-
-                                  
+                                      popq rbp ++                                  
                                       movq !%rax !%r12 ++
                                       popq rsi  ++ popq rdi++
                                       popq rax (*la j'ai sorti le truc de e2*)++ 

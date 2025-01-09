@@ -1,7 +1,0 @@
-
-fun foo() : int
-  println("a")
-  1
-
-fun main()
-  foo()

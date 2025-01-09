@@ -1,8 +1,9 @@
-
-fun main ()
-  var i := 8
-  var x := 4
-  while { x> 0} 
-    val i = 8 + i 
-    x := 0 
-  println(i)
+fun main()
+    var x := 3
+    var i := 8
+    while {i > 0}
+        
+        val i = i + 8
+        val x = 9
+        println(x)
+    println(i)
