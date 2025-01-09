@@ -15,10 +15,14 @@
 *.koka
 *.s
 *.py
+*.out
+*.exe
+*.sh
+*.gz
 # ocamlbuild working directory
 _build/
 exec/
-execfail/
+exec-fail/
 syntax/
 tests-02-jan/
 typing/

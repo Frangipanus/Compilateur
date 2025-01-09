@@ -33,6 +33,7 @@ La première étapes est de calculer les variables libres des fonctions, afin de
 
 ### Compilation des fonctions 
 Toutes les fonctions sont considéré comme des colures à l'execption de: head, tail, default et println qui ont leur place dans l'ast. Les élément de la clorture sont stocké dans le registre rsi (rsi a en fait la position d'un tableau alloué sur le tas), et de même les arguments de la fonction sont stocké dans rdi. Le choix du stockage des arguments était purement arbitraire. 
+
 ### Compilation des variables
 Les variables locales sont stocké sur la pile. On stocke de la même manière les valeurs et les variables. Les objets sont représenté comme le demande l'ennoncé. Les variables libre sont donné par passage par référence. 
 
@@ -64,3 +65,26 @@ et que file.koka est correct pour koka alors cela creer un fhichier file.s
 ## Sur les warning 
 Un des warning vient du fait qu'on utilise pas encore p2 qui est le typed-ast. 
 L'autre viens d'un matching non complet mais c'est voulu et controlé en amont. 
+
+## Sur les tests diaboliques
+Voici quelques tests qui sont difficiles et pourquoi ils le sont pour moi
+```
+fun main()
+    var x := 3
+    var i := 8
+    while {x > 0}
+        val i = i + 8
+        x := 0
+    println(i)
+```
+ici dans val i = i + 8 le i a droite est la variables libre, mais perd sa liberté. On doit renvoyer 8. De meme,
+```
+fun main()
+    var x := 3
+    var i := 8
+    while {i > 0}
+        i := i - 1
+        val i = i + 8
+    println(i)
+```
+doit marcher et renvoyer 0. 

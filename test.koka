@@ -1,18 +1,7 @@
-<<<<<<< HEAD
 fun main()
     var x := 3
     var i := 8
-    while {x > 0}
+    while {i > 0}
+        i := i - 1
         val i = i + 8
-        x := 0
     println(i)
-=======
-
-fun main ()
-  var i := 8
-  var x := 4
-  while { x> 0} 
-    val i = 8 + i 
-    x := 0 
-  println(i)
->>>>>>> 0d4abb5a5b432252c982ef95eaabce0372475697
