@@ -90,5 +90,27 @@ fun main()
 ```
 doit marcher et renvoyer 0. 
 
+Ce test aussi m'a forcer a declarer differement les vars et les vals. 
+```
+fun getnum() 
+    var x := 0 
+    fn () {x := x + 1; x}
+
+fun main() 
+    val f = getnum() 
+    repeat(10)
+        println(f())
+```
+
+```
+fun getnum() 
+    val x = 0 
+    fn () { x}
+
+fun main() 
+    val f = getnum() 
+    repeat(10)
+        println(f())
+    ``` quid de ce test? demander a jcf
 # Remerciement
 Nous remercions Jeanh-Cristophe Filliâtre pour le module x86_64, ainsi que le cours qu'il nous a prodigué nous ayant permis de mener ce projet a bien, ainsi que le chargé de TD Jérome Boillot.
