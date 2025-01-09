@@ -1,3 +1,0 @@
-
-fun main() : <div,console> ()
-  println(main())

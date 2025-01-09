@@ -1,7 +1,0 @@
-
-fun main() {
-  if False return 1;
-  if False return True;
-  2
-}
-

@@ -1,3 +1,0 @@
-
-fun foo(x: int, x: int) {}
-fun main() { }

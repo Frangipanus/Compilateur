@@ -1,4 +1,0 @@
-
-fun main() {
-  println("calculate equality"); 1 == 2
-}

@@ -1,3 +1,0 @@
-
-fun main() { if True then fn () 1 else fn () True }
-

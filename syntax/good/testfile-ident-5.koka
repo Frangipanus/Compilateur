@@ -1,4 +1,0 @@
-
-fun main()
-  val aA-B = 42
-  println(aA-B)

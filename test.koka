@@ -1,3 +1,7 @@
-fun test(x:int) (fn (y:int) y+x) 
-
-fun main() println(test(2)(3))
+fun main()
+    var x := 3
+    var i := 8
+    while {x > 0}
+        val i = i + 8
+        x := 0
+    println(i)

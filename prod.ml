@@ -116,12 +116,12 @@ let rec freevars (exp : tbexpr) =
   |EBinop(_, e1,e2) -> VSet.union (freevars e1) (freevars e2)
   |ENot(t) -> freevars t 
   |ETild(t) -> freevars t 
-  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.diff (VSet.union acc1 oui) non,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
+  |EBlock(lst) -> let bon, mauvais = List.fold_left (fun (acc1,acc2) x -> let oui, non =  (freevars2 x) in (VSet.union (VSet.diff oui acc2) acc1 ,VSet.union acc2 non)) (VSet.empty, VSet.empty) lst in 
                                     bon 
   |Int(_) -> VSet.empty
 and freevars2 (t : tstmt) = match  t.stmt with
 | SBexpr(t) -> freevars t , VSet.empty
-| SDecl(id, t)|SVar(id, t) -> (VSet.diff (freevars t) (VSet.singleton id)), VSet.singleton id
+| SDecl(id, t)|SVar(id, t) ->  (freevars t) , VSet.singleton id
 
 and freevars3 (t : tdecl) = 
   freevars4 t.body
@@ -212,7 +212,7 @@ and closure_funbody glob  (acomp: tdecl list ref)   clot param env fcpur (f : tf
   let free= freevars4 f in 
   let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
   let s1 = (list_to_smap (VSet.elements free)) in 
-
+  VSet.iter (fun elem -> Printf.printf "%s\n" elem) free;
   let s2 = list_to_smap par_lst in 
   let acc = (closure_exp glob acomp  s1 s2 Smap.empty 8 f.body) in
   {formal = f.formal; body = fst acc; typ = f.typ; clot = VSet.elements free }, snd  (acc)
@@ -300,9 +300,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                       andq (imm (-16)) !%rsp ++
                                       call "strlen" ++
                                       movq !%rbp !%rsp ++
-                                      popq rbp ++
-
-                                  
+                                      popq rbp ++                                  
                                       movq !%rax !%r12 ++
                                       popq rsi  ++ popq rdi++
                                       popq rax (*la j'ai sorti le truc de e2*)++ 
