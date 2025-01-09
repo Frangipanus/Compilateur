@@ -504,7 +504,7 @@ and w_bexpr env bexpr fun_name (return_type : var) : tbexpr = match bexpr.bexpr 
         
         let eff = if Some(id) = fun_name then add_effect t.effect Div else t.effect in
         { bexpr = Ident(id); typ = { typ = t.typ; effect = eff }; loc = bexpr.loc } 
-      with Not_found -> raise (TypeErrorLoc ("Variable inconnue ici \n", bexpr.loc))
+      with Not_found -> raise (TypeErrorLoc ("Variable inconnue ici: "^id^" \n", bexpr.loc))
       end
 
   | Eval(f, args) ->
