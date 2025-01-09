@@ -142,7 +142,7 @@ let b, fcpur = (match e.bexpr with
                   else( if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
                 else(if Smap.mem id param then (Evar(Varg(8*(Smap.find id param))), fcpur)
                   else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in (Evar(Vclos(aze)), fcpur) )
-                  else (  (failwith "Note Yet Man"))))))
+                  else (  (failwith ("La variables: "^id^" est inconnue\n") ))))))
   |Eval(e, lst) -> let e1, f1 = closure_exp glob acomp  clot param env fcpur e in 
                     let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp glob acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
@@ -213,7 +213,7 @@ and closure_funbody glob  (acomp: tdecl list ref)   clot param env fcpur (f : tf
   let free= freevars4 f in 
   let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
   let s1 = (list_to_smap (VSet.elements free)) in 
-  VSet.iter (fun elem -> Printf.printf "%s\n" elem) free;
+  
   let s2 = list_to_smap par_lst in 
   let acc = (closure_exp glob acomp  s1 s2 Smap.empty 8 f.body) in
   {formal = f.formal; body = fst acc; typ = f.typ; clot = VSet.elements free }, snd  (acc)
