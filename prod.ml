@@ -103,7 +103,7 @@ and vars =
 let rec freevars (exp : tbexpr) = 
   match  exp.bexpr with
   | ATrue |AFalse |String(_) |Empty -> VSet.empty
-  | Ident(s) -> VSet.singleton s
+  | Ident(s) -> if Hashtbl.mem lst_func s then VSet.empty else VSet.singleton s
   |EFn(t) -> freevars4 t
   | Head(t)|Tail(t)|Println(t) -> freevars t 
   |Default(e1,e2) -> VSet.union (freevars e1) (freevars e2)
@@ -138,11 +138,13 @@ let b, fcpur = (match e.bexpr with
   |String(s) -> String(s), fcpur    
   |Empty -> Empty, fcpur
   |Ident(id) ->  if Smap.mem id env then ((Evar(Vlocal(Smap.find id env)), fcpur) )
-              else (if Hashtbl.mem lst_func id then (Evar(Vfunc(id)), fcpur)
-                  else( if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
+              else (
+                   if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
                 else(if Smap.mem id param then (Evar(Varg(8*(Smap.find id param))), fcpur)
                   else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in (Evar(Vclos(aze)), fcpur) )
-                  else (  (failwith ("La variables: "^id^" est inconnue\n") ))))))
+                  else ( if Hashtbl.mem lst_func id then (Evar(Vfunc(id)), fcpur)
+                  else(failwith ("La variables: "^id^" est inconnue\n") )))))
+
   |Eval(e, lst) -> let e1, f1 = closure_exp glob acomp  clot param env fcpur e in 
                     let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp glob acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
