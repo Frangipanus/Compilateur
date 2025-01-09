@@ -135,10 +135,10 @@ let b, fcpur = (match e.bexpr with
   |ATrue -> ATrue, fcpur
   |AFalse -> AFalse, fcpur
   |Int(n) -> Int(n), fcpur
-  |String(s) -> String(s), fcpur
+  |String(s) -> String(s), fcpur    
   |Empty -> Empty, fcpur
-  |Ident(id) ->  if Hashtbl.mem lst_func id then ((Evar(Vfunc(id)), fcpur) )
-              else (if Smap.mem id env then (Evar(Vlocal(Smap.find id env)), fcpur)
+  |Ident(id) ->  if Smap.mem id env then ((Evar(Vlocal(Smap.find id env)), fcpur) )
+              else (if Hashtbl.mem lst_func id then (Evar(Vfunc(id)), fcpur)
                   else( if Smap.mem id glob then (Evar(Vglob(Smap.find id glob)), fcpur) 
                 else(if Smap.mem id param then (Evar(Varg(8*(Smap.find id param))), fcpur)
                   else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in (Evar(Vclos(aze)), fcpur) )
