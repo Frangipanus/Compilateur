@@ -50,11 +50,6 @@ let () =
   let buf = Lexing.from_channel f in   
 
   try
-    (* Parsing: la fonction  Parser.prog transforme le tampon lexical en un
-       arbre de syntaxe abstraite si aucune erreur (lexicale ou syntaxique)
-       n'est détectée.
-       La fonction Lexer.token est utilisée par Parser.prog pour obtenir
-       le prochain token. *)
     let p = Parser.file Lexer.next_token buf in
     close_in f;
 
