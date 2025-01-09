@@ -1,6 +1,6 @@
 fun getnum() 
-    var x := 0 
-    fn () {x := x + 1; x}
+    val x = 0 
+    fn () { x }
 
 fun main() 
     val f = getnum() 

@@ -6,12 +6,12 @@ open X86_64
 let nb_anno = ref 0
 let nb_str = ref 0
 let option_if = ref 0
-let variables_str = Hashtbl.create 17
+let variables_str = Hashtbl.create 42
 let nb_string = ref 0  
 let concat_lst = ref 0 
 let default_nb = ref 0 
 let nb_boulces = ref 0
-let lst_func = Hashtbl.create 17
+let lst_func = Hashtbl.create 42
 let division = ref 0
 let fin_fonc = ref 0 
 let lazy_koka = ref 0
@@ -91,7 +91,8 @@ and pdecl = {
 (* fichier *)
 and pfile = pdecl list
 and vars = 
-  |Vlocal of int 
+  |Vvar of int
+  |Vval of int  
   |Vclos of int 
   |Varg of int 
   |Vfunc of string
@@ -129,59 +130,60 @@ and freevars4 (t:tfunbody) =
   VSet.diff acc names  )
 
 
-let rec closure_exp   (acomp: tdecl list ref)  clot (param:local_env) (env:local_env) (fcpur : int) (e : tbexpr) = 
+let rec closure_exp is_val   (acomp: tdecl list ref)  clot (param:local_env) (env:local_env) (fcpur : int) (e : tbexpr) = 
 let b, fcpur = (match e.bexpr with 
   |ATrue -> ATrue, fcpur
   |AFalse -> AFalse, fcpur
   |Int(n) -> Int(n), fcpur
   |String(s) -> String(s), fcpur    
   |Empty -> Empty, fcpur
-  |Ident(id) ->  if Smap.mem id env then ((Evar(Vlocal(Smap.find id env)), fcpur) )
+  |Ident(id) ->  if Smap.mem id env then ( if Smap.find id is_val then 
+                                      (Evar(Vval(Smap.find id env)), fcpur) else (Evar(Vvar(Smap.find id env)), fcpur) )
               else (
-                    
                 (if Smap.mem id param then (Evar(Varg(8*(Smap.find id param))), fcpur)
                   else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in (Evar(Vclos(aze)), fcpur) )
                   else ( if Hashtbl.mem lst_func id then (Evar(Vfunc(id)), fcpur)
                   else(failwith ("La variables: "^id^" est inconnue\n") )))))
 
-  |Eval(e, lst) -> let e1, f1 = closure_exp   acomp  clot param env fcpur e in 
-                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp   acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
+  |Eval(e, lst) -> let e1, f1 = closure_exp is_val   acomp  clot param env fcpur e in 
+                    let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp is_val   acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in
                     Eval(e1, ls), max fmax f1
-  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp   acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in Lists(ls), fmax
-  |Println(e) -> let e1, fcpur = closure_exp   acomp  clot param env fcpur e in Println(e1), fcpur
-  |Default(e1, e2) -> let e1, fcmax = closure_exp   acomp  clot param env fcpur e1 in 
-                      let e2, fbax = closure_exp   acomp  clot param env fcpur e2
+  |List(lst) -> let ls, fmax = List.fold_left (fun (lst1, fmax) (exp : tbexpr) ->let e, fmax' =  closure_exp is_val   acomp  clot param env fcpur exp in (lst1@[e], max fmax fmax')) ([], fcpur) lst in Lists(ls), fmax
+  |Println(e) -> let e1, fcpur = closure_exp is_val   acomp  clot param env fcpur e in Println(e1), fcpur
+  |Default(e1, e2) -> let e1, fcmax = closure_exp is_val   acomp  clot param env fcpur e1 in 
+                      let e2, fbax = closure_exp is_val   acomp  clot param env fcpur e2
                       in Default(e1,e2), max fcmax fbax
-  |Head(e) ->let acc =(closure_exp   acomp  clot param env fcpur e) in  Head(fst acc), snd acc
-  |Tail(e) -> Tail(fst (closure_exp   acomp  clot param env fcpur e)), fcpur
-  |For(e1,e2,e3) -> let e1, f1 = closure_exp   acomp  clot param env fcpur e1 in 
-                    let e2, f2 = closure_exp   acomp  clot param env fcpur e2 in 
-                    let e3, f3 = closure_exp   acomp  clot param env fcpur e3 in 
+  |Head(e) ->let acc =(closure_exp is_val   acomp  clot param env fcpur e) in  Head(fst acc), snd acc
+  |Tail(e) -> Tail(fst (closure_exp is_val   acomp  clot param env fcpur e)), fcpur
+  |For(e1,e2,e3) -> let e1, f1 = closure_exp is_val   acomp  clot param env fcpur e1 in 
+                    let e2, f2 = closure_exp is_val   acomp  clot param env fcpur e2 in 
+                    let e3, f3 = closure_exp is_val   acomp  clot param env fcpur e3 in 
                     For(e1,e2,e3), (max f1 (max f2 f3))
   |Repeat(e1, e2) -> (
-                    let e1, f1 = closure_exp   acomp  clot param env fcpur e1 in 
-                     let e2,f2 = closure_exp   acomp  clot param (env) fcpur e2 
+                    let e1, f1 = closure_exp is_val   acomp  clot param env fcpur e1 in 
+                     let e2,f2 = closure_exp is_val   acomp  clot param (env) fcpur e2 
                     in Repeat(e1,e2), f2)
-  |While(e1,e2) ->(let e1, fm1 =  closure_exp   acomp  clot param env fcpur e1 in 
-                   let e2, fm2 =  closure_exp   acomp  clot param (env) fcpur e2
+  |While(e1,e2) ->(let e1, fm1 =  closure_exp is_val   acomp  clot param env fcpur e1 in 
+                   let e2, fm2 =  closure_exp is_val   acomp  clot param (env) fcpur e2
                   in While(e1, e2), max fm1 fm2)
-  |EBlock(lst) ->  let ls, fmax , _= List.fold_left (fun (lst1, fmax, nv) (exp : tstmt) ->let e, fmax, nv =  closure_stmt   acomp   clot param nv fmax exp in (lst1@[e], fmax, nv)) ([], fcpur, env) lst in EBlock(ls), fmax
-  |ETild(e) -> let acc = closure_exp   acomp  clot param env fcpur e in  ETild(fst(acc)), snd acc
-  |ENot(e)->let acc =closure_exp   acomp  clot param env fcpur e in   ENot(fst acc), snd acc
-  |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp   acomp  clot param env fcpur e1 in 
-                       let e2, fm2 =  closure_exp   acomp  clot param env fcpur e2 in 
+  |EBlock(lst) ->  let ls, fmax , _, _= List.fold_left (fun (lst1, fmax, nv, nisv) (exp : tstmt) ->let e, fmax, nv, isv =  closure_stmt nisv   acomp   clot param nv fmax exp in (lst1@[e], fmax, nv, isv)) ([], fcpur, env, is_val) lst in EBlock(ls), fmax
+  |ETild(e) -> let acc = closure_exp is_val   acomp  clot param env fcpur e in  ETild(fst(acc)), snd acc
+  |ENot(e)->let acc =closure_exp is_val   acomp  clot param env fcpur e in   ENot(fst acc), snd acc
+  |EBinop(o, e1, e2)-> let e1, fm1 =  closure_exp is_val   acomp  clot param env fcpur e1 in 
+                       let e2, fm2 =  closure_exp is_val   acomp  clot param env fcpur e2 in 
                        EBinop(o, e1, e2), max fm1 fm2
-  |EAsign(id, e) -> let acc = (closure_exp   acomp  clot param env fcpur e) in 
-                    let accu = (if Smap.mem id env then ((Vlocal(Smap.find id env)))
+  |EAsign(id, e) -> let acc = (closure_exp is_val   acomp  clot param env fcpur e) in 
+                    let accu = (if Smap.mem id env then ( if Smap.find id is_val then 
+                      Vval(Smap.find id env) else Vvar(Smap.find id env) )
                     else( 
                       (if Smap.mem id param then ((Varg(8*(Smap.find id param))))
                     else( if (Smap.mem id clot) then( let aze = 8*(Smap.find id clot + 1) in ((Vclos(aze))) )
                     else ( if Hashtbl.mem lst_func id then ((Vfunc(id))) 
                   else (failwith ("La variables: "^id^"n'est pas définie\n"))))))) in (*N'est cencé jamais arrivé*)
                            EAsign(accu, fst acc), snd acc
-  |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp   acomp  clot param env fcpur e1 in 
-                       let e2, f2 =  closure_exp   acomp  clot param env fcpur e2 in 
-                       let e3, f3 =closure_exp   acomp  clot param env fcpur e3 in 
+  |EIf(e1, e2,e3) -> ( let e1, f1 = closure_exp is_val   acomp  clot param env fcpur e1 in 
+                       let e2, f2 =  closure_exp is_val   acomp  clot param env fcpur e2 in 
+                       let e3, f3 =closure_exp is_val   acomp  clot param env fcpur e3 in 
                        EIf(e1,e2,e3), max (max f1 f2) f3)
   |EFn(t) -> begin 
                 let name = ".fun_"^(string_of_int (!nb_anno)) in 
@@ -190,7 +192,8 @@ let b, fcpur = (match e.bexpr with
                 acomp := (!acomp)@[({name = name; body = t})];
                 let free = freevars4 t in 
                 let var_lst =  (VSet.elements free) in 
-                let var_lst2 = List.map (fun id -> (if Smap.mem id env then ((Vlocal(Smap.find id env)))
+                let var_lst2 = List.map (fun id -> (if Smap.mem id env then (if Smap.find id is_val then 
+                  Vval(Smap.find id env) else Vvar(Smap.find id env) )
                 else( 
                 (if Smap.mem id param then ((Varg(8*(Smap.find id param))))
                 else( if (Smap.mem id clot) then ((Vclos(8*(Smap.find id clot + 1)))) 
@@ -198,25 +201,25 @@ let b, fcpur = (match e.bexpr with
               else (failwith "Note Yet sry"))))))) var_lst in 
                 EClos(name, var_lst2), fcpur
              end
-  |EReturn(e)->let acc =(closure_exp   acomp  clot param env fcpur e) in  EReturn(fst acc), snd acc)
+  |EReturn(e)->let acc =(closure_exp is_val   acomp  clot param env fcpur e) in  EReturn(fst acc), snd acc)
 in 
   {bexpr = b; loc = e.loc; typ = e.typ}, fcpur
 
-and closure_stmt    acomp   clot param env fcpur (s : tstmt)  = 
+and closure_stmt is_val    acomp   clot param env fcpur (s : tstmt)  = 
   match s.stmt with 
-  |SBexpr(t) -> let e1, fcpur = closure_exp   acomp  clot param env fcpur t in {stmt = SBexpr(e1); loc = s.loc; typ = s.typ}, fcpur, env 
-  |SDecl(id, t) ->let e1, fcpur2 = closure_exp  acomp  clot param ( env ) (fcpur + 8 ) t in 
-                    {stmt = SDecl(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env )
-  |SVar(id, t) -> let e1, fcpur2 = closure_exp  acomp  clot param ( env ) (fcpur + 8 ) t in 
-                    {stmt = SVar(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env )
+  |SBexpr(t) -> let e1, fcpur = closure_exp is_val   acomp  clot param env fcpur t in {stmt = SBexpr(e1); loc = s.loc; typ = s.typ}, fcpur, env , is_val
+  |SDecl(id, t) ->let e1, fcpur2 = closure_exp (is_val)  acomp  clot param ( env ) (fcpur + 8 ) t in 
+                    {stmt = SDecl(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env ), (Smap.add id true is_val)
+  |SVar(id, t) -> let e1, fcpur2 = closure_exp is_val  acomp  clot param ( env ) (fcpur + 8 ) t in 
+                    {stmt = SVar(fcpur, e1); loc = s.loc; typ = s.typ}, fcpur2, (Smap.add id (fcpur) env ), (Smap.add id false is_val)
   
 and closure_funbody    (acomp: tdecl list ref)   clot param env fcpur (f : tfunbody) = 
   let free= freevars4 f in 
   let par_lst = List.map (fun (elem: tparam) -> elem.name) f.formal in 
   let s1 = (list_to_smap (VSet.elements free)) in 
-  
+  let is_val = Smap.empty in 
   let s2 = list_to_smap par_lst in 
-  let acc = (closure_exp   acomp  s1 s2 Smap.empty 8 f.body) in
+  let acc = (closure_exp is_val   acomp  s1 s2 Smap.empty 8 f.body) in
   {formal = f.formal; body = fst acc; typ = f.typ; clot = VSet.elements free }, snd  (acc)
 
   
@@ -329,13 +332,15 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                                       pushq !%rax
                                      |_ -> failwith "Impossible"))
   |Evar(v) -> (match  v with
-              | Vlocal(n) -> pushq (ind ~ofs:(-n) rbp)
+              | Vval(n) -> pushq (ind ~ofs:(-n) rbp)
+              |Vvar(n) -> movq (ind ~ofs:(-n) rbp) !%rax ++ pushq (ind ~ofs:(0) rax)
               |Vclos(n) ->  movq  (ind ~ofs:(n) rsi) !%rbx ++ movq (ind ~ofs:(0) rbx) !%rax ++ pushq !%rax
               |Varg(n) -> pushq (ind ~ofs:(n) rdi)
               |Vfunc(id) -> pushq !%rsi ++ pushq !%rdi ++ movq (imm 8) !%rdi ++ call ".my_malloc" ++ movq (ilab (id)) (ind ~ofs:(0) rax)  ++ popq rdi ++ popq rsi ++ pushq !%rax
               )
   |EAsign(pos, e) -> (match pos with 
-                  |Vlocal(n)  -> (compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(-n) rbp) ++ pushq (imm 0))
+                  |Vval(n)  -> (compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(-n) rbp) ++ pushq (imm 0))
+                  |Vvar(n) -> (compile_expr e ++ popq rax++ movq (ind ~ofs:(-n) rbp) !%rbx ++ movq !%rax (ind ~ofs:(0) rbx) ++ pushq (imm 0))
                   |Vclos(n) -> compile_expr e ++ popq rax++movq (ind ~ofs:(n) rsi) !%rbx ++movq !%rax (ind rbx) ++ pushq (imm 0)
                   |Varg(n) ->  compile_expr e ++ popq rax++ movq !%rax (ind ~ofs:(n) rdi) ++ pushq (imm 0)
                   |_ -> failwith "pas possible")
@@ -387,12 +392,14 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
                       popq rdi ++ popq rsi ++ 
                       popq r15 ++ subq (imm 1) !%r15 ++ jmp (".debut_"^(string_of_int (!nb_boulces))) 
                       ++ label (".fin_"^(string_of_int (!nb_boulces))) ++ pushq !%rax )
-  |EClos(id, vlst) -> let i = ref 0 in let j = ref 0 in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call ".my_malloc" ++ popq rsi ++ popq rdi++ 
+  |EClos(id, vlst) -> let i = ref 0  in pushq !%rdi ++pushq !%rsi++  movq (imm (8*(List.length vlst + 1))) !%rdi ++ call ".my_malloc" ++ popq rsi ++ popq rdi++ 
                      ( List.fold_left (fun acc (elem: vars) -> i:= !i + 1; match elem with 
-                                                      |Vlocal(n)  -> acc ++ movq !%rbp !%rbx ++ 
+                                                      |Vval(n)  -> acc ++ movq !%rbp !%rbx ++ 
                                                                                 subq (imm n) !%rbx ++  
                                                     
                                                                               movq !%rbx (ind ~ofs:(8*(!i)) rax) 
+                                                      |Vvar(n) -> acc ++ movq (ind ~ofs:(-n) rbp) !%rbx ++ 
+                                                        movq !%rbx (ind ~ofs:(8*(!i)) rax) 
                                                       |Vclos(n) ->  acc ++movq (ind ~ofs:n rsi) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  
                                                       |Varg(n) ->   acc ++movq !%rdi !%rbx ++addq (imm n) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax) 
                                                       |Vfunc(id) ->  acc ++movq (ilab (id)) !%rbx ++ movq !%rbx (ind ~ofs:(8*(!i)) rax)  ) (nop) vlst) ++ movq (lab ("$"^id)) (ind ~ofs:(0) rax) 
@@ -424,7 +431,7 @@ let rec compile_expr  (e : pbexpr) = match e.bexpr with
 and compile_stmt  (s : pstmt) : text = match s.stmt with 
   |SBexpr(e) -> compile_expr  e
   |SDecl(pos, e) -> compile_expr e ++ popq rax ++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq !%rax
-  |SVar(pos, e) -> compile_expr e ++ popq rax ++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq !%rax
+  |SVar(pos, e) -> compile_expr e ++ pushq !%rdi ++ pushq !%rsi ++ call ".my_malloc"  ++popq rsi ++ popq rdi ++ popq rbx ++ movq !%rbx (ind ~ofs:(0) rax) ++ movq !%rax (ind ~ofs:(-pos) rbp) ++ pushq !%rax
 
 let compile_delc  (d : pdecl) = 
   fin_fonc := !fin_fonc + 1;
