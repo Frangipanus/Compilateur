@@ -15,8 +15,8 @@
 *.koka
 *.out
 *.s
+a.out 
 
-a.out
 *.exe
 *.sh
 *.gz
@@ -30,7 +30,7 @@ typing/
 # ocamlbuild targets
 *.byte
 *.native
-*.gitignore
+
 # oasis generated files
 setup.data
 setup.log
