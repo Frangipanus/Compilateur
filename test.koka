@@ -1,6 +1,6 @@
 fun getnum()
-    val x =42
-    fn () { x}
+    var x := 42
+    fn () { x := x + 1; x}
 fun main()
     val f = getnum()
     repeat(10)
