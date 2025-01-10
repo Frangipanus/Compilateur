@@ -34,7 +34,7 @@ Pour les blocs, il y a eu des problèmes, voir les tests difficiles a la fin. L'
 et ça on le gère en disant que on consturit au fur et a mesure une liste de variables qui n'ont pas le droit d'être libre.  (c'est le sens du bon, mauvais et oui, non)
 
 ### Gerer les val et les var
-Il faut de toute faccon allouer les var pour réussir le test 3 des test dur, celui avec la fonction d'incrémentation. On peut pour réussir vouloir aussi allouer celle qui sont des val, mais par exemple pour mandelbrot vu que on alloue trop de chose on a un segfault.
+Il faut de toute façon allouer les var pour réussir le test 3 des test dur, celui avec la fonction d'incrémentation. On peut pour réussir vouloir aussi allouer celle qui sont des val, mais par exemple pour mandelbrot vu que on alloue trop de chose on a un segfault. La solution choisie est de décider que on va allouer les var, et on va les passer par référence dans les clotures tandis que les autres variables sont passé par valeur. 
 ### Compilation des fonctions 
 Toutes les fonctions sont considéré comme des colures à l'execption de: head, tail, default et println qui ont leur place dans l'ast. Les élément de la clorture sont stocké dans le registre rsi (rsi a en fait la position d'un tableau alloué sur le tas), et de même les arguments de la fonction sont stocké dans rdi. Le choix du stockage des arguments était purement arbitraire. 
 
@@ -107,13 +107,14 @@ fun main()
 
 ```
 fun getnum() 
-    val x = 0 
+    val x = 42
     fn () { x}
 
 fun main() 
     val f = getnum() 
     repeat(10)
         println(f())
-    ``` quid de ce test? demander a jcf
+``` 
+
 # Remerciement
 Nous remercions Jeanh-Cristophe Filliâtre pour le module x86_64, ainsi que le cours qu'il nous a prodigué nous ayant permis de mener ce projet a bien, ainsi que le chargé de TD Jérome Boillot.
