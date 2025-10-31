@@ -5,3 +5,5 @@ fun main()
     val f = getnum()
     repeat(10)
         println(f())
+
+
