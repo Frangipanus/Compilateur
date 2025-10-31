@@ -9,6 +9,7 @@ contenir des choses non correctes pour la grammaire de Koka. Cependant, cela n'a
 respecte la grammaire. Ainsi, certains warning apparaissent disant que le matching n'est pas complet au niveau du typage (tout les cas atteignable)
 sont traité. 
 
+
 ### Indentation
 Pour gerer l'indentation, il y a une une fonction tout en bas qui appele les lexemes, mets leur tokens dans une pile et intercale des token si nécéssaire pour revoyer des tokens un par un au parser. Nous avons bien pensé a faire tous les caractère d'échappement. *
 
